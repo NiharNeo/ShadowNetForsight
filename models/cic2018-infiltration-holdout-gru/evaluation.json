@@ -1,0 +1,134 @@
+{
+  "created_at": "2026-09-08T12:07:34.123675+00:00",
+  "evaluation_split": "chronological_test",
+  "threshold": [
+    0.08630482107400894,
+    0.09627587348222733,
+    0.0982869416475296
+  ],
+  "support": 6752,
+  "horizons": [
+    {
+      "step": 1,
+      "threshold": 0.08630482107400894,
+      "precision": 0.4407484407484408,
+      "recall": 0.13283208020050125,
+      "f1": 0.20414058738565238,
+      "false_positive_rate": 0.0521722265321955,
+      "roc_auc": 0.6016177468496687,
+      "pr_auc": 0.3161344085091873,
+      "brier_score": 0.21547083499937733,
+      "stage_accuracy": 0.746297393364929,
+      "stage_macro_f1": 0.2150110940433521,
+      "confusion_matrix": [
+        [
+          4887,
+          269
+        ],
+        [
+          1384,
+          212
+        ]
+      ],
+      "support": 6752,
+      "positive_support": 1596
+    },
+    {
+      "step": 2,
+      "threshold": 0.09627587348222733,
+      "precision": 0.4434589800443459,
+      "recall": 0.12531328320802004,
+      "f1": 0.19540791402051783,
+      "false_positive_rate": 0.0486811481768813,
+      "roc_auc": 0.600802031747328,
+      "pr_auc": 0.3140141989273392,
+      "brier_score": 0.21457182162620594,
+      "stage_accuracy": 0.745260663507109,
+      "stage_macro_f1": 0.21500598188343872,
+      "confusion_matrix": [
+        [
+          4905,
+          251
+        ],
+        [
+          1396,
+          200
+        ]
+      ],
+      "support": 6752,
+      "positive_support": 1596
+    },
+    {
+      "step": 3,
+      "threshold": 0.0982869416475296,
+      "precision": 0.455,
+      "recall": 0.11403508771929824,
+      "f1": 0.18236472945891782,
+      "false_positive_rate": 0.04228083785880528,
+      "roc_auc": 0.6148015257305405,
+      "pr_auc": 0.32463097756402853,
+      "brier_score": 0.21552965152746031,
+      "stage_accuracy": 0.7465936018957346,
+      "stage_macro_f1": 0.214766530334015,
+      "confusion_matrix": [
+        [
+          4938,
+          218
+        ],
+        [
+          1414,
+          182
+        ]
+      ],
+      "support": 6752,
+      "positive_support": 1596
+    }
+  ],
+  "multi_horizon_degradation": {
+    "f1_change_step1_to_last": -0.02177585792673456,
+    "stage_accuracy_change_step1_to_last": 0.0002962085308056972,
+    "brier_change_step1_to_last": 5.881652808298332e-05
+  },
+  "early_warning": {
+    "threshold": [
+      0.08630482107400894,
+      0.09627587348222733,
+      0.0982869416475296
+    ],
+    "attack_onsets": 2,
+    "onsets_forecast_early": 0,
+    "forecast_before_onset_rate": 0.0,
+    "mean_lead_seconds": null,
+    "median_lead_seconds": null,
+    "max_lead_seconds": null,
+    "note": "Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+  },
+  "future_state_mae_normalized": 0.32531869411468506,
+  "calibration": {
+    "method": "per_horizon_temperature_scaling",
+    "temperature": [
+      1.8479351997375488,
+      1.784726858139038,
+      1.7439868450164795
+    ]
+  },
+  "ood": {
+    "threshold": 0.014435798861086369,
+    "flag_rate": 0.004443127962085308
+  },
+  "static_baseline": {
+    "next_window_f1": 0.08695652173913043,
+    "next_window_false_positive_rate": 0.0062063615205585725,
+    "next_stage_accuracy": 0.7390402843601895
+  },
+  "cross_dataset": {
+    "status": "not_run",
+    "reason": "No cross-dataset processed directory supplied."
+  },
+  "claims_allowed": false,
+  "limitations": [
+    "The fixed CIC test day and CTU-13 are real datasets, but false-positive rates must improve before deployment claims.",
+    "Cross-dataset labels and traffic distributions differ materially.",
+    "Proxy stage labels are not native MITRE progression ground truth."
+  ]
+}

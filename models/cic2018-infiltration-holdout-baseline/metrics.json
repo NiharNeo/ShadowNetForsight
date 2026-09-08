@@ -1,0 +1,369 @@
+{
+  "model": "static_logistic_regression_baseline",
+  "created_at": "2026-09-08T12:06:34.340926+00:00",
+  "seed": 42,
+  "input_contract": "Only the latest state S_t is used to predict t+1.",
+  "dataset_config": {
+    "window_seconds": 5,
+    "sequence_length": 12,
+    "horizon": 3,
+    "train_fraction": 0.7,
+    "validation_fraction": 0.15
+  },
+  "features": [
+    "flow_count",
+    "unique_src_ips",
+    "unique_dst_ips",
+    "unique_dst_ports",
+    "protocol_count",
+    "duration_mean",
+    "fwd_packets_sum",
+    "bwd_packets_sum",
+    "bytes_sum",
+    "iat_mean",
+    "syn_count",
+    "ack_count",
+    "rst_count",
+    "psh_count",
+    "syn_ack_ratio",
+    "unique_host_edges",
+    "max_source_fanout",
+    "max_destination_fanin",
+    "east_west_ratio",
+    "failed_auth_count",
+    "identity_reuse_count",
+    "fin_count",
+    "urg_count",
+    "ttl_mean",
+    "ttl_variance",
+    "tcp_window_mean",
+    "fragment_count",
+    "payload_size_mean",
+    "payload_size_std",
+    "retransmission_count",
+    "sequential_port_ratio"
+  ],
+  "train_support": 15098,
+  "train_class_counts": {
+    "binary": {
+      "0": 11060,
+      "1": 4038
+    },
+    "stage": {
+      "0": 11060,
+      "2": 2256,
+      "3": 1782
+    }
+  },
+  "splits": {
+    "validation": {
+      "binary": {
+        "precision": 0.061946902654867256,
+        "recall": 0.0707070707070707,
+        "f1": 0.0660377358490566,
+        "false_positive_rate": 0.0333019164310399,
+        "roc_auc": 0.5488826372426749,
+        "pr_auc": 0.03807250675740996,
+        "confusion_matrix": [
+          [
+            6154,
+            212
+          ],
+          [
+            184,
+            14
+          ]
+        ],
+        "support": 6564,
+        "positive_support": 198
+      },
+      "next_stage": {
+        "accuracy": 0.9221511273613651,
+        "macro_f1": 0.32904552750877564,
+        "labels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "confusion_matrix": [
+          [
+            6050,
+            0,
+            24,
+            292,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            182,
+            0,
+            3,
+            13,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "support": 6564
+      },
+      "time_range": [
+        "2018-02-22 01:00:55",
+        "2018-02-22 12:59:40"
+      ]
+    },
+    "test": {
+      "binary": {
+        "precision": 0.6981132075471698,
+        "recall": 0.046365914786967416,
+        "f1": 0.08695652173913043,
+        "false_positive_rate": 0.0062063615205585725,
+        "roc_auc": 0.5791080810054616,
+        "pr_auc": 0.3299036168858677,
+        "confusion_matrix": [
+          [
+            5124,
+            32
+          ],
+          [
+            1522,
+            74
+          ]
+        ],
+        "support": 6752,
+        "positive_support": 1596
+      },
+      "next_stage": {
+        "accuracy": 0.7390402843601895,
+        "macro_f1": 0.2153646957272335,
+        "labels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "confusion_matrix": [
+          [
+            4990,
+            0,
+            125,
+            41,
+            0,
+            0
+          ],
+          [
+            1439,
+            0,
+            138,
+            19,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "support": 6752
+      },
+      "time_range": [
+        "2018-02-28 01:00:55",
+        "2018-02-28 12:59:40"
+      ]
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "psh_count",
+      "importance": 13.467050881346708
+    },
+    {
+      "feature": "ack_count",
+      "importance": 6.629567865108476
+    },
+    {
+      "feature": "rst_count",
+      "importance": 6.3456266267149495
+    },
+    {
+      "feature": "bytes_sum",
+      "importance": 5.911843623436608
+    },
+    {
+      "feature": "bwd_packets_sum",
+      "importance": 5.84435001480633
+    },
+    {
+      "feature": "fwd_packets_sum",
+      "importance": 4.583366380565087
+    },
+    {
+      "feature": "urg_count",
+      "importance": 3.794196010364531
+    },
+    {
+      "feature": "flow_count",
+      "importance": 2.504608690573994
+    },
+    {
+      "feature": "unique_dst_ports",
+      "importance": 1.265782514444668
+    },
+    {
+      "feature": "duration_mean",
+      "importance": 0.9448749258516218
+    },
+    {
+      "feature": "syn_ack_ratio",
+      "importance": 0.30375077505489
+    },
+    {
+      "feature": "iat_mean",
+      "importance": 0.28642369155792285
+    },
+    {
+      "feature": "syn_count",
+      "importance": 0.16801148635538612
+    },
+    {
+      "feature": "protocol_count",
+      "importance": 0.13086850410648426
+    },
+    {
+      "feature": "fin_count",
+      "importance": 0.03444259901604274
+    },
+    {
+      "feature": "unique_dst_ips",
+      "importance": 0.0
+    },
+    {
+      "feature": "unique_src_ips",
+      "importance": 0.0
+    },
+    {
+      "feature": "sequential_port_ratio",
+      "importance": 0.0
+    },
+    {
+      "feature": "retransmission_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "max_source_fanout",
+      "importance": 0.0
+    },
+    {
+      "feature": "max_destination_fanin",
+      "importance": 0.0
+    },
+    {
+      "feature": "east_west_ratio",
+      "importance": 0.0
+    },
+    {
+      "feature": "failed_auth_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "identity_reuse_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "ttl_mean",
+      "importance": 0.0
+    },
+    {
+      "feature": "ttl_variance",
+      "importance": 0.0
+    },
+    {
+      "feature": "tcp_window_mean",
+      "importance": 0.0
+    },
+    {
+      "feature": "fragment_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "payload_size_mean",
+      "importance": 0.0
+    },
+    {
+      "feature": "payload_size_std",
+      "importance": 0.0
+    },
+    {
+      "feature": "unique_host_edges",
+      "importance": 0.0
+    }
+  ],
+  "limitations": [
+    "The baseline does not model sequences or perform K-step rollout.",
+    "CIC attack stages are documented proxy labels rather than native MITRE progression ground truth.",
+    "Metrics from generated demo data validate plumbing only and are not research claims."
+  ]
+}

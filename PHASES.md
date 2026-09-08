@@ -42,3 +42,10 @@
 - Real Cowrie integration report: `data/evaluation/cowrie-srds2025-ingestion.json`.
 - Graph candidate evaluation: `data/evaluation/cic2018-graph-with-ctu13.json`.
 - Deployment claims remain restricted. The promoted checkpoint has low fixed-test recall, and both promoted and graph candidates show 100% raw CTU-13 false positives; OOD rejection suppresses those external-network alerts.
+
+## Attack-family holdout research
+
+- `datasets/cic2018_infiltration_holdout.json` excludes the February 28 infiltration family from training and validation.
+- A 31-feature GRU candidate reaches 20.4% F1 and 13.3% recall at +5 seconds on 6,752 untouched infiltration-day sequences, versus 8.7% F1 for the static logistic baseline.
+- The +5 second false-positive rate is 5.2%, slightly above the intended 5% deployment budget, and neither infiltration onset was forecast before onset. The candidate therefore remains research-only.
+- CIC CSV files expose only 20 of the 31 features. TTL, TCP-window, fragmentation, payload, retransmission and sequential-port features become available for raw PCAP inputs and require representative PCAP training before they can improve a trained checkpoint.

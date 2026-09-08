@@ -1,0 +1,20 @@
+{
+  "dataset": "CSE-CIC-IDS2018 infiltration-family holdout",
+  "strategy": "Train on brute-force and DoS/DDoS days, tune on a separate web-attack day, and test only on the untouched infiltration day. No infiltration flows or sequences are used for training or threshold selection.",
+  "partitions": {
+    "train": [
+      {"key": "Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 358223333, "attacks": ["FTP-BruteForce", "SSH-Bruteforce"]},
+      {"key": "Thursday-15-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 375945899, "attacks": ["DoS-GoldenEye", "DoS-Slowloris"]},
+      {"key": "Friday-16-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 333723605, "attacks": ["DoS-SlowHTTPTest", "DoS-Hulk"]},
+      {"key": "Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 328893673, "attacks": ["DDoS-HOIC", "DDoS-LOIC-UDP"]}
+    ],
+    "validation": [
+      {"key": "Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 382636202, "attacks": ["Brute Force -Web", "Brute Force -XSS", "SQL Injection"]}
+    ],
+    "test": [
+      {"key": "Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 209249758, "attacks": ["Infilteration (publisher CSV spelling)"]}
+    ]
+  },
+  "held_out_family": "Infilteration",
+  "warning": "The held-out family is absent from training and validation. Stage labels remain documented proxies rather than native MITRE ground truth."
+}
