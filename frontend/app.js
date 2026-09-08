@@ -95,11 +95,17 @@ function renderState() {
 
 function startReplay() {
   clearInterval(timer);
+  clearInterval(liveTimer);
+  if (liveSocket) liveSocket.close();
+  if (step >= session.stages.length - 1) {
+    step = 0;
+    renderState();
+  }
   $("play").innerHTML = "<span>Ⅱ</span> Replay running";
   timer = setInterval(() => {
     if (step >= session.stages.length - 1) {
       clearInterval(timer);
-      $("play").innerHTML = "<span>↻</span> Replay again";
+      $("play").innerHTML = "<span>↻</span> Replay scripted demo";
       return;
     }
     step += 1;
@@ -112,7 +118,7 @@ function resetReplay() {
   clearInterval(liveTimer);
   if (liveSocket) liveSocket.close();
   step = 0;
-  $("play").innerHTML = "<span>▶</span> Start attack replay";
+  $("play").innerHTML = "<span>▶</span> Run scripted attack demo";
   renderState();
 }
 
@@ -177,6 +183,13 @@ function connectReplay(replayId) {
     $("modelStatus").textContent = "LIVE CONNECTION ERROR";
     $("modelStatus").classList.remove("live-model");
   });
+  liveSocket.addEventListener("close", (event) => {
+    if (event.code === 4401) {
+      sessionStorage.removeItem("shadownetToken");
+      accessToken = "";
+      $("modelStatus").textContent = "LOGIN EXPIRED · UPLOAD THE PCAP AGAIN";
+    }
+  });
 }
 
 function applyLiveForecast(forecast, contributions = [], method = "integrated_gradients", uncertainty = null, temporal = []) {
@@ -227,6 +240,7 @@ $("uploadPcap").addEventListener("click", () => $("pcapFile").click());
 $("pcapFile").addEventListener("change", (event) => {
   const [file] = event.target.files;
   if (file) uploadPcap(file).catch((error) => { $("modelStatus").textContent = error.message.toUpperCase(); });
+  event.target.value = "";
 });
 $("actions").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-action]");
