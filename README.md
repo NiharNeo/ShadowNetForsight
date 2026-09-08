@@ -68,6 +68,12 @@ For a labelled target network, fit a validation-only local probability/threshold
 
 Pass `calibration_domain` when creating a telemetry stream. Unknown domains are rejected rather than silently using an unrelated local profile.
 
+### Guided PCAP calibration
+
+The dashboard can fit a named local profile from labelled validation captures. Supply at least one known-benign PCAP and one controlled-attack PCAP from the same network. Each file must contain at least 75 seconds of usable traffic, and the combined groups must provide at least five sequences each. The workflow fits per-horizon temperatures, thresholds under the validation false-positive-rate budget, and local OOD boundaries.
+
+Keep the PCAP used for final evaluation completely separate. After fitting, select the profile under **Profile for live PCAP** and upload that untouched test capture. A local profile improves calibration for its named network; it does not retrain the temporal model or prove generalization.
+
 ## Live telemetry
 
 Create a stream with `POST /api/telemetry/streams`, then send Cowrie JSON or decoded NetFlow v5/v9/IPFIX records to `POST /api/telemetry/streams/{id}/events`. Connect a Kafka JSON topic with `POST /api/telemetry/streams/{id}/kafka`; the background consumer uses bounded polling and feeds the same event-time path. Event-time windows use configurable lateness and feed the same calibrated forecast path as PCAP replay. Responses include host-peer fanout, east-west traffic, authentication failures, and reused-identity context.

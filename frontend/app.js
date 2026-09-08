@@ -56,12 +56,55 @@ async function boot() {
   [session] = await Promise.all([
     fetch("/api/session").then((response) => response.json()),
     loadEvidence(),
+    loadCalibrationProfiles(),
   ]);
   $("source").textContent = session.source;
   renderForecast();
   renderPath();
   renderTimeline();
   renderState();
+}
+
+async function loadCalibrationProfiles(preferred = "") {
+  const profiles = await fetch("/api/calibration/profiles").then((response) => response.json());
+  const select = $("calibrationProfile");
+  const current = preferred || select.value;
+  select.innerHTML = '<option value="">Global model (no local profile)</option>' + profiles.map((profile) => `<option value="${profile.domain}">${profile.domain} · ${profile.sample_count} sequences${profile.validation_macro_f1 == null ? "" : ` · ${(profile.validation_macro_f1 * 100).toFixed(1)}% validation F1`}</option>`).join("");
+  if ([...select.options].some((option) => option.value === current)) select.value = current;
+  renderCalibrationSelection();
+}
+
+function renderCalibrationSelection() {
+  const domain = $("calibrationProfile").value;
+  $("calibrationStatus").textContent = domain ? `Local profile “${domain}” will calibrate probabilities, thresholds and OOD boundaries for the next PCAP upload.` : "No local profile selected. Unknown networks remain protected by global OOD rejection.";
+}
+
+async function fitCalibration() {
+  const button = $("fitCalibration");
+  const domain = $("calibrationName").value.trim().toLowerCase();
+  const benign = [...$("benignPcaps").files];
+  const attack = [...$("attackPcaps").files];
+  if (!domain || !benign.length || !attack.length) throw new Error("Enter a profile name and select both benign and attack PCAPs");
+  const body = new FormData();
+  body.append("domain", domain);
+  benign.forEach((file) => body.append("benign_files", file));
+  attack.forEach((file) => body.append("attack_files", file));
+  button.disabled = true;
+  button.textContent = "Fitting validation profile…";
+  $("calibrationStatus").textContent = "Reading labelled captures and fitting local probability, threshold and OOD parameters.";
+  try {
+    const response = await authenticatedFetch("/api/calibration/profiles", {method: "POST", body});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || "Calibration failed");
+    await loadCalibrationProfiles(result.domain);
+    $("calibrationStatus").textContent = `Profile “${result.domain}” ready: ${result.sample_count} sequences, ${(result.validation_macro_f1 * 100).toFixed(1)}% validation F1. Test it with a separate untouched PCAP.`;
+    $("calibrationName").value = "";
+    $("benignPcaps").value = "";
+    $("attackPcaps").value = "";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Fit calibration profile";
+  }
 }
 
 async function loadEvidence() {
@@ -152,10 +195,13 @@ async function uploadPcap(file) {
   setSituationBrief("LEARNING", "The model is reading the capture.", "It is collecting the traffic history needed to make a sequence-based forecast.", "A prediction made before enough history is available would be unreliable.", "Wait for the capture to reach 12 usable five-second windows.", "unknown");
   const body = new FormData();
   body.append("file", file);
-  const response = await authenticatedFetch("/api/replays?window_seconds=5", {method: "POST", body});
+  const domain = $("calibrationProfile").value;
+  const query = new URLSearchParams({window_seconds: "5"});
+  if (domain) query.set("calibration_domain", domain);
+  const response = await authenticatedFetch(`/api/replays?${query}`, {method: "POST", body});
   if (!response.ok) throw new Error((await response.json()).detail || "Upload failed");
   const replay = await response.json();
-  $("source").textContent = `${replay.filename} · ${(replay.size_bytes / 1024).toFixed(1)} KB`;
+  $("source").textContent = `${replay.filename} · ${(replay.size_bytes / 1024).toFixed(1)} KB · profile: ${replay.calibration_domain}`;
   connectReplay(replay.replay_id);
 }
 
@@ -273,6 +319,8 @@ $("pcapFile").addEventListener("change", (event) => {
   });
   event.target.value = "";
 });
+$("calibrationProfile").addEventListener("change", renderCalibrationSelection);
+$("fitCalibration").addEventListener("click", () => fitCalibration().catch((error) => { $("calibrationStatus").textContent = error.message; }));
 $("actions").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-action]");
   if (!button) return;

@@ -69,6 +69,21 @@
         <p class="brief-disclaimer">Decision support only. An analyst should verify the evidence before taking action.</p>
       </section>
 
+      <section class="calibration-panel">
+        <div class="panel-head"><div><span class="kicker">LOCAL NETWORK ADAPTATION</span><h2>Calibrate this network</h2></div><span class="badge accent">VALIDATION FILES ONLY</span></div>
+        <p class="calibration-intro">Create a profile from labelled captures from one network. Keep the PCAP used for final testing separate.</p>
+        <div class="calibration-grid">
+          <label>PROFILE NAME<input id="calibrationName" type="text" maxlength="40" placeholder="college-lab" pattern="[a-z0-9][a-z0-9-]{1,39}" /></label>
+          <label>KNOWN BENIGN PCAPS<input id="benignPcaps" type="file" accept=".pcap,.pcapng" multiple /></label>
+          <label>CONTROLLED ATTACK PCAPS<input id="attackPcaps" type="file" accept=".pcap,.pcapng" multiple /></label>
+          <button id="fitCalibration" class="primary">Fit calibration profile</button>
+        </div>
+        <div class="profile-row">
+          <label>PROFILE FOR LIVE PCAP<select id="calibrationProfile"><option value="">Global model (no local profile)</option></select></label>
+          <p id="calibrationStatus">No local profile selected. Unknown networks remain protected by global OOD rejection.</p>
+        </div>
+      </section>
+
       <section class="grid">
         <article class="panel forecast-panel">
           <div class="panel-head"><div><span class="kicker">01 / TEMPORAL WORLD MODEL</span><h2>Forecast horizon</h2></div><span class="badge">5 SEC WINDOWS</span></div>
@@ -124,6 +139,6 @@
     </main>
 
     <footer><span>SHADOWNET FORESIGHT · PREDICTION, NOT PROMISE</span><span>DATASET: CSE-CIC-IDS2018 · 5 TRAIN DAYS · FIXED VALIDATION + TEST</span></footer>
-    <script src="/assets/app.js?v=20260908-3"></script>
+    <script src="/assets/app.js?v=20260908-4"></script>
   </body>
 </html>

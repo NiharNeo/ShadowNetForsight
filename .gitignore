@@ -6,3 +6,4 @@ data/
 .DS_Store
 .pptx-template-*/
 *.inspect.ndjson
+models/*/domain_calibrations/*.json

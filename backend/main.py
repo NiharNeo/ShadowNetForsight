@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+import re
+import tempfile
 from typing import Any, Literal, Optional
 
-from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -14,6 +16,7 @@ from backend.inference_service import LSTMInferenceService
 from backend.telemetry_service import TelemetryRegistry
 from backend.security import ROLE_LEVEL, Principal, SecurityManager
 from pipeline.mitigation_simulator import simulate_mitigation
+from pipeline.pcap_calibration import fit_pcap_domain_calibration
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -195,6 +198,58 @@ def evidence() -> dict:
     return json.loads(summary_path.read_text(encoding="utf-8"))
 
 
+@app.get("/api/calibration/profiles")
+def calibration_profiles() -> list[dict]:
+    return [{
+        "domain": domain,
+        "sample_count": profile.get("sample_count", 0),
+        "validation_macro_f1": profile.get("validation_macro_f1"),
+        "source_type": profile.get("source_type", "processed_validation_partition"),
+        "warning": profile.get("warning"),
+    } for domain, profile in sorted(inference_service.domain_calibrations.items())]
+
+
+@app.post("/api/calibration/profiles")
+async def create_calibration_profile(
+    request: Request,
+    domain: str = Form(...),
+    benign_files: list[UploadFile] = File(...),
+    attack_files: list[UploadFile] = File(...),
+) -> dict:
+    _principal(request, "operator")
+    domain = domain.strip().lower()
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,39}", domain):
+        raise HTTPException(status_code=422, detail="Profile name must be 2-40 lowercase letters, numbers or hyphens")
+    if domain in inference_service.domain_calibrations:
+        raise HTTPException(status_code=409, detail="A calibration profile with this name already exists")
+    if not benign_files or not attack_files:
+        raise HTTPException(status_code=422, detail="Provide at least one benign and one attack PCAP")
+    with tempfile.TemporaryDirectory(prefix="calibration-", dir=ROOT / "data") as directory:
+        temp_root = Path(directory)
+        saved: dict[str, list[Path]] = {"benign": [], "attack": []}
+        total_size = 0
+        for label, uploads in (("benign", benign_files), ("attack", attack_files)):
+            for index, upload in enumerate(uploads):
+                suffix = Path(upload.filename or "capture.pcap").suffix.lower()
+                if suffix not in {".pcap", ".pcapng"}:
+                    raise HTTPException(status_code=415, detail="Calibration accepts only .pcap and .pcapng files")
+                path = temp_root / f"{label}-{index}{suffix}"
+                with path.open("wb") as stream:
+                    while chunk := await upload.read(1024 * 1024):
+                        total_size += len(chunk)
+                        if total_size > MAX_PCAP_BYTES:
+                            raise HTTPException(status_code=413, detail="Calibration uploads exceed the 250 MB prototype limit")
+                        stream.write(chunk)
+                saved[label].append(path)
+        try:
+            output = inference_service.checkpoint_path.parent / "domain_calibrations" / f"{domain}.json"
+            profile = fit_pcap_domain_calibration(inference_service.checkpoint_path, saved["benign"], saved["attack"], domain, output)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+    inference_service.domain_calibrations[domain] = profile
+    return profile
+
+
 @app.post("/api/auth/login")
 def login(request: LoginRequest) -> dict:
     token = security.authenticate(request.username, request.password)
@@ -308,8 +363,11 @@ async def create_replay(
     request: Request,
     file: UploadFile = File(...),
     window_seconds: int = Query(5, ge=1, le=60),
+    calibration_domain: Optional[str] = Query(None),
 ) -> dict:
     _principal(request, "operator")
+    if calibration_domain and calibration_domain not in inference_service.domain_calibrations:
+        raise HTTPException(status_code=422, detail=f"Unknown calibration domain: {calibration_domain}")
     suffix = Path(file.filename or "capture.pcap").suffix.lower()
     if suffix not in {".pcap", ".pcapng"}:
         raise HTTPException(status_code=415, detail="Only .pcap and .pcapng files are accepted.")
@@ -322,11 +380,12 @@ async def create_replay(
                 if size > MAX_PCAP_BYTES:
                     raise HTTPException(status_code=413, detail="PCAP exceeds the 250 MB prototype limit.")
                 stream.write(chunk)
-        replay_id, handle = replays.create(destination, file.filename or destination.name, window_seconds)
+        replay_id, handle = replays.create(destination, file.filename or destination.name, window_seconds, calibration_domain)
     except Exception:
         destination.unlink(missing_ok=True)
         raise
-    return {"replay_id": replay_id, "filename": handle.original_name, "size_bytes": size, **handle.replay.status()}
+    return {"replay_id": replay_id, "filename": handle.original_name, "size_bytes": size,
+            "calibration_domain": calibration_domain or "global", **handle.replay.status()}
 
 
 @app.post("/api/replays/{replay_id}/advance")

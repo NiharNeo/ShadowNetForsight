@@ -28,9 +28,9 @@ class ReplayRegistry:
         self.upload_dir.mkdir(parents=True, exist_ok=True)
         self._sessions: dict[str, ReplayHandle] = {}
 
-    def create(self, path: Path, original_name: str, window_seconds: int) -> tuple[str, ReplayHandle]:
+    def create(self, path: Path, original_name: str, window_seconds: int, calibration_domain: str | None = None) -> tuple[str, ReplayHandle]:
         replay_id = uuid4().hex
-        handle = ReplayHandle(StreamingPcapReplay(path, window_seconds), ReplayInferenceSession(self.inference_service), path, original_name)
+        handle = ReplayHandle(StreamingPcapReplay(path, window_seconds), ReplayInferenceSession(self.inference_service, calibration_domain), path, original_name)
         self._sessions[replay_id] = handle
         return replay_id, handle
 

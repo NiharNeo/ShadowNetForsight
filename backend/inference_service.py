@@ -81,6 +81,9 @@ class LSTMInferenceService:
         profile = self.domain_calibrations.get(domain or "")
         temperature = np.asarray(profile["temperature"], dtype=np.float32) if profile else self.temperature
         thresholds = [float(value) for value in profile["decision_threshold"]] if profile else self.thresholds
+        ood_lower = np.asarray(profile["ood_lower"], dtype=np.float32) if profile and "ood_lower" in profile else self.ood_lower
+        ood_upper = np.asarray(profile["ood_upper"], dtype=np.float32) if profile and "ood_upper" in profile else self.ood_upper
+        ood_threshold = float(profile["ood_threshold"]) if profile and "ood_threshold" in profile else self.ood_threshold
         with torch.no_grad():
             output = self.model(torch.tensor(normalized, dtype=torch.float32))
             risks = torch.sigmoid(calibrate_logits(output["attack_logits"], temperature))[0].numpy()
@@ -99,8 +102,8 @@ class LSTMInferenceService:
             {"history_offset_seconds": -5 * (len(time_importance) - index - 1), "contribution": round(float(value / max(time_total, 1e-12) * 100.0), 2)}
             for index, value in enumerate(time_importance)
         ]
-        ood_score = float(ood_scores(normalized, self.ood_lower, self.ood_upper)[0]) if self.ood_lower is not None and self.ood_upper is not None else 0.0
-        is_ood = bool(self.ood_threshold is not None and ood_score > self.ood_threshold)
+        ood_score = float(ood_scores(normalized, ood_lower, ood_upper)[0]) if ood_lower is not None and ood_upper is not None else 0.0
+        is_ood = bool(ood_threshold is not None and ood_score > ood_threshold)
         forecast = []
         for index, risk in enumerate(risks):
             stage_id = int(stage_probability[index].argmax())
@@ -134,7 +137,7 @@ class LSTMInferenceService:
             "uncertainty": {
                 "status": "out_of_distribution" if is_ood else "in_distribution",
                 "ood_score": round(ood_score, 5),
-                "ood_threshold": self.ood_threshold,
+                "ood_threshold": ood_threshold,
                 "alerts_suppressed": is_ood,
             },
         }
