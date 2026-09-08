@@ -119,7 +119,12 @@ function resetReplay() {
 async function uploadPcap(file) {
   clearInterval(timer);
   clearInterval(liveTimer);
+  step = 0;
   $("modelStatus").textContent = "UPLOADING CAPTURE…";
+  $("riskValue").textContent = "--";
+  $("riskRing").parentElement.style.background = "conic-gradient(var(--lime) 0%, #21312c 0)";
+  $("riskText").textContent = "Waiting for 60 seconds of capture history";
+  $("riskTrend").textContent = "● WARMING UP";
   const body = new FormData();
   body.append("file", file);
   const response = await authenticatedFetch("/api/replays?window_seconds=5", {method: "POST", body});
@@ -138,24 +143,34 @@ function connectReplay(replayId) {
   liveSocket.addEventListener("message", (event) => {
     const update = JSON.parse(event.data);
     if (update.type === "connected") {
-    $("modelStatus").textContent = "MODEL WARMING UP 0 / 12";
-    $("modelStatus").classList.add("live-model");
-    liveTimer = setInterval(() => {
-      if (liveSocket.readyState === WebSocket.OPEN) liveSocket.send(JSON.stringify({seconds: 5}));
-    }, 900);
+      $("modelStatus").textContent = "MODEL WARMING UP 0 / 12";
+      $("modelStatus").classList.add("live-model");
+      liveTimer = setInterval(() => {
+        if (liveSocket.readyState === WebSocket.OPEN) liveSocket.send(JSON.stringify({seconds: 5}));
+      }, 900);
       return;
     }
     if (update.type !== "replay_update") return;
     const inference = update.inference;
     if (!inference.model_ready) {
       $("modelStatus").textContent = `MODEL WARMING UP ${inference.warmup_states} / ${inference.required_states}`;
+      $("riskValue").textContent = "--";
+      $("riskText").textContent = `Collected ${inference.warmup_states} of ${inference.required_states} five-second windows`;
     } else {
       $("modelStatus").textContent = "TRAINED LSTM · LIVE INFERENCE";
       applyLiveForecast(inference.forecast, inference.feature_contributions, inference.explanation_method, inference.uncertainty, inference.temporal_contributions);
     }
     if (update.complete) {
       clearInterval(liveTimer);
-      $("modelStatus").textContent += " · REPLAY COMPLETE";
+      if (!inference.model_ready) {
+        $("modelStatus").textContent = "CAPTURE TOO SHORT FOR FORECAST";
+        $("modelStatus").classList.remove("live-model");
+        $("riskValue").textContent = "--";
+        $("riskText").textContent = `Need 60 seconds of usable traffic; received ${inference.warmup_states * 5} seconds`;
+        $("riskTrend").textContent = "● NO RESULT";
+      } else {
+        $("modelStatus").textContent += " · REPLAY COMPLETE";
+      }
     }
   });
   liveSocket.addEventListener("error", () => {
