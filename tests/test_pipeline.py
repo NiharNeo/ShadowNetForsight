@@ -204,6 +204,23 @@ class DatasetBuildTests(unittest.TestCase):
 
 
 class PcapReplayTests(unittest.TestCase):
+    def test_packet_level_security_features(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "features.pcap"
+            packets = []
+            for index, port in enumerate((20, 21, 22)):
+                packet = Ether() / IP(src="192.0.2.1", dst="10.0.0.5", ttl=40 + index) / TCP(sport=40000, dport=port, flags="SF", window=2048, seq=100 + index) / b"probe"
+                packet.time = 1000 + index
+                packets.append(packet)
+            wrpcap(str(path), packets)
+            replay = StreamingPcapReplay(path)
+            state = replay.advance(5)["states"][0]["features"]
+            self.assertEqual(state["fin_count"], 3.0)
+            self.assertGreater(state["ttl_variance"], 0.0)
+            self.assertEqual(state["tcp_window_mean"], 2048.0)
+            self.assertEqual(state["payload_size_mean"], 5.0)
+            self.assertEqual(state["sequential_port_ratio"], 1.0)
+
     def test_real_cowrie_sample_ingests_when_available(self) -> None:
         path = Path("data/raw/cowrie-srds2025-sample.jsonl")
         if not path.exists():

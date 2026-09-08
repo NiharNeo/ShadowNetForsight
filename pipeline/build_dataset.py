@@ -30,6 +30,15 @@ ALIASES = {
     "ack_count": ["ack flag cnt", "ack flag count"],
     "rst_count": ["rst flag cnt", "rst flag count"],
     "psh_count": ["psh flag cnt", "psh flag count"],
+    "fin_count": ["fin flag cnt", "fin flag count"],
+    "urg_count": ["urg flag cnt", "urg flag count"],
+    "ttl_mean": ["ttl", "ttl mean"],
+    "ttl_variance": ["ttl variance", "ttl var"],
+    "tcp_window_mean": ["tcp window", "window size", "init win bytes forward"],
+    "fragment_count": ["fragment count", "ip fragments"],
+    "payload_size_mean": ["packet length mean", "payload size mean"],
+    "payload_size_std": ["packet length std", "payload size std"],
+    "retransmission_count": ["retransmission count", "retransmissions"],
 }
 
 FEATURES = [
@@ -54,6 +63,9 @@ FEATURES = [
     "east_west_ratio",
     "failed_auth_count",
     "identity_reuse_count",
+    "fin_count", "urg_count", "ttl_mean", "ttl_variance", "tcp_window_mean",
+    "fragment_count", "payload_size_mean", "payload_size_std", "retransmission_count",
+    "sequential_port_ratio",
 ]
 
 
@@ -100,7 +112,7 @@ def load_flows(paths: list[Path]) -> pd.DataFrame:
         for name in ("src_ip", "dst_ip", "dst_port", "protocol"):
             source = columns.get(name)
             clean[name] = frame[source].fillna("unknown").astype(str) if source else "unknown"
-        for name in ("duration", "fwd_packets", "bwd_packets", "fwd_bytes", "bwd_bytes", "iat_mean", "syn_count", "ack_count", "rst_count", "psh_count"):
+        for name in ("duration", "fwd_packets", "bwd_packets", "fwd_bytes", "bwd_bytes", "iat_mean", "syn_count", "ack_count", "rst_count", "psh_count", "fin_count", "urg_count", "ttl_mean", "ttl_variance", "tcp_window_mean", "fragment_count", "payload_size_mean", "payload_size_std", "retransmission_count"):
             clean[name] = _numeric(frame, columns.get(name))
         if "total_bytes" in columns:
             total_bytes = _numeric(frame, columns["total_bytes"])
@@ -131,6 +143,9 @@ def load_flows(paths: list[Path]) -> pd.DataFrame:
 
 def aggregate_windows(flows: pd.DataFrame, seconds: int) -> pd.DataFrame:
     work = flows.copy()
+    for name in ("fin_count", "urg_count", "ttl_mean", "ttl_variance", "tcp_window_mean", "fragment_count", "payload_size_mean", "payload_size_std", "retransmission_count"):
+        if name not in work:
+            work[name] = 0.0
     origin = work["timestamp"].min()
     offsets = ((work["timestamp"] - origin).dt.total_seconds() // seconds).astype("int64")
     work["window_start"] = origin + pd.to_timedelta(offsets * seconds, unit="s")
@@ -160,6 +175,11 @@ def aggregate_windows(flows: pd.DataFrame, seconds: int) -> pd.DataFrame:
         dominant_label=("raw_label", lambda values: values.mode().iat[0]),
         unique_host_edges=("host_edge", "nunique"),
         east_west_ratio=("east_west", "mean"),
+        fin_count=("fin_count", "sum"), urg_count=("urg_count", "sum"),
+        ttl_mean=("ttl_mean", "mean"), ttl_variance=("ttl_variance", "mean"),
+        tcp_window_mean=("tcp_window_mean", "mean"), fragment_count=("fragment_count", "sum"),
+        payload_size_mean=("payload_size_mean", "mean"), payload_size_std=("payload_size_std", "mean"),
+        retransmission_count=("retransmission_count", "sum"),
     ).reset_index()
     source_fanout = work.groupby(["window_start", "src_ip"], observed=True)["dst_ip"].nunique().groupby(level=0).max()
     destination_fanin = work.groupby(["window_start", "dst_ip"], observed=True)["src_ip"].nunique().groupby(level=0).max()
@@ -169,6 +189,7 @@ def aggregate_windows(flows: pd.DataFrame, seconds: int) -> pd.DataFrame:
     # zeros instead of fabricated labels; Cowrie telemetry supplies them live.
     windows["failed_auth_count"] = 0.0
     windows["identity_reuse_count"] = 0.0
+    windows["sequential_port_ratio"] = 0.0
     inverse_stages = {value: key for key, value in STAGE_ORDER.items()}
     windows["stage"] = windows["stage_id"].map(inverse_stages)
     windows["syn_ack_ratio"] = windows["syn_count"] / windows["ack_count"].clip(lower=1.0)

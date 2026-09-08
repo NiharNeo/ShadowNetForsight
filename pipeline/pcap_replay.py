@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator
 
+import numpy as np
 from scapy.all import IP, IPv6, TCP, UDP, PcapReader
 
 from pipeline.build_dataset import FEATURES
@@ -22,6 +23,13 @@ class PacketSummary:
     ack: int
     rst: int
     psh: int
+    fin: int
+    urg: int
+    ttl: int
+    tcp_window: int
+    fragmented: int
+    payload_size: int
+    sequence: int
 
 
 @dataclass
@@ -49,6 +57,15 @@ class WindowAccumulator:
     ack: int = 0
     rst: int = 0
     psh: int = 0
+    fin: int = 0
+    urg: int = 0
+    ttls: list[int] = field(default_factory=list)
+    tcp_windows: list[int] = field(default_factory=list)
+    payload_sizes: list[int] = field(default_factory=list)
+    fragment_count: int = 0
+    retransmission_count: int = 0
+    seen_sequences: set[tuple[str, str, int, int, int]] = field(default_factory=set)
+    port_history: dict[str, list[int]] = field(default_factory=dict)
     directed_edges: set[tuple[str, str]] = field(default_factory=set)
     source_destinations: dict[str, set[str]] = field(default_factory=dict)
     destination_sources: dict[str, set[str]] = field(default_factory=dict)
@@ -67,6 +84,13 @@ class WindowAccumulator:
         self.ack += packet.ack
         self.rst += packet.rst
         self.psh += packet.psh
+        self.fin += packet.fin; self.urg += packet.urg
+        self.ttls.append(packet.ttl); self.tcp_windows.append(packet.tcp_window); self.payload_sizes.append(packet.payload_size)
+        self.fragment_count += packet.fragmented
+        sequence_key = (packet.src, packet.dst, packet.src_port, packet.dst_port, packet.sequence)
+        self.retransmission_count += int(packet.sequence > 0 and sequence_key in self.seen_sequences)
+        self.seen_sequences.add(sequence_key)
+        self.port_history.setdefault(packet.src, []).append(packet.dst_port)
         self._add_graph(packet.src, packet.dst, None, None)
         if self.last_packet_timestamp is not None:
             self.iats.append(max(packet.timestamp - self.last_packet_timestamp, 0.0))
@@ -171,6 +195,15 @@ class WindowAccumulator:
             "east_west_ratio": float(self.east_west_count / max(self.packet_count, 1)),
             "failed_auth_count": float(self.failed_auth_count),
             "identity_reuse_count": float(sum(len(sources) > 1 for sources in self.identities.values())),
+            "fin_count": float(self.fin), "urg_count": float(self.urg),
+            "ttl_mean": float(sum(self.ttls) / len(self.ttls)) if self.ttls else 0.0,
+            "ttl_variance": float(np.var(self.ttls)) if self.ttls else 0.0,
+            "tcp_window_mean": float(sum(self.tcp_windows) / len(self.tcp_windows)) if self.tcp_windows else 0.0,
+            "fragment_count": float(self.fragment_count),
+            "payload_size_mean": float(sum(self.payload_sizes) / len(self.payload_sizes)) if self.payload_sizes else 0.0,
+            "payload_size_std": float(np.std(self.payload_sizes)) if self.payload_sizes else 0.0,
+            "retransmission_count": float(self.retransmission_count),
+            "sequential_port_ratio": float(sum(abs(b-a) == 1 for ports in self.port_history.values() for a,b in zip(ports, ports[1:])) / max(sum(max(len(p)-1, 0) for p in self.port_history.values()), 1)),
         }
         return {feature: values[feature] for feature in FEATURES}
 
@@ -195,6 +228,12 @@ def summarize(packet) -> PacketSummary | None:
         ack=int(bool(flags & 0x10)),
         rst=int(bool(flags & 0x04)),
         psh=int(bool(flags & 0x08)),
+        fin=int(bool(flags & 0x01)), urg=int(bool(flags & 0x20)),
+        ttl=int(getattr(network, "ttl", getattr(network, "hlim", 0))),
+        tcp_window=int(getattr(transport, "window", 0)) if isinstance(transport, TCP) else 0,
+        fragmented=int(bool(getattr(network, "frag", 0)) or bool(int(getattr(network, "flags", 0)) & 1)),
+        payload_size=len(bytes(transport.payload)) if transport is not None else 0,
+        sequence=int(getattr(transport, "seq", 0)) if isinstance(transport, TCP) else 0,
     )
 
 
