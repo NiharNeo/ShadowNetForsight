@@ -8,6 +8,23 @@ let accessToken = sessionStorage.getItem("shadownetToken") || "";
 
 const $ = (id) => document.getElementById(id);
 
+function setSituationBrief(status, headline, what, why, action, tone = "normal") {
+  $("briefStatus").textContent = status;
+  $("briefStatus").className = `brief-status ${tone}`;
+  $("briefHeadline").textContent = headline;
+  $("briefWhat").textContent = what;
+  $("briefWhy").textContent = why;
+  $("briefAction").textContent = action;
+}
+
+const demoBriefs = [
+  ["NORMAL", "The network looks normal right now.", "Traffic volume and connection behaviour match the expected baseline.", "There is no strong sign of an attack in the current scenario.", "Keep monitoring. No defensive action is recommended yet.", "normal"],
+  ["WATCH", "One device may be scanning the network.", "An outside source is contacting many services that it has not used before.", "Scanning often happens before an attacker chooses a service to target.", "Check whether the source is approved. Block it if the activity is unauthorized.", "watch"],
+  ["SUSPICIOUS", "Repeated SSH login attempts are forming a pattern.", "The same source is trying several usernames and connections in a short period.", "This behaviour may be an attempt to discover or guess a working account.", "Review the login records and protect the targeted account and host.", "watch"],
+  ["HIGH RISK", "The model expects an SSH access attempt soon.", "The sequence now resembles traffic that previously led to initial access.", "A successful login could give the attacker control of the exposed host.", "Verify the alert immediately. Consider restricting SSH and isolating the target.", "danger"],
+  ["CRITICAL", "The attacker may move from the first host toward an internal system.", "Credential reuse and internal connections point toward another host.", "Lateral movement can turn one compromised device into a wider incident.", "Isolate the affected hosts, disable exposed credentials, and investigate internal connections.", "danger"],
+];
+
 async function login() {
   const username = window.prompt("ShadowNet username");
   if (!username) throw new Error("Authentication cancelled");
@@ -90,6 +107,7 @@ function renderState() {
   $("riskTrend").textContent = step === 0 ? "● STABLE" : "● RISING";
   $("explanation").textContent = state.detail;
   $("features").innerHTML = state.features.map(([name, value]) => `<div class="feature"><span>${name}</span><div class="track"><div class="fill" style="width:${value}%"></div></div><b>${value}</b></div>`).join("");
+  setSituationBrief(...demoBriefs[step]);
   renderTimeline();
 }
 
@@ -131,6 +149,7 @@ async function uploadPcap(file) {
   $("riskRing").parentElement.style.background = "conic-gradient(var(--lime) 0%, #21312c 0)";
   $("riskText").textContent = "Waiting for 60 seconds of capture history";
   $("riskTrend").textContent = "● WARMING UP";
+  setSituationBrief("LEARNING", "The model is reading the capture.", "It is collecting the traffic history needed to make a sequence-based forecast.", "A prediction made before enough history is available would be unreliable.", "Wait for the capture to reach 12 usable five-second windows.", "unknown");
   const body = new FormData();
   body.append("file", file);
   const response = await authenticatedFetch("/api/replays?window_seconds=5", {method: "POST", body});
@@ -162,6 +181,7 @@ function connectReplay(replayId) {
       $("modelStatus").textContent = `MODEL WARMING UP ${inference.warmup_states} / ${inference.required_states}`;
       $("riskValue").textContent = "--";
       $("riskText").textContent = `Collected ${inference.warmup_states} of ${inference.required_states} five-second windows`;
+      setSituationBrief("LEARNING", "The model needs more traffic history.", `It has collected ${inference.warmup_states} of ${inference.required_states} required windows.`, "The temporal model compares a full minute of behaviour, not one isolated packet.", "Keep the replay running until the model becomes ready.", "unknown");
     } else {
       $("modelStatus").textContent = "TRAINED LSTM · LIVE INFERENCE";
       applyLiveForecast(inference.forecast, inference.feature_contributions, inference.explanation_method, inference.uncertainty, inference.temporal_contributions);
@@ -174,6 +194,7 @@ function connectReplay(replayId) {
         $("riskValue").textContent = "--";
         $("riskText").textContent = `Need 60 seconds of usable traffic; received ${inference.warmup_states * 5} seconds`;
         $("riskTrend").textContent = "● NO RESULT";
+        setSituationBrief("NO RESULT", "This capture is too short for a reliable forecast.", `Only ${inference.warmup_states * 5} seconds of usable traffic were available.`, "The model requires 60 seconds of history before it can compare behaviour over time.", "Try a longer PCAP with continuous traffic, or combine adjacent capture segments.", "unknown");
       } else {
         $("modelStatus").textContent += " · REPLAY COMPLETE";
       }
@@ -182,12 +203,14 @@ function connectReplay(replayId) {
   liveSocket.addEventListener("error", () => {
     $("modelStatus").textContent = "LIVE CONNECTION ERROR";
     $("modelStatus").classList.remove("live-model");
+    setSituationBrief("CONNECTION ERROR", "The live replay connection stopped.", "The dashboard cannot currently receive new PCAP windows from the server.", "Any risk value still visible may be out of date.", "Check the server connection, then upload the capture again.", "danger");
   });
   liveSocket.addEventListener("close", (event) => {
     if (event.code === 4401) {
       sessionStorage.removeItem("shadownetToken");
       accessToken = "";
       $("modelStatus").textContent = "LOGIN EXPIRED · UPLOAD THE PCAP AGAIN";
+      setSituationBrief("LOGIN REQUIRED", "The secure replay session expired.", "The one-hour login token is no longer valid.", "The server rejected the live stream to prevent unauthenticated access.", "Upload the PCAP again and sign in when prompted.", "watch");
     }
   });
 }
@@ -206,8 +229,13 @@ function applyLiveForecast(forecast, contributions = [], method = "integrated_gr
     $("modelStatus").classList.remove("live-model");
     $("riskText").textContent = "Traffic is outside the validated training envelope";
     $("eta").textContent = "Analyst review required · no automated alert";
+    setSituationBrief("UNKNOWN TRAFFIC", "This traffic does not resemble the model's validated training data.", "The statistical pattern falls outside the network behaviour the model knows.", "The displayed probability may not be trustworthy on this network.", "Review the capture manually and calibrate the model on representative local traffic before using alerts.", "unknown");
   } else if (uncertainty) {
     $("modelStatus").textContent = "CALIBRATED LSTM · IN-DISTRIBUTION";
+    const roundedRisk = Math.round(current.risk);
+    const tone = current.alert ? "danger" : roundedRisk >= 40 ? "watch" : "normal";
+    const status = current.alert ? "ALERT" : roundedRisk >= 40 ? "WATCH" : "LOW RISK";
+    setSituationBrief(status, `The model estimates ${roundedRisk}% attack risk in the next ${current.offset_seconds} seconds.`, `The strongest forecast points toward the ${current.stage} stage.`, current.alert ? "The probability crossed the calibrated alert threshold." : "The probability remains below the calibrated alert threshold.", current.alert ? "Review the evidence and affected hosts before choosing a defensive action." : "Continue monitoring and compare the next forecast window.", tone);
   }
   $("forecastChart").innerHTML = forecast.map((point) => {
     const uncertainty = Math.max(point.risk - point.risk_low, point.risk_high - point.risk) * 1.1;
@@ -239,7 +267,10 @@ $("simulate").addEventListener("click", simulate);
 $("uploadPcap").addEventListener("click", () => $("pcapFile").click());
 $("pcapFile").addEventListener("change", (event) => {
   const [file] = event.target.files;
-  if (file) uploadPcap(file).catch((error) => { $("modelStatus").textContent = error.message.toUpperCase(); });
+  if (file) uploadPcap(file).catch((error) => {
+    $("modelStatus").textContent = error.message.toUpperCase();
+    setSituationBrief("UPLOAD FAILED", "The capture could not be analysed.", error.message, "No new model result was produced.", "Correct the reported problem and upload the PCAP again.", "danger");
+  });
   event.target.value = "";
 });
 $("actions").addEventListener("click", (event) => {
