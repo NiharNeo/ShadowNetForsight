@@ -1,0 +1,288 @@
+{
+  "model": "static_logistic_regression_baseline",
+  "created_at": "2026-09-01T09:43:12.867868+00:00",
+  "seed": 42,
+  "input_contract": "Only the latest state S_t is used to predict t+1.",
+  "dataset_config": {
+    "window_seconds": 5,
+    "sequence_length": 12,
+    "horizon": 3,
+    "train_fraction": 0.7,
+    "validation_fraction": 0.15
+  },
+  "features": [
+    "flow_count",
+    "unique_src_ips",
+    "unique_dst_ips",
+    "unique_dst_ports",
+    "protocol_count",
+    "duration_mean",
+    "fwd_packets_sum",
+    "bwd_packets_sum",
+    "bytes_sum",
+    "iat_mean",
+    "syn_count",
+    "ack_count",
+    "rst_count",
+    "psh_count",
+    "syn_ack_ratio"
+  ],
+  "train_support": 6495,
+  "train_class_counts": {
+    "binary": {
+      "0": 4239,
+      "1": 2256
+    },
+    "stage": {
+      "0": 4239,
+      "2": 2256
+    }
+  },
+  "splits": {
+    "validation": {
+      "binary": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0029846057178762172,
+        "roc_auc": 0.47646905752466545,
+        "pr_auc": 0.030045834797600108,
+        "confusion_matrix": [
+          [
+            6347,
+            19
+          ],
+          [
+            198,
+            0
+          ]
+        ],
+        "support": 6564,
+        "positive_support": 198
+      },
+      "next_stage": {
+        "accuracy": 0.9669408897014016,
+        "macro_f1": 0.49159631322128416,
+        "labels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "confusion_matrix": [
+          [
+            6347,
+            0,
+            19,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            198,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "support": 6564
+      },
+      "time_range": [
+        "2018-02-22 01:00:55",
+        "2018-02-22 12:59:40"
+      ]
+    },
+    "test": {
+      "binary": {
+        "precision": 0.06666666666666667,
+        "recall": 0.0033222591362126247,
+        "f1": 0.006329113924050633,
+        "false_positive_rate": 0.0022033364809568774,
+        "roc_auc": 0.5460624902617129,
+        "pr_auc": 0.05194202908169519,
+        "confusion_matrix": [
+          [
+            6340,
+            14
+          ],
+          [
+            300,
+            1
+          ]
+        ],
+        "support": 6655,
+        "positive_support": 301
+      },
+      "next_stage": {
+        "accuracy": 0.952817430503381,
+        "macro_f1": 0.4910820573468183,
+        "labels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "confusion_matrix": [
+          [
+            6340,
+            0,
+            14,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            300,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "support": 6655
+      },
+      "time_range": [
+        "2018-02-23 01:00:55",
+        "2018-02-23 12:59:40"
+      ]
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "psh_count",
+      "importance": 5.992910606653562
+    },
+    {
+      "feature": "duration_mean",
+      "importance": 2.8776086633199
+    },
+    {
+      "feature": "ack_count",
+      "importance": 2.1007865458355264
+    },
+    {
+      "feature": "flow_count",
+      "importance": 1.4815390913338276
+    },
+    {
+      "feature": "unique_dst_ports",
+      "importance": 1.0625360764808074
+    },
+    {
+      "feature": "bytes_sum",
+      "importance": 0.9928889812296122
+    },
+    {
+      "feature": "rst_count",
+      "importance": 0.6980001997434169
+    },
+    {
+      "feature": "fwd_packets_sum",
+      "importance": 0.613635746863699
+    },
+    {
+      "feature": "bwd_packets_sum",
+      "importance": 0.5944057349037271
+    },
+    {
+      "feature": "syn_ack_ratio",
+      "importance": 0.5834398917419586
+    },
+    {
+      "feature": "syn_count",
+      "importance": 0.502120036426414
+    },
+    {
+      "feature": "iat_mean",
+      "importance": 0.3794756823500857
+    },
+    {
+      "feature": "protocol_count",
+      "importance": 0.07715950255431603
+    },
+    {
+      "feature": "unique_dst_ips",
+      "importance": 0.0
+    },
+    {
+      "feature": "unique_src_ips",
+      "importance": 0.0
+    }
+  ],
+  "limitations": [
+    "The baseline does not model sequences or perform K-step rollout.",
+    "CIC attack stages are documented proxy labels rather than native MITRE progression ground truth.",
+    "Metrics from generated demo data validate plumbing only and are not research claims."
+  ]
+}

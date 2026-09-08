@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07110f" />
+    <title>ShadowNet ForeSight</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header>
+      <a class="brand" href="#"><span class="brand-mark">S</span><span>SHADOWNET <b>FORESIGHT</b></span></a>
+      <div class="header-status"><span class="pulse"></span> LIVE MODEL <span class="divider"></span> SNF-DEMO-042</div>
+      <button class="icon-button" aria-label="Notifications">03</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">PREDICTIVE SECURITY OPERATIONS</p>
+          <h1>See the breach<br /><em>before it happens.</em></h1>
+          <p class="hero-copy">A living network twin that forecasts attacker movement, explains the warning, and tests the action you take next.</p>
+        </div>
+        <div class="hero-actions">
+          <button id="play" class="primary"><span>▶</span> Start attack replay</button>
+          <button id="uploadPcap" class="secondary">Upload PCAP for live inference</button>
+          <input id="pcapFile" type="file" accept=".pcap,.pcapng" hidden />
+          <button id="reset" class="secondary">Reset scenario</button>
+          <p id="source">Loading scenario…</p>
+          <p id="modelStatus" class="model-status">DEMO ADAPTER</p>
+        </div>
+      </section>
+
+      <section class="metrics">
+        <article class="metric risk-card">
+          <div class="metric-label">COMPROMISE RISK <span id="riskTrend">● RISING</span></div>
+          <div class="risk-row"><strong id="riskValue">08</strong><span>%</span><div class="ring"><i id="riskRing"></i></div></div>
+          <p id="riskText">Baseline established</p>
+        </article>
+        <article class="metric">
+          <div class="metric-label">NEXT LIKELY STAGE</div>
+          <strong class="stage" id="nextStage">NORMAL</strong>
+          <p id="eta">No progression</p>
+        </article>
+        <article class="metric">
+          <div class="metric-label">EXPECTED TARGET</div>
+          <strong class="host" id="targetHost">Edge gateway</strong>
+          <p>Temporal rollout · K = 3</p>
+        </article>
+        <article class="metric">
+          <div class="metric-label">MODEL CONFIDENCE</div>
+          <strong class="confidence" id="confidence">96%</strong>
+          <p>Calibrated uncertainty</p>
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="panel forecast-panel">
+          <div class="panel-head"><div><span class="kicker">01 / TEMPORAL WORLD MODEL</span><h2>Forecast horizon</h2></div><span class="badge">5 SEC WINDOWS</span></div>
+          <div id="forecastChart" class="chart" aria-label="Forecast risk chart"></div>
+          <div class="legend"><span><i class="lime"></i>Predicted risk</span><span><i class="band"></i>Confidence interval</span><span class="lead">EARLY WARNING LEAD TIME <b>01:05</b></span></div>
+        </article>
+
+        <article class="panel event-panel">
+          <div class="panel-head"><div><span class="kicker">LIVE REPLAY</span><h2>Signal stream</h2></div><span class="live"><i></i> RUNNING</span></div>
+          <div class="timeline" id="timeline"></div>
+        </article>
+
+        <article class="panel path-panel">
+          <div class="panel-head"><div><span class="kicker">02 / PROBABLE PROGRESSION</span><h2>Predicted attack path</h2></div><span class="badge">MITRE MAPPED</span></div>
+          <div class="path" id="attackPath"></div>
+          <div class="path-legend"><span><i class="observed-dot"></i>Observed</span><span><i class="target-dot"></i>Targeted</span><span><i class="predicted-dot"></i>Predicted</span></div>
+        </article>
+
+        <article class="panel explain-panel">
+          <div class="panel-head"><div><span class="kicker">03 / EXPLAINABILITY</span><h2>Why ForeSight is warning</h2></div><span class="badge">INTEGRATED GRADIENTS</span></div>
+          <p id="explanation">Traffic is within the learned baseline.</p>
+          <div id="features" class="features"></div>
+          <p id="explainMethod" class="model-note">Scenario evidence is illustrative until a live PCAP replay reaches model readiness.</p>
+        </article>
+
+        <article class="panel evidence-panel">
+          <div class="panel-head"><div><span class="kicker">04 / VALIDATION EVIDENCE</span><h2>What the model can—and cannot—claim</h2></div><span id="claimBadge" class="badge danger">CLAIMS RESTRICTED</span></div>
+          <div id="evidenceMetrics" class="evidence-metrics"></div>
+          <div class="evidence-bottom">
+            <div><span class="kicker">EARLY WARNING</span><strong id="leadEvidence">—</strong><p id="onsetEvidence">Loading evaluation…</p></div>
+            <div class="warning-card"><span class="kicker">EXTERNAL GENERALIZATION</span><strong id="crossWarning">CTU-13 CHECK PENDING</strong><p id="crossDetail">Independent dataset results are shown without hiding failure modes.</p></div>
+          </div>
+        </article>
+
+        <article class="panel simulator-panel">
+          <div class="panel-head"><div><span class="kicker">05 / COUNTERFACTUAL</span><h2>Test a defence before deploying it</h2></div><span class="badge accent">ESTIMATED EFFECT</span></div>
+          <div class="sim-layout">
+            <div class="actions" id="actions">
+              <button data-action="block_ip">Block source IP <span>185.220.101.4</span></button>
+              <button class="selected" data-action="close_port">Close exposed port <span>SSH / 22</span></button>
+              <button data-action="isolate_host">Isolate target <span>10.0.0.5</span></button>
+              <button data-action="rate_limit">Rate-limit source <span>10 req/min</span></button>
+            </div>
+            <div class="result">
+              <div class="before-after"><div><small>BEFORE</small><b>78%</b></div><span>→</span><div class="after"><small>AFTER</small><b id="afterRisk">29%</b></div></div>
+              <div class="delta" id="delta">−49 pts projected risk</div>
+              <p id="simExplanation">Removes SSH as the forecast initial-access route.</p>
+              <button id="simulate" class="primary">Run simulation</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer><span>SHADOWNET FORESIGHT · PREDICTION, NOT PROMISE</span><span>DATASET: CSE-CIC-IDS2018 · 5 TRAIN DAYS · FIXED VALIDATION + TEST</span></footer>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

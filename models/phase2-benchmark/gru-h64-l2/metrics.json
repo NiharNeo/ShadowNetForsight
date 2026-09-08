@@ -1,0 +1,214 @@
+{
+  "model": "multi_head_gru_world_model",
+  "created_at": "2026-09-02T04:34:45.923459+00:00",
+  "training": {
+    "architecture": "gru",
+    "epochs": 40,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "hidden_size": 64,
+    "layers": 2,
+    "dropout": 0.2,
+    "patience": 6,
+    "state_loss_weight": 0.1,
+    "seed": 42
+  },
+  "model_config": {
+    "architecture": "gru",
+    "feature_count": 15,
+    "stage_count": 6,
+    "horizon": 3,
+    "hidden_size": 64,
+    "layers": 2,
+    "dropout": 0.2
+  },
+  "best_epoch": 3,
+  "best_validation_loss": 1.7187199592590332,
+  "epochs_completed": 9,
+  "loss_weights": {
+    "attack_positive": [
+      2.878239154815674,
+      2.8775510787963867,
+      2.8775510787963867
+    ],
+    "stage": [
+      0.33687251806259155,
+      3.422619104385376,
+      2.421320915222168,
+      3.064229726791382,
+      0.0,
+      0.0
+    ]
+  },
+  "input_transform": "log1p_nonnegative",
+  "normalization_clip": 8.0,
+  "validation_false_positive_rate_limit": 0.05,
+  "temperature": [
+    1.525863528251648,
+    1.4864205121994019,
+    1.426438808441162
+  ],
+  "ood": {
+    "threshold": 0.04094509780406952,
+    "validation_flag_rate": 0.010054844606946984,
+    "test_flag_rate": 0.01517655897821187
+  },
+  "decision_threshold": [
+    0.11782132275402549,
+    0.10371716134250167,
+    0.11330483695492144
+  ],
+  "validation_threshold_macro_f1": 0.10613535736875396,
+  "validation": {
+    "threshold": [
+      0.11782132089138031,
+      0.10371716320514679,
+      0.11330483853816986
+    ],
+    "horizons": [
+      {
+        "step": 1,
+        "precision": 0.08206686930091185,
+        "recall": 0.13636363636363635,
+        "f1": 0.10246679316888045,
+        "false_positive_rate": 0.04743952246308514,
+        "stage_accuracy": 0.9063071297989032,
+        "stage_macro_f1": 0.23824589507408891,
+        "support": 6564
+      },
+      {
+        "step": 2,
+        "precision": 0.08814589665653495,
+        "recall": 0.14646464646464646,
+        "f1": 0.11005692599620494,
+        "false_positive_rate": 0.0471253534401508,
+        "stage_accuracy": 0.9113345521023766,
+        "stage_macro_f1": 0.23901230621703692,
+        "support": 6564
+      },
+      {
+        "step": 3,
+        "precision": 0.08653846153846154,
+        "recall": 0.13636363636363635,
+        "f1": 0.10588235294117647,
+        "false_positive_rate": 0.044769085768143264,
+        "stage_accuracy": 0.9180377818403412,
+        "stage_macro_f1": 0.23988853503184712,
+        "support": 6564
+      }
+    ],
+    "attack_f1_macro_over_horizons": 0.10613535736875396,
+    "stage_accuracy_macro_over_horizons": 0.9118931545805403,
+    "future_state_mae_normalized": 0.37240874767303467
+  },
+  "test": {
+    "threshold": [
+      0.11782132089138031,
+      0.10371716320514679,
+      0.11330483853816986
+    ],
+    "horizons": [
+      {
+        "step": 1,
+        "precision": 0.06756756756756757,
+        "recall": 0.04983388704318937,
+        "f1": 0.05736137667304015,
+        "false_positive_rate": 0.032577903682719546,
+        "stage_accuracy": 0.9093914350112697,
+        "stage_macro_f1": 0.23853066372379,
+        "support": 6655
+      },
+      {
+        "step": 2,
+        "precision": 0.06787330316742081,
+        "recall": 0.05,
+        "f1": 0.05758157389635317,
+        "false_positive_rate": 0.032415420928402834,
+        "stage_accuracy": 0.9122464312546957,
+        "stage_macro_f1": 0.23894049118387908,
+        "support": 6655
+      },
+      {
+        "step": 3,
+        "precision": 0.056074766355140186,
+        "recall": 0.04,
+        "f1": 0.04669260700389105,
+        "false_positive_rate": 0.03178599527930763,
+        "stage_accuracy": 0.9184072126220887,
+        "stage_macro_f1": 0.2396674770606227,
+        "support": 6655
+      }
+    ],
+    "attack_f1_macro_over_horizons": 0.05387851919109479,
+    "stage_accuracy_macro_over_horizons": 0.9133483596293513,
+    "future_state_mae_normalized": 0.37153226137161255
+  },
+  "baseline_comparison": null,
+  "feature_saliency": [
+    {
+      "feature": "duration_mean",
+      "gradient_importance": 1.079784965440922e-06
+    },
+    {
+      "feature": "bwd_packets_sum",
+      "gradient_importance": 6.889208634675015e-07
+    },
+    {
+      "feature": "fwd_packets_sum",
+      "gradient_importance": 5.546330612560268e-07
+    },
+    {
+      "feature": "psh_count",
+      "gradient_importance": 4.467921712603129e-07
+    },
+    {
+      "feature": "syn_ack_ratio",
+      "gradient_importance": 3.7990764667483745e-07
+    },
+    {
+      "feature": "iat_mean",
+      "gradient_importance": 2.9650570354533556e-07
+    },
+    {
+      "feature": "unique_dst_ports",
+      "gradient_importance": 2.945347148397559e-07
+    },
+    {
+      "feature": "ack_count",
+      "gradient_importance": 2.885657295337296e-07
+    },
+    {
+      "feature": "flow_count",
+      "gradient_importance": 1.9431254827395605e-07
+    },
+    {
+      "feature": "unique_src_ips",
+      "gradient_importance": 1.8126505096915935e-07
+    },
+    {
+      "feature": "bytes_sum",
+      "gradient_importance": 1.6228969457188214e-07
+    },
+    {
+      "feature": "unique_dst_ips",
+      "gradient_importance": 1.5579669820908748e-07
+    },
+    {
+      "feature": "protocol_count",
+      "gradient_importance": 1.1877065730914182e-07
+    },
+    {
+      "feature": "rst_count",
+      "gradient_importance": 1.0859830013032479e-07
+    },
+    {
+      "feature": "syn_count",
+      "gradient_importance": 5.179840556479576e-08
+    }
+  ],
+  "limitations": [
+    "Generated-fixture metrics validate plumbing and are not performance claims.",
+    "CIC stages remain documented proxy labels, not native MITRE ground truth.",
+    "Gradient saliency is an interim explanation; the production milestone uses SHAP."
+  ]
+}

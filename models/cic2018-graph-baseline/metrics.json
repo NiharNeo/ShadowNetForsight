@@ -1,0 +1,320 @@
+{
+  "model": "static_logistic_regression_baseline",
+  "created_at": "2026-09-02T04:55:17.323995+00:00",
+  "seed": 42,
+  "input_contract": "Only the latest state S_t is used to predict t+1.",
+  "dataset_config": {
+    "window_seconds": 5,
+    "sequence_length": 12,
+    "horizon": 3,
+    "train_fraction": 0.7,
+    "validation_fraction": 0.15
+  },
+  "features": [
+    "flow_count",
+    "unique_src_ips",
+    "unique_dst_ips",
+    "unique_dst_ports",
+    "protocol_count",
+    "duration_mean",
+    "fwd_packets_sum",
+    "bwd_packets_sum",
+    "bytes_sum",
+    "iat_mean",
+    "syn_count",
+    "ack_count",
+    "rst_count",
+    "psh_count",
+    "syn_ack_ratio",
+    "unique_host_edges",
+    "max_source_fanout",
+    "max_destination_fanin",
+    "east_west_ratio",
+    "failed_auth_count",
+    "identity_reuse_count"
+  ],
+  "train_support": 21850,
+  "train_class_counts": {
+    "binary": {
+      "0": 16216,
+      "1": 5634
+    },
+    "stage": {
+      "0": 16216,
+      "1": 1596,
+      "2": 2256,
+      "3": 1782
+    }
+  },
+  "splits": {
+    "validation": {
+      "binary": {
+        "precision": 0.02564102564102564,
+        "recall": 0.030303030303030304,
+        "f1": 0.027777777777777776,
+        "false_positive_rate": 0.03581526861451461,
+        "roc_auc": 0.5068998181627777,
+        "pr_auc": 0.03170533214012056,
+        "confusion_matrix": [
+          [
+            6138,
+            228
+          ],
+          [
+            192,
+            6
+          ]
+        ],
+        "support": 6564,
+        "positive_support": 198
+      },
+      "next_stage": {
+        "accuracy": 0.8834552102376599,
+        "macro_f1": 0.24031740205732213,
+        "labels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "confusion_matrix": [
+          [
+            5796,
+            2,
+            80,
+            488,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            171,
+            0,
+            3,
+            24,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "support": 6564
+      },
+      "time_range": [
+        "2018-02-22 01:00:55",
+        "2018-02-22 12:59:40"
+      ]
+    },
+    "test": {
+      "binary": {
+        "precision": 0.06486486486486487,
+        "recall": 0.03986710963455149,
+        "f1": 0.04938271604938271,
+        "false_positive_rate": 0.02722694365753856,
+        "roc_auc": 0.5359362402316483,
+        "pr_auc": 0.05246106976161545,
+        "confusion_matrix": [
+          [
+            6181,
+            173
+          ],
+          [
+            289,
+            12
+          ]
+        ],
+        "support": 6655,
+        "positive_support": 301
+      },
+      "next_stage": {
+        "accuracy": 0.8862509391435012,
+        "macro_f1": 0.24516918405424634,
+        "labels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "confusion_matrix": [
+          [
+            5891,
+            5,
+            44,
+            414,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            277,
+            0,
+            7,
+            17,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "support": 6655
+      },
+      "time_range": [
+        "2018-02-23 01:00:55",
+        "2018-02-23 12:59:40"
+      ]
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "ack_count",
+      "importance": 18.725687537920816
+    },
+    {
+      "feature": "flow_count",
+      "importance": 9.825321630641554
+    },
+    {
+      "feature": "unique_dst_ports",
+      "importance": 8.58137283756267
+    },
+    {
+      "feature": "psh_count",
+      "importance": 8.220653842557615
+    },
+    {
+      "feature": "iat_mean",
+      "importance": 1.3028504793706481
+    },
+    {
+      "feature": "fwd_packets_sum",
+      "importance": 0.7461572826816663
+    },
+    {
+      "feature": "rst_count",
+      "importance": 0.6584098825561999
+    },
+    {
+      "feature": "duration_mean",
+      "importance": 0.49434501592669083
+    },
+    {
+      "feature": "bytes_sum",
+      "importance": 0.48203034361433184
+    },
+    {
+      "feature": "syn_count",
+      "importance": 0.12981301905351839
+    },
+    {
+      "feature": "syn_ack_ratio",
+      "importance": 0.12969740808851454
+    },
+    {
+      "feature": "bwd_packets_sum",
+      "importance": 0.06945700617074466
+    },
+    {
+      "feature": "protocol_count",
+      "importance": 0.01362423914214083
+    },
+    {
+      "feature": "failed_auth_count",
+      "importance": 0.0
+    },
+    {
+      "feature": "unique_host_edges",
+      "importance": 0.0
+    },
+    {
+      "feature": "max_source_fanout",
+      "importance": 0.0
+    },
+    {
+      "feature": "max_destination_fanin",
+      "importance": 0.0
+    },
+    {
+      "feature": "east_west_ratio",
+      "importance": 0.0
+    },
+    {
+      "feature": "unique_dst_ips",
+      "importance": 0.0
+    },
+    {
+      "feature": "unique_src_ips",
+      "importance": 0.0
+    },
+    {
+      "feature": "identity_reuse_count",
+      "importance": 0.0
+    }
+  ],
+  "limitations": [
+    "The baseline does not model sequences or perform K-step rollout.",
+    "CIC attack stages are documented proxy labels rather than native MITRE progression ground truth.",
+    "Metrics from generated demo data validate plumbing only and are not research claims."
+  ]
+}

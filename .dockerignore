@@ -1,0 +1,10 @@
+.git
+.venv
+__pycache__
+*.pyc
+data
+models/*
+!models/cic2018-multiday-lstm
+!models/cic2018-multiday-lstm/**
+!models/cic2018-phase1-lstm
+!models/cic2018-phase1-lstm/**

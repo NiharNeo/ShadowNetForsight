@@ -1,0 +1,116 @@
+# ShadowNet ForeSight
+
+Predictive SOC decision-support prototype for Smart India Hackathon. ShadowNet converts network telemetry into five-second states and uses a multi-head LSTM to forecast three future horizons.
+
+## Current status
+
+- Live PCAP/PCAPNG streaming without future-packet leakage
+- Five-day CSE-CIC-IDS2018 training partition with fixed whole-day validation and test
+- Multi-horizon attack probability, proxy-stage and future-state heads
+- Validation-only temperature calibration, 5% FPR threshold selection, and OOD alert suppression
+- LSTM/GRU/TCN/Transformer benchmark plus Integrated Gradients explanations
+- Cowrie, NetFlow/IPFIX and optional Kafka ingestion with host/identity graph context
+- Signed authentication, viewer/operator/admin RBAC, and hash-chained audit logs
+- Monte Carlo structural attack-path intervention simulator
+
+## Honest fixed-test results
+
+| Horizon | F1 | Recall | False-positive rate |
+|---|---:|---:|---:|
+| +5 s | 5.2% | 3.7% | 1.8% |
+| +10 s | 7.5% | 6.7% | 3.3% |
+| +15 s | 6.1% | 5.3% | 3.2% |
+
+The static next-window baseline reaches 4.9% F1. The model forecasts 14 of 215 attack onsets early, with 15 seconds median lead. CTU-13 produces 100% false positives; deployment and cross-network generalization claims are disabled.
+
+## Architecture
+
+```text
+PCAP / CICFlowMeter CSV / Cowrie / NetFlow / IPFIX / Kafka
+        │
+        ▼
+5-second state aggregation (15 features)
+        │
+        ├── leakage-safe whole-day dataset builder
+        ▼
+12-state calibrated temporal encoder
+        ├── K=3 attack-risk head
+        ├── K=3 proxy-stage head
+        └── K=3 future-state head
+        │
+        ▼
+FastAPI + WebSocket/stream ingestion → authenticated SOC dashboard
+```
+
+## Run locally
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+make test
+.venv/bin/python -m scripts.manage_users admin --role admin
+make run
+```
+
+Open <http://127.0.0.1:8000/>. Use **Start attack replay** for the narrated fixture or **Upload PCAP for live inference** for the trained-model path.
+
+The dashboard is readable without an account. Uploads, telemetry ingestion and simulation prompt for an operator/admin login. Tokens expire after one hour; users and hash-chained audit records are stored in `data/shadownet.db`. Set `SHADOWNET_TOKEN_SECRET` to a stable deployment secret so tokens survive restarts.
+
+For a labelled target network, fit a validation-only local probability/threshold profile and place it beside the checkpoint:
+
+```bash
+.venv/bin/python -m pipeline.fit_domain_calibration \
+  --checkpoint models/cic2018-phase1-lstm/lstm.pt \
+  --data data/processed-target-network \
+  --domain branch-office-a \
+  --output models/cic2018-phase1-lstm/domain_calibrations/branch-office-a.json
+```
+
+Pass `calibration_domain` when creating a telemetry stream. Unknown domains are rejected rather than silently using an unrelated local profile.
+
+## Live telemetry
+
+Create a stream with `POST /api/telemetry/streams`, then send Cowrie JSON or decoded NetFlow v5/v9/IPFIX records to `POST /api/telemetry/streams/{id}/events`. Connect a Kafka JSON topic with `POST /api/telemetry/streams/{id}/kafka`; the background consumer uses bounded polling and feeds the same event-time path. Event-time windows use configurable lateness and feed the same calibrated forecast path as PCAP replay. Responses include host-peer fanout, east-west traffic, authentication failures, and reused-identity context.
+
+## Run with Docker
+
+```bash
+docker build -t shadownet-foresight .
+docker run --rm -p 8000:8000 shadownet-foresight
+```
+
+The image contains the promoted checkpoint and compact evaluation evidence, but excludes raw and processed datasets.
+
+## Reproduce the experiment
+
+Dataset partitions and byte sizes are declared in `datasets/cic2018_multiday_split.json`. Place the official CSVs under `data/raw/cic2018/`, then run:
+
+```bash
+make build-multiday
+.venv/bin/python -m pipeline.train_baseline --data data/processed-cic2018-multiday --output models/cic2018-multiday-baseline
+make train-multiday
+make evaluate-multiday
+```
+
+No sequence crosses a file/day boundary. Feature normalization is fitted on training data and thresholds on validation data. The Friday test day is not used for model selection. CTU-13 is diagnostic, not a tuning set.
+
+## Judge demo flow
+
+1. Show the forecast horizons and fixed-test evidence panel.
+2. Start the narrated replay to explain the workflow.
+3. Upload `data/demo/demo_attack.pcap` to demonstrate packet-gated inference and warm-up.
+4. Point out live Integrated Gradients feature and temporal bars.
+5. Show `CLAIMS RESTRICTED` and the CTU-13 failure.
+6. Run a defence simulation and inspect the changed topology edges and confidence interval.
+
+## Limitations
+
+- CIC traffic-family labels map to proxy stages, not native MITRE ground truth.
+- Recall on the fixed test day remains low.
+- CTU-13 shows severe cross-network domain shift.
+- Integrated Gradients measures model attribution, not causality.
+- The intervention engine is structural and simulation-based, but its edge probabilities are assumptions rather than experimentally identified causal effects.
+
+The full report is generated at `data/evaluation/cic2018-multiday-with-ctu13.json`. Compact dashboard evidence lives beside the promoted checkpoint.
+
+The complete implementation/evidence matrix is documented in [PHASES.md](PHASES.md). A 21-feature graph-aware candidate is retained for research but is not promoted because its fixed-test score regressed. The real Cowrie integration sample comes from the CC BY 4.0 [IEEE SRDS 2025 Shell Honeypot Attack Dataset](https://github.com/zyw-286/shell-attack-evolution-dataset/tree/main/dataset); its exact source and SHA-256 are recorded in `datasets/cowrie_srds2025_sample.json`.

@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.py[cod]
+tmp/
+data/
+.DS_Store
+.pptx-template-*/
+*.inspect.ndjson

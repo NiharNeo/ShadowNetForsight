@@ -1,0 +1,187 @@
+{
+  "created_at": "2026-09-02T04:36:40.071729+00:00",
+  "selection_protocol": "Architecture and hyperparameters selected only by the fixed whole-day validation split under the shared 5% FPR budget.",
+  "winner": {
+    "candidate": "gru-h64-l2",
+    "config": {
+      "architecture": "gru",
+      "epochs": 40,
+      "batch_size": 32,
+      "learning_rate": 0.001,
+      "hidden_size": 64,
+      "layers": 2,
+      "dropout": 0.2,
+      "patience": 6,
+      "state_loss_weight": 0.1,
+      "seed": 42
+    },
+    "validation_attack_f1": 0.10613535736875396,
+    "validation_mean_fpr": 0.046444653890459736,
+    "validation_stage_accuracy": 0.9118931545805403,
+    "validation_future_state_mae": 0.37240874767303467,
+    "checkpoint": "models/phase2-benchmark/gru-h64-l2/lstm.pt"
+  },
+  "ranking": [
+    {
+      "candidate": "gru-h64-l2",
+      "config": {
+        "architecture": "gru",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 64,
+        "layers": 2,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.10613535736875396,
+      "validation_mean_fpr": 0.046444653890459736,
+      "validation_stage_accuracy": 0.9118931545805403,
+      "validation_future_state_mae": 0.37240874767303467,
+      "checkpoint": "models/phase2-benchmark/gru-h64-l2/lstm.pt"
+    },
+    {
+      "candidate": "lstm-h64-l2",
+      "config": {
+        "architecture": "lstm",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 64,
+        "layers": 2,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.09863739228944206,
+      "validation_mean_fpr": 0.030369672216986072,
+      "validation_stage_accuracy": 0.93149502335974,
+      "validation_future_state_mae": 0.3729798197746277,
+      "checkpoint": "models/phase2-benchmark/lstm-h64-l2/lstm.pt"
+    },
+    {
+      "candidate": "tcn-h64-l2",
+      "config": {
+        "architecture": "tcn",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 64,
+        "layers": 2,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.09610999868372466,
+      "validation_mean_fpr": 0.047648968478374694,
+      "validation_stage_accuracy": 0.7151127361365021,
+      "validation_future_state_mae": 0.37424206733703613,
+      "checkpoint": "models/phase2-benchmark/tcn-h64-l2/lstm.pt"
+    },
+    {
+      "candidate": "transformer-h32-l1",
+      "config": {
+        "architecture": "transformer",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 32,
+        "layers": 1,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.06957621758380772,
+      "validation_mean_fpr": 0.04880092156246727,
+      "validation_stage_accuracy": 0.9393154580540322,
+      "validation_future_state_mae": 0.43942511081695557,
+      "checkpoint": "models/phase2-benchmark/transformer-h32-l1/lstm.pt"
+    },
+    {
+      "candidate": "transformer-h64-l2",
+      "config": {
+        "architecture": "transformer",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 64,
+        "layers": 2,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.06856983357532644,
+      "validation_mean_fpr": 0.045502146821656715,
+      "validation_stage_accuracy": 0.8229230144221003,
+      "validation_future_state_mae": 0.4003446698188782,
+      "checkpoint": "models/phase2-benchmark/transformer-h64-l2/lstm.pt"
+    },
+    {
+      "candidate": "lstm-h32-l1",
+      "config": {
+        "architecture": "lstm",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 32,
+        "layers": 1,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.06787289520302082,
+      "validation_mean_fpr": 0.03806681327887737,
+      "validation_stage_accuracy": 0.9426670729230144,
+      "validation_future_state_mae": 0.36266759037971497,
+      "checkpoint": "models/phase2-benchmark/lstm-h32-l1/lstm.pt"
+    },
+    {
+      "candidate": "gru-h32-l1",
+      "config": {
+        "architecture": "gru",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 32,
+        "layers": 1,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.0558549710722174,
+      "validation_mean_fpr": 0.03848570530945649,
+      "validation_stage_accuracy": 0.7835669307332926,
+      "validation_future_state_mae": 0.3482482433319092,
+      "checkpoint": "models/phase2-benchmark/gru-h32-l1/lstm.pt"
+    },
+    {
+      "candidate": "tcn-h32-l1",
+      "config": {
+        "architecture": "tcn",
+        "epochs": 40,
+        "batch_size": 32,
+        "learning_rate": 0.001,
+        "hidden_size": 32,
+        "layers": 1,
+        "dropout": 0.2,
+        "patience": 6,
+        "state_loss_weight": 0.1,
+        "seed": 42
+      },
+      "validation_attack_f1": 0.029793228224986566,
+      "validation_mean_fpr": 0.042779348622892455,
+      "validation_stage_accuracy": 0.4959882185659151,
+      "validation_future_state_mae": 0.42257094383239746,
+      "checkpoint": "models/phase2-benchmark/tcn-h32-l1/lstm.pt"
+    }
+  ],
+  "test_metrics_excluded_from_selection": true
+}

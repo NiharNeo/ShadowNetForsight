@@ -1,0 +1,31 @@
+{
+  "dataset": "CSE-CIC-IDS2018",
+  "bucket": "s3://cse-cic-ids2018/Processed Traffic Data for ML Algorithms/",
+  "region": "ca-central-1",
+  "strategy": "Whole-day partitions fixed before model training; no sequence may cross a file/day boundary.",
+  "partitions": {
+    "train": [
+      {
+        "key": "Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv",
+        "bytes": 358223333,
+        "attacks": ["FTP-BruteForce", "SSH-Bruteforce"]
+      }
+    ],
+    "validation": [
+      {
+        "key": "Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv",
+        "bytes": 382636202,
+        "attacks": ["Brute Force -Web", "Brute Force -XSS", "SQL Injection"]
+      }
+    ],
+    "test": [
+      {
+        "key": "Friday-23-02-2018_TrafficForML_CICFlowMeter.csv",
+        "bytes": 382840456,
+        "attacks": ["Brute Force -Web", "Brute Force -XSS", "SQL Injection"]
+      }
+    ]
+  },
+  "cross_dataset": "CTU-13 Scenario 11, frozen external evaluation",
+  "total_download_bytes": 1123709991
+}

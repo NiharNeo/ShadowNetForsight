@@ -1,0 +1,23 @@
+{
+  "dataset": "CSE-CIC-IDS2018",
+  "bucket": "s3://cse-cic-ids2018/Processed Traffic Data for ML Algorithms/",
+  "region": "ca-central-1",
+  "strategy": "Five whole training days spanning distinct attack families; validation and test remain separate whole days and no sequence crosses a file boundary.",
+  "partitions": {
+    "train": [
+      {"key": "Wednesday-14-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 358223333, "attacks": ["FTP-BruteForce", "SSH-Bruteforce"]},
+      {"key": "Thursday-15-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 375945899, "attacks": ["DoS-GoldenEye", "DoS-Slowloris"]},
+      {"key": "Friday-16-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 333723605, "attacks": ["DoS-SlowHTTPTest", "DoS-Hulk"]},
+      {"key": "Wednesday-21-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 328893673, "attacks": ["DDoS-LOIC-HTTP"]},
+      {"key": "Wednesday-28-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 209249758, "attacks": ["Infilteration (publisher CSV spelling)"]}
+    ],
+    "validation": [
+      {"key": "Thursday-22-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 382636202, "attacks": ["Brute Force -Web", "Brute Force -XSS", "SQL Injection"]}
+    ],
+    "test": [
+      {"key": "Friday-23-02-2018_TrafficForML_CICFlowMeter.csv", "bytes": 382840456, "attacks": ["Brute Force -Web", "Brute Force -XSS", "SQL Injection"]}
+    ]
+  },
+  "cross_dataset": "CTU-13 Scenario 11, diagnostic external evaluation",
+  "warning": "CTU-13 has already been inspected and must not be used for model or threshold selection."
+}

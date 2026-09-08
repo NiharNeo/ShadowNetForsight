@@ -1,0 +1,19 @@
+{
+  "ctu13_scenario_11": {
+    "name": "CTU-13 Scenario 11 / CTU-Malware-Capture-Botnet-52",
+    "url": "https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-52/detailed-bidirectional-flow-labels/capture20110818-2.binetflow",
+    "filename": "capture20110818-2.binetflow",
+    "expected_size_note": "Official directory listing reports approximately 14 MB.",
+    "format": "Argus bidirectional labeled NetFlow CSV",
+    "citation": "Garcia, Grill, Stiborek and Zunino, An empirical comparison of botnet detection methods, Computers & Security 45 (2014).",
+    "license_note": "CTU-13 is published by Stratosphere Laboratory for research use with citation."
+  },
+  "cse_cic_ids2018": {
+    "name": "CSE-CIC-IDS2018",
+    "url": "s3://cse-cic-ids2018/",
+    "format": "PCAP, logs and CICFlowMeter CSV files organized by day",
+    "acquisition": "aws s3 sync --no-sign-request --region ca-central-1 s3://cse-cic-ids2018/ <destination>",
+    "citation": "Canadian Institute for Cybersecurity and Communications Security Establishment, CSE-CIC-IDS2018.",
+    "license_note": "Redistribution is permitted with dataset citation and a link to the official AWS page."
+  }
+}

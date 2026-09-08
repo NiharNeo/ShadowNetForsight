@@ -1,0 +1,11 @@
+{
+  "dataset": "Shell Honeypot Attack Dataset & Analysis Toolkit",
+  "paper": "Unveiling Evolving Threats: A Data Analysis for Next-Generation Honeypot Development",
+  "venue": "IEEE SRDS 2025",
+  "source": "https://github.com/zyw-286/shell-attack-evolution-dataset/blob/main/dataset/raw_samples/cowrie_ssh_2024_sample.jsonl",
+  "license": "CC BY 4.0",
+  "local_file": "data/raw/cowrie-srds2025-sample.jsonl",
+  "sha256": "fe278617268e07aadf32decb7a4023af26532ff551e42e299f09894cbac7b42b",
+  "records": 300,
+  "usage": "Adapter and event-time ingestion integration evidence only; not mixed into CIC model training because it lacks aligned benign/attack forecast windows."
+}

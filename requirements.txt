@@ -1,0 +1,10 @@
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+numpy==2.0.2
+pandas==2.3.2
+scikit-learn==1.6.1
+torch==2.4.1
+scapy==2.6.1
+python-multipart==0.0.20
+kafka-python==2.2.15
+httpx==0.28.1
