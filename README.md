@@ -100,6 +100,16 @@ make evaluate-multiday
 
 No sequence crosses a file/day boundary. Feature normalization is fitted on training data and thresholds on validation data. The Friday test day is not used for model selection. CTU-13 is diagnostic, not a tuning set.
 
+### Build a labelled raw PCAP corpus
+
+Copy `datasets/pcap_training_plan.example.json` to `datasets/pcap_training_plan.json`, then replace every example path, SHA-256 value and timeline with independently reviewed capture metadata. Keep complete captures in separate train, validation and test partitions. Build the dataset with:
+
+```bash
+make build-pcap-corpus
+```
+
+The builder rejects missing or changed files, incomplete or overlapping timelines, inconsistent benign/attack stages and captures shorter than the configured sequence plus forecast horizon. Existing dashboard uploads are not training data because they do not have trusted labels or partition provenance.
+
 ## Judge demo flow
 
 1. Show the forecast horizons and fixed-test evidence panel.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,6 +19,7 @@ from pipeline.train_lstm import TrainingConfig, train as train_lstm
 from backend.inference_service import LSTMInferenceService
 from pipeline.evaluate import early_warning, evaluate
 from pipeline.build_partitioned_dataset import build_partitioned
+from pipeline.build_pcap_dataset import build as build_pcap_dataset
 from scripts.generate_demo_flows import generate
 from pipeline.calibration import fit_ood_profile, ood_scores
 from pipeline.temporal_model import build_temporal_model
@@ -204,6 +206,40 @@ class DatasetBuildTests(unittest.TestCase):
 
 
 class PcapReplayTests(unittest.TestCase):
+    def test_labelled_pcap_builder_preserves_capture_partitions(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            partitions = {}
+            for partition_index, partition in enumerate(("train", "validation", "test")):
+                path = root / f"{partition}.pcap"
+                packets = []
+                for index in range(20):
+                    packet = Ether() / IP(src="192.0.2.1", dst="10.0.0.5", ttl=50 + partition_index) / TCP(sport=40000, dport=20 + index, flags="S")
+                    packet.time = 1000 + partition_index * 1000 + index * 5
+                    packets.append(packet)
+                wrpcap(str(path), packets)
+                digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                partitions[partition] = [{
+                    "path": str(path), "sha256": digest,
+                    "timeline": [
+                        {"start_seconds": 0, "end_seconds": 50, "label": 0, "stage": "Normal"},
+                        {"start_seconds": 50, "end_seconds": 100, "label": 1, "stage": "Reconnaissance"},
+                    ],
+                }]
+            plan = root / "plan.json"
+            plan.write_text(json.dumps({"dataset": "pcap fixture", "window_seconds": 5,
+                                        "sequence_length": 6, "horizon": 2,
+                                        "partitions": partitions}), encoding="utf-8")
+            output = root / "processed"
+            manifest = build_pcap_dataset(plan, output)
+            self.assertEqual(manifest["partitions"]["train"]["sequences"], 13)
+            self.assertFalse(manifest["feature_observed"]["failed_auth_count"])
+            self.assertTrue(manifest["feature_observed"]["ttl_mean"])
+            with np.load(output / "test.npz") as split:
+                self.assertEqual(split["x"].shape, (13, 6, len(FEATURES)))
+                self.assertTrue(np.all(split["capture_id"] == "test.pcap"))
+                self.assertGreater(split["y_attack"].sum(), 0)
+
     def test_packet_level_security_features(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "features.pcap"

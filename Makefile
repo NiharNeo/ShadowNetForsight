@@ -1,4 +1,4 @@
-.PHONY: run test demo-data build-multiday train-multiday evaluate-multiday build-holdout train-holdout evaluate-holdout
+.PHONY: run test demo-data build-multiday train-multiday evaluate-multiday build-holdout train-holdout evaluate-holdout build-pcap-corpus
 run:
 	.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
 test:
@@ -19,3 +19,5 @@ train-holdout:
 	.venv/bin/python -m pipeline.train_lstm --data data/processed-cic2018-infiltration-holdout --output models/cic2018-infiltration-holdout-gru --architecture gru --epochs 60 --patience 10 --hidden-size 64 --layers 2
 evaluate-holdout:
 	.venv/bin/python -m pipeline.evaluate --data data/processed-cic2018-infiltration-holdout --checkpoint models/cic2018-infiltration-holdout-gru/lstm.pt --baseline models/cic2018-infiltration-holdout-baseline/baseline.joblib --output models/cic2018-infiltration-holdout-gru/evaluation.json
+build-pcap-corpus:
+	.venv/bin/python -m pipeline.build_pcap_dataset --plan datasets/pcap_training_plan.json --output data/processed-pcap-corpus

@@ -49,3 +49,10 @@
 - A 31-feature GRU candidate reaches 20.4% F1 and 13.3% recall at +5 seconds on 6,752 untouched infiltration-day sequences, versus 8.7% F1 for the static logistic baseline.
 - The +5 second false-positive rate is 5.2%, slightly above the intended 5% deployment budget, and neither infiltration onset was forecast before onset. The candidate therefore remains research-only.
 - CIC CSV files expose only 20 of the 31 features. TTL, TCP-window, fragmentation, payload, retransmission and sequential-port features become available for raw PCAP inputs and require representative PCAP training before they can improve a trained checkpoint.
+
+## Representative raw PCAP stage
+
+- `pipeline.build_pcap_dataset` builds train, validation and test partitions from curator-supplied per-capture timelines.
+- Every capture requires a complete SHA-256 value. The builder rejects mismatches, gaps, overlapping timeline intervals and inconsistent benign or attack stage labels.
+- Sequences remain inside their source capture and partition. Raw PCAP populates 29 of the 31-feature contract; authentication and identity-reuse features require joined honeypot or identity telemetry.
+- `datasets/pcap_training_plan.example.json` documents the input contract. Existing uploads remain excluded because they do not have trusted labels and partition provenance.

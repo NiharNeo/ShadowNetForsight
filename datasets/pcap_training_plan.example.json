@@ -1,0 +1,38 @@
+{
+  "dataset": "ShadowNet representative raw PCAP corpus",
+  "window_seconds": 5,
+  "sequence_length": 12,
+  "horizon": 3,
+  "partitions": {
+    "train": [
+      {
+        "path": "../data/pcap-corpus/train/example.pcap",
+        "sha256": "replace-with-complete-lowercase-sha256",
+        "timeline": [
+          {"start_seconds": 0, "end_seconds": 300, "label": 0, "stage": "Normal"},
+          {"start_seconds": 300, "end_seconds": 600, "label": 1, "stage": "Reconnaissance"}
+        ]
+      }
+    ],
+    "validation": [
+      {
+        "path": "../data/pcap-corpus/validation/example.pcap",
+        "sha256": "replace-with-complete-lowercase-sha256",
+        "timeline": [
+          {"start_seconds": 0, "end_seconds": 300, "label": 0, "stage": "Normal"},
+          {"start_seconds": 300, "end_seconds": 600, "label": 1, "stage": "Initial Access"}
+        ]
+      }
+    ],
+    "test": [
+      {
+        "path": "../data/pcap-corpus/test/example.pcap",
+        "sha256": "replace-with-complete-lowercase-sha256",
+        "timeline": [
+          {"start_seconds": 0, "end_seconds": 300, "label": 0, "stage": "Normal"},
+          {"start_seconds": 300, "end_seconds": 600, "label": 1, "stage": "Reconnaissance"}
+        ]
+      }
+    ]
+  }
+}
