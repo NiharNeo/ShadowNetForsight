@@ -56,3 +56,4 @@
 - Every capture requires a complete SHA-256 value. The builder rejects mismatches, gaps, overlapping timeline intervals and inconsistent benign or attack stage labels.
 - Sequences remain inside their source capture and partition. Raw PCAP populates 29 of the 31-feature contract; authentication and identity-reuse features require joined honeypot or identity telemetry.
 - `datasets/pcap_training_plan.example.json` documents the input contract. Existing uploads remain excluded because they do not have trusted labels and partition provenance.
+- Raw-PCAP sequences include the attack state at the final observed window. `--onset-loss-weight` uses that anchor to emphasize benign-to-attack transitions without changing ordinary sequence labels; `make train-pcap-onset` enables a research weight of 4.

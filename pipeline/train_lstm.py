@@ -35,6 +35,7 @@ class TrainingConfig:
     dropout: float = 0.2
     patience: int = 10
     state_loss_weight: float = 0.10
+    onset_loss_weight: float = 0.0
     seed: int = 42
 
 
@@ -66,19 +67,30 @@ def tensors(split: dict[str, np.ndarray]) -> TensorDataset:
     )
 
 
-def loss_for(outputs: dict[str, torch.Tensor], target_state: torch.Tensor, target_attack: torch.Tensor, target_stage: torch.Tensor, state_weight: float, attack_weight: torch.Tensor | None = None, stage_weight: torch.Tensor | None = None) -> tuple[torch.Tensor, dict[str, float]]:
-    attack_loss = nn.functional.binary_cross_entropy_with_logits(outputs["attack_logits"], target_attack, pos_weight=attack_weight)
+def onset_weights(split: dict[str, np.ndarray], boost: float) -> np.ndarray:
+    weights = np.ones_like(split["y_attack"], dtype=np.float32)
+    if boost <= 0 or "anchor_attack" not in split:
+        return weights
+    previous = np.concatenate([split["anchor_attack"].reshape(-1, 1), split["y_attack"][:, :-1]], axis=1)
+    onset = (split["y_attack"] > 0) & (previous <= 0)
+    return weights + onset.astype(np.float32) * boost
+
+
+def loss_for(outputs: dict[str, torch.Tensor], target_state: torch.Tensor, target_attack: torch.Tensor, target_stage: torch.Tensor, state_weight: float, attack_weight: torch.Tensor | None = None, stage_weight: torch.Tensor | None = None, onset_weight: torch.Tensor | None = None) -> tuple[torch.Tensor, dict[str, float]]:
+    attack_elements = nn.functional.binary_cross_entropy_with_logits(outputs["attack_logits"], target_attack, pos_weight=attack_weight, reduction="none")
+    attack_loss = (attack_elements * onset_weight).mean() if onset_weight is not None else attack_elements.mean()
     stage_loss = nn.functional.cross_entropy(outputs["stage_logits"].flatten(0, 1), target_stage.flatten(), weight=stage_weight)
     state_loss = nn.functional.smooth_l1_loss(outputs["future_state"], target_state)
     total = attack_loss + stage_loss + state_weight * state_loss
     return total, {"attack": float(attack_loss.detach()), "stage": float(stage_loss.detach()), "state": float(state_loss.detach())}
 
 
-def evaluate_loss(model: ForecastHeads, split: dict[str, np.ndarray], state_weight: float, attack_weight: torch.Tensor, stage_weight: torch.Tensor) -> float:
+def evaluate_loss(model: ForecastHeads, split: dict[str, np.ndarray], state_weight: float, attack_weight: torch.Tensor, stage_weight: torch.Tensor, onset_boost: float = 0.0) -> float:
     model.eval()
     with torch.no_grad():
         x, state, attack, stage = tensors(split).tensors
-        loss, _ = loss_for(model(x), state, attack, stage, state_weight, attack_weight, stage_weight)
+        onset_weight = torch.tensor(onset_weights(split, onset_boost), dtype=torch.float32)
+        loss, _ = loss_for(model(x), state, attack, stage, state_weight, attack_weight, stage_weight, onset_weight)
     return float(loss)
 
 
@@ -154,6 +166,8 @@ def attribution_summary(model: ForecastHeads, split: dict[str, np.ndarray], feat
 
 
 def train(data_dir: Path, output_dir: Path, config: TrainingConfig) -> dict:
+    if config.onset_loss_weight < 0:
+        raise ValueError("onset_loss_weight must be non-negative")
     seed_everything(config.seed)
     manifest = json.loads((data_dir / "manifest.json").read_text(encoding="utf-8"))
     raw_train = load_split(data_dir, "train")
@@ -183,7 +197,8 @@ def train(data_dir: Path, output_dir: Path, config: TrainingConfig) -> dict:
 
     model = build_temporal_model({"architecture": config.architecture, "feature_count": len(manifest["features"]), "stage_count": len(manifest["stage_order"]), "horizon": manifest["config"]["horizon"], "hidden_size": config.hidden_size, "layers": config.layers, "dropout": config.dropout})
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate, weight_decay=1e-4)
-    loader = DataLoader(tensors(train_split), batch_size=min(config.batch_size, len(train_split["x"])), shuffle=True, generator=torch.Generator().manual_seed(config.seed))
+    training_tensors = tensors(train_split).tensors + (torch.tensor(onset_weights(train_split, config.onset_loss_weight), dtype=torch.float32),)
+    loader = DataLoader(TensorDataset(*training_tensors), batch_size=min(config.batch_size, len(train_split["x"])), shuffle=True, generator=torch.Generator().manual_seed(config.seed))
 
     best_loss = float("inf")
     best_state = None
@@ -192,14 +207,14 @@ def train(data_dir: Path, output_dir: Path, config: TrainingConfig) -> dict:
     for epoch in range(1, config.epochs + 1):
         model.train()
         batch_losses = []
-        for x, target_state, target_attack, target_stage in loader:
+        for x, target_state, target_attack, target_stage, onset_weight in loader:
             optimizer.zero_grad()
-            loss, components = loss_for(model(x), target_state, target_attack, target_stage, config.state_loss_weight, attack_weight, stage_weight)
+            loss, components = loss_for(model(x), target_state, target_attack, target_stage, config.state_loss_weight, attack_weight, stage_weight, onset_weight)
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
             batch_losses.append(float(loss.detach()))
-        validation_loss = evaluate_loss(model, validation_split, config.state_loss_weight, attack_weight, stage_weight)
+        validation_loss = evaluate_loss(model, validation_split, config.state_loss_weight, attack_weight, stage_weight, config.onset_loss_weight)
         history.append({"epoch": epoch, "train_loss": float(np.mean(batch_losses)), "validation_loss": validation_loss})
         if validation_loss < best_loss - 1e-6:
             best_loss = validation_loss
@@ -239,6 +254,13 @@ def train(data_dir: Path, output_dir: Path, config: TrainingConfig) -> dict:
         "best_validation_loss": best_loss,
         "epochs_completed": len(history),
         "loss_weights": {"attack_positive": attack_weight.tolist(), "stage": stage_weight.tolist()},
+        "onset_supervision": {
+            "available": "anchor_attack" in train_split,
+            "additional_loss_weight": config.onset_loss_weight,
+            "train_onset_targets": int((onset_weights(train_split, 1.0) > 1.0).sum()),
+            "validation_onset_targets": int((onset_weights(validation_split, 1.0) > 1.0).sum()),
+            "test_onset_targets": int((onset_weights(test_split, 1.0) > 1.0).sum()),
+        },
         "input_transform": INPUT_TRANSFORM,
         "normalization_clip": NORMALIZATION_CLIP,
         "feature_observed": {name: bool(feature_observed[index]) for index, name in enumerate(manifest["features"])},
@@ -293,10 +315,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--architecture", choices=("lstm", "gru", "tcn", "transformer"), default="lstm")
     parser.add_argument("--hidden-size", type=int, default=64)
     parser.add_argument("--layers", type=int, default=2)
+    parser.add_argument("--onset-loss-weight", type=float, default=0.0, help="Additional loss multiplier for benign-to-attack transitions when anchor_attack labels exist.")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    configuration = TrainingConfig(epochs=args.epochs, patience=args.patience, architecture=args.architecture, hidden_size=args.hidden_size, layers=args.layers)
+    configuration = TrainingConfig(epochs=args.epochs, patience=args.patience, architecture=args.architecture, hidden_size=args.hidden_size, layers=args.layers, onset_loss_weight=args.onset_loss_weight)
     print(json.dumps(train(args.data, args.output, configuration), indent=2))

@@ -15,7 +15,7 @@ from pipeline.build_dataset import BuildConfig, FEATURES, aggregate_windows, bui
 from pipeline.stage_mapping import map_label
 from pipeline.pcap_replay import StreamingPcapReplay
 from pipeline.train_baseline import train
-from pipeline.train_lstm import TrainingConfig, train as train_lstm
+from pipeline.train_lstm import TrainingConfig, onset_weights, train as train_lstm
 from backend.inference_service import LSTMInferenceService
 from pipeline.evaluate import early_warning, evaluate
 from pipeline.build_partitioned_dataset import build_partitioned
@@ -204,6 +204,24 @@ class DatasetBuildTests(unittest.TestCase):
         self.assertEqual(result["onsets_forecast_early"], 1)
         self.assertEqual(result["max_lead_seconds"], 10.0)
 
+    def test_onset_weights_only_emphasize_benign_to_attack_transitions(self) -> None:
+        split = {
+            "anchor_attack": np.asarray([0, 1, 0], dtype=np.float32),
+            "y_attack": np.asarray([[0, 1, 1], [1, 1, 0], [1, 0, 1]], dtype=np.float32),
+        }
+        weights = onset_weights(split, 4.0)
+        self.assertEqual(weights.tolist(), [[1.0, 5.0, 1.0], [1.0, 1.0, 1.0], [5.0, 1.0, 5.0]])
+
+    def test_early_warning_resets_between_captures(self) -> None:
+        split = {
+            "capture_id": np.asarray(["a", "b"], dtype="U1"),
+            "anchor_time": np.asarray(["2026-01-01 10:00:00", "2026-01-01 10:00:00"], dtype="U32"),
+            "y_attack": np.asarray([[0, 0], [1, 1]], dtype=np.float32),
+        }
+        probability = np.asarray([[0.1, 0.1], [0.9, 0.9]], dtype=np.float32)
+        result = early_warning(split, probability, window_seconds=5, threshold=0.5)
+        self.assertEqual(result["attack_onsets"], 0)
+
 
 class PcapReplayTests(unittest.TestCase):
     def test_labelled_pcap_builder_preserves_capture_partitions(self) -> None:
@@ -239,6 +257,8 @@ class PcapReplayTests(unittest.TestCase):
                 self.assertEqual(split["x"].shape, (13, 6, len(FEATURES)))
                 self.assertTrue(np.all(split["capture_id"] == "test.pcap"))
                 self.assertGreater(split["y_attack"].sum(), 0)
+                self.assertIn("anchor_attack", split.files)
+                self.assertIn("anchor_time", split.files)
 
     def test_packet_level_security_features(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

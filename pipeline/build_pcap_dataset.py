@@ -99,6 +99,8 @@ def _capture_sequences(path: Path, entry: dict[str, Any], config: BuildConfig) -
     y_state = np.stack([matrix[i + config.sequence_length:i + config.sequence_length + config.horizon] for i in range(count)])
     y_attack = np.stack([attack[i + config.sequence_length:i + config.sequence_length + config.horizon] for i in range(count)])
     y_stage = np.stack([stage[i + config.sequence_length:i + config.sequence_length + config.horizon] for i in range(count)])
+    anchor_attack = np.asarray([attack[i + config.sequence_length - 1] for i in range(count)], dtype=np.float32)
+    anchor_stage = np.asarray([stage[i + config.sequence_length - 1] for i in range(count)], dtype=np.int64)
     capture_start = _capture_start(path)
     anchor_values = [
         datetime.fromtimestamp(capture_start + (i + config.sequence_length - 1) * config.window_seconds,
@@ -108,6 +110,7 @@ def _capture_sequences(path: Path, entry: dict[str, Any], config: BuildConfig) -
     anchor = np.asarray(anchor_values, dtype="U40")
     capture_id = np.asarray([path.name] * count, dtype=f"U{max(len(path.name), 1)}")
     arrays = {"x": x, "y_state": y_state, "y_attack": y_attack, "y_stage": y_stage,
+              "anchor_attack": anchor_attack, "anchor_stage": anchor_stage,
               "anchor_time": anchor, "capture_id": capture_id}
     metadata = {"path": str(path), "sha256": actual_hash, "bytes": path.stat().st_size,
                 "windows": len(states), "duration_seconds": duration, "sequences": count,

@@ -110,6 +110,15 @@ make build-pcap-corpus
 
 The builder rejects missing or changed files, incomplete or overlapping timelines, inconsistent benign/attack stages and captures shorter than the configured sequence plus forecast horizon. Existing dashboard uploads are not training data because they do not have trusted labels or partition provenance.
 
+After the corpus builds successfully, train and evaluate the onset-aware research candidate with:
+
+```bash
+make train-pcap-onset
+make evaluate-pcap-onset
+```
+
+The onset-aware configuration increases the loss applied to labelled benign-to-attack transitions. It does not change the fixed test partition or relax the 5% validation false-positive-rate budget.
+
 ## Judge demo flow
 
 1. Show the forecast horizons and fixed-test evidence panel.

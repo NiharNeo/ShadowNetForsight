@@ -100,22 +100,30 @@ def parse_anchor(value: object) -> datetime:
 
 def early_warning(split: dict[str, np.ndarray], probability: np.ndarray, window_seconds: int, threshold: float | list[float]) -> dict:
     # Overlapping sequences forecast the same target window repeatedly. Collapse
-    # them by target timestamp before locating episode onsets.
-    actual_by_target: dict[datetime, int] = {}
+    # them by capture and target timestamp before locating episode onsets.
+    # The capture key prevents a partition boundary from becoming a false onset.
+    actual_by_target: dict[tuple[str, datetime], int] = {}
     thresholds = threshold_vector(threshold, split["y_attack"].shape[1])
-    forecasts_by_target: dict[datetime, list[tuple[datetime, float, float]]] = {}
+    forecasts_by_target: dict[tuple[str, datetime], list[tuple[datetime, float, float]]] = {}
+    capture_ids = split.get("capture_id", np.asarray(["partition"] * len(split["anchor_time"])))
     for row, anchor_value in enumerate(split["anchor_time"]):
         issued_at = parse_anchor(anchor_value)
+        capture_id = str(capture_ids[row])
         for horizon in range(split["y_attack"].shape[1]):
             target = issued_at + timedelta(seconds=(horizon + 1) * window_seconds)
-            actual_by_target[target] = int(split["y_attack"][row, horizon] > 0)
-            forecasts_by_target.setdefault(target, []).append((issued_at, float(probability[row, horizon]), float(thresholds[horizon])))
+            key = (capture_id, target)
+            actual_by_target[key] = int(split["y_attack"][row, horizon] > 0)
+            forecasts_by_target.setdefault(key, []).append((issued_at, float(probability[row, horizon]), float(thresholds[horizon])))
 
-    ordered = sorted(actual_by_target)
-    onsets = [timestamp for index, timestamp in enumerate(ordered) if actual_by_target[timestamp] == 1 and index > 0 and actual_by_target[ordered[index - 1]] == 0]
+    onsets = []
+    for capture_id in sorted(set(key[0] for key in actual_by_target)):
+        ordered = sorted(key for key in actual_by_target if key[0] == capture_id)
+        onsets.extend(key for index, key in enumerate(ordered)
+                      if actual_by_target[key] == 1 and index > 0 and actual_by_target[ordered[index - 1]] == 0)
     leads = []
-    for onset in onsets:
-        valid = [(onset - issued).total_seconds() for issued, score, cutoff in forecasts_by_target.get(onset, []) if score >= cutoff and issued < onset]
+    for onset_key in onsets:
+        onset = onset_key[1]
+        valid = [(onset - issued).total_seconds() for issued, score, cutoff in forecasts_by_target.get(onset_key, []) if score >= cutoff and issued < onset]
         if valid:
             leads.append(max(valid))
     return {
