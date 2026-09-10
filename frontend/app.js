@@ -321,6 +321,7 @@ async function simulate() {
   const response = await authenticatedFetch("/api/simulate", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({action: selectedAction})});
   if (!response.ok) throw new Error((await response.json()).detail || "Simulation failed");
   const outcome = await response.json();
+  $("beforeRisk").textContent = `${outcome.before}%`;
   $("afterRisk").textContent = `${outcome.after}%`;
   $("delta").textContent = `−${outcome.reduction} pts projected risk`;
   $("simExplanation").textContent = `${outcome.explanation} ${outcome.disclaimer} Method: ${outcome.method.replaceAll("_", " ")}.`;

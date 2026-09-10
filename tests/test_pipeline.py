@@ -46,6 +46,7 @@ class DatasetBuildTests(unittest.TestCase):
     def test_network_interventions_reduce_simulated_compromise(self) -> None:
         results = [simulate_mitigation(action, trials=3000) for action in ("block_ip", "close_port", "isolate_host", "rate_limit")]
         self.assertTrue(all(result["after"] < result["before"] for result in results))
+        self.assertTrue(all(abs((result["before"] - result["after"]) - result["reduction"]) < 0.011 for result in results))
         self.assertTrue(all(result["method"].startswith("monte_carlo") for result in results))
 
     def test_host_graph_tracks_peer_fanout_and_identity_reuse(self) -> None:
