@@ -5,6 +5,7 @@ let selectedAction = "close_port";
 let liveSocket;
 let liveTimer;
 let liveLabId;
+let activeSourceMode = "demo";
 let accessToken = sessionStorage.getItem("shadownetToken") || "";
 
 const $ = (id) => document.getElementById(id);
@@ -176,6 +177,7 @@ function renderState() {
 }
 
 function startReplay() {
+  activeSourceMode = "demo";
   clearInterval(timer);
   clearInterval(liveTimer);
   if (liveSocket) liveSocket.close();
@@ -196,6 +198,7 @@ function startReplay() {
 }
 
 async function startLiveLab() {
+  activeSourceMode = "live_lab";
   clearInterval(timer);
   clearInterval(liveTimer);
   if (liveSocket) liveSocket.close();
@@ -267,6 +270,7 @@ function resetReplay() {
   if (liveSocket) liveSocket.close();
   if (liveLabId && accessToken) authenticatedFetch(`/api/live-lab/${liveLabId}`, {method: "DELETE"}).catch(() => {});
   liveLabId = undefined;
+  activeSourceMode = "demo";
   step = 0;
   $("play").innerHTML = "<span>▶</span> Run scripted attack demo";
   $("liveLab").disabled = false;
@@ -275,6 +279,7 @@ function resetReplay() {
 }
 
 async function uploadPcap(file) {
+  activeSourceMode = "pcap";
   clearInterval(timer);
   clearInterval(liveTimer);
   step = 0;
@@ -364,9 +369,23 @@ function applyLiveForecast(forecast, contributions = [], method = "integrated_gr
   if (uncertainty?.status === "out_of_distribution") {
     $("modelStatus").textContent = "UNKNOWN NETWORK · ALERTS SUPPRESSED";
     $("modelStatus").classList.remove("live-model");
+    $("riskValue").textContent = "--";
+    $("riskRing").parentElement.style.background = "conic-gradient(var(--lime) 0%, #21312c 0)";
     $("riskText").textContent = "Traffic is outside the validated training envelope";
+    $("riskTrend").textContent = "● SUPPRESSED";
+    $("nextStage").textContent = "UNVERIFIED";
+    $("targetHost").textContent = "Not reliable";
+    $("confidence").textContent = "N/A";
     $("eta").textContent = "Analyst review required · no automated alert";
-    setSituationBrief("UNKNOWN TRAFFIC", "This traffic does not resemble the model's validated training data.", "The statistical pattern falls outside the network behaviour the model knows.", "The displayed probability may not be trustworthy on this network.", "Review the capture manually and calibrate the model on representative local traffic before using alerts.", "unknown");
+    const nextAction = activeSourceMode === "live_lab"
+      ? "Use the scripted demo for presentation, or collect labelled validation sessions from this lab and fit a local calibration profile before trusting live alerts."
+      : "Review the capture manually and calibrate the model on representative local traffic before using alerts.";
+    setSituationBrief("UNKNOWN TRAFFIC", "This traffic does not resemble the model's validated training data.", "The statistical pattern falls outside the network behaviour the model knows.", "Risk, stage, confidence and target are hidden because they are not trustworthy on this network.", nextAction, "unknown");
+    $("forecastChart").innerHTML = '<div class="forecast-suppressed"><b>FORECAST SUPPRESSED</b><span>Calibrate this network before displaying model probabilities.</span></div>';
+    $("explanation").textContent = "The OOD gate rejected this sequence before it could become an operational alert.";
+    $("features").innerHTML = "";
+    $("explainMethod").textContent = "No explanation is shown for an untrusted forecast.";
+    return;
   } else if (uncertainty) {
     $("modelStatus").textContent = "CALIBRATED LSTM · IN-DISTRIBUTION";
     const roundedRisk = Math.round(current.risk);
