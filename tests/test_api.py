@@ -11,6 +11,15 @@ from backend.security import SecurityManager
 
 
 class ApiIntegrationTests(unittest.TestCase):
+    def test_controlled_lab_plan_is_exposed_to_dashboard(self) -> None:
+        response = TestClient(main.app).get("/api/lab-plan")
+        self.assertEqual(response.status_code, 200)
+        plan = response.json()
+        self.assertEqual(sum(item["percent"] for item in plan["partitions"]), 100)
+        self.assertEqual(sum(item["sessions"] for item in plan["partitions"]), 30)
+        self.assertEqual(sum(item["sessions"] for item in plan["scenarios"]), 30)
+        self.assertTrue(any("held-out test" in gate for gate in plan["gates"]))
+
     def test_authenticated_telemetry_simulation_and_audit(self) -> None:
         original_security = main.security
         try:

@@ -69,6 +69,19 @@
         <p class="brief-disclaimer">Decision support only. An analyst should verify the evidence before taking action.</p>
       </section>
 
+      <section class="lab-panel">
+        <div class="panel-head"><div><span class="kicker">CONTROLLED DATA PROGRAM</span><h2>Lab corpus command centre</h2></div><span id="labStatus" class="badge accent">PLAN LOADING</span></div>
+        <div class="lab-overview">
+          <div>
+            <p class="lab-intro">Small, labelled sessions replace the immediate 40 GB download. Every capture includes benign warm-up, an exact event timeline and a cryptographic fingerprint.</p>
+            <div id="labStats" class="lab-stats"></div>
+            <div class="split-wrap"><span class="viz-label">CAPTURE-LEVEL PARTITIONS</span><div id="splitBar" class="split-bar" aria-label="Dataset partition plan"></div><div id="splitLegend" class="split-legend"></div></div>
+          </div>
+          <div><span class="viz-label">TARGET SCENARIO MIX</span><div id="scenarioMix" class="scenario-mix"></div></div>
+        </div>
+        <div class="lab-bottom"><div><span class="viz-label">COLLECTION GATES</span><ol id="labGates"></ol></div><div class="onset-diagram"><span class="viz-label">ONE LABELLED CAPTURE</span><div class="onset-track"><i class="warmup"></i><i class="attack"></i><b>Attack onset</b></div><div class="onset-labels"><span>Benign warm-up</span><span>Forecast window</span><span>Observed attack</span></div></div></div>
+      </section>
+
       <section class="calibration-panel">
         <div class="panel-head"><div><span class="kicker">LOCAL NETWORK ADAPTATION</span><h2>Calibrate this network</h2></div><span class="badge accent">VALIDATION FILES ONLY</span></div>
         <p class="calibration-intro">Create a profile from labelled captures from one network. Keep the PCAP used for final testing separate.</p>
@@ -112,6 +125,11 @@
         <article class="panel evidence-panel">
           <div class="panel-head"><div><span class="kicker">04 / VALIDATION EVIDENCE</span><h2>What the model can—and cannot—claim</h2></div><span id="claimBadge" class="badge danger">CLAIMS RESTRICTED</span></div>
           <div id="evidenceMetrics" class="evidence-metrics"></div>
+          <div class="evidence-viz-grid">
+            <div><span class="viz-label">HORIZON QUALITY · HIGHER IS BETTER</span><div id="qualityChart" class="quality-chart"></div></div>
+            <div><span class="viz-label">GENERALIZATION CHECK · OOD FLAG RATE</span><div id="oodChart" class="ood-chart"></div></div>
+            <div><span class="viz-label">EARLY-WARNING COVERAGE</span><div id="onsetCoverage" class="coverage-chart"></div></div>
+          </div>
           <div class="evidence-bottom">
             <div><span class="kicker">EARLY WARNING</span><strong id="leadEvidence">—</strong><p id="onsetEvidence">Loading evaluation…</p></div>
             <div class="warning-card"><span class="kicker">EXTERNAL GENERALIZATION</span><strong id="crossWarning">CTU-13 CHECK PENDING</strong><p id="crossDetail">Independent dataset results are shown without hiding failure modes.</p></div>
@@ -139,6 +157,6 @@
     </main>
 
     <footer><span>SHADOWNET FORESIGHT · PREDICTION, NOT PROMISE</span><span>DATASET: CSE-CIC-IDS2018 · 5 TRAIN DAYS · FIXED VALIDATION + TEST</span></footer>
-    <script src="/assets/app.js?v=20260908-4"></script>
+    <script src="/assets/app.js?v=20260910-1"></script>
   </body>
 </html>

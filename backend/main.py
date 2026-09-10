@@ -198,6 +198,12 @@ def evidence() -> dict:
     return json.loads(summary_path.read_text(encoding="utf-8"))
 
 
+@app.get("/api/lab-plan")
+def lab_plan() -> dict:
+    plan_path = ROOT / "datasets" / "controlled_lab_capture_plan.json"
+    return json.loads(plan_path.read_text(encoding="utf-8"))
+
+
 @app.get("/api/calibration/profiles")
 def calibration_profiles() -> list[dict]:
     return [{

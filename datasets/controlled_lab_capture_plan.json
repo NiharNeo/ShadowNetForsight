@@ -1,0 +1,25 @@
+{
+  "name": "ShadowNet controlled-lab PCAP corpus",
+  "status": "planned",
+  "window_seconds": 5,
+  "minimum_capture_minutes": 15,
+  "split_policy": "Entire capture sessions stay in exactly one partition; devices and attack runs must not cross partitions.",
+  "partitions": [
+    {"name": "Train", "percent": 60, "sessions": 18},
+    {"name": "Validation", "percent": 20, "sessions": 6},
+    {"name": "Test", "percent": 20, "sessions": 6}
+  ],
+  "scenarios": [
+    {"name": "Normal interactive traffic", "family": "Benign", "sessions": 9, "color": "cyan", "description": "Web, DNS, SSH administration and ordinary file transfer."},
+    {"name": "Normal high-volume traffic", "family": "Benign", "sessions": 6, "color": "cyan", "description": "Approved downloads, backups and concurrent application use."},
+    {"name": "Service discovery", "family": "Reconnaissance", "sessions": 5, "color": "amber", "description": "Authorized scanning inside the isolated lab."},
+    {"name": "Authentication pressure", "family": "Credential Access", "sessions": 5, "color": "red", "description": "Controlled failed-login sequences against disposable lab accounts."},
+    {"name": "Web traffic stress", "family": "Impact", "sessions": 5, "color": "red", "description": "Rate-limited load against a disposable local service."}
+  ],
+  "gates": [
+    "Run only in an isolated, owned lab with no route to third-party systems.",
+    "Record capture SHA-256, device roles and exact scenario start/end timestamps.",
+    "Keep benign warm-up before attack onset so early-warning lead time is measurable.",
+    "Do not tune on the held-out test captures."
+  ]
+}

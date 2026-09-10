@@ -53,16 +53,30 @@ async function authenticatedFetch(url, options = {}) {
 }
 
 async function boot() {
-  [session] = await Promise.all([
+  const results = await Promise.all([
     fetch("/api/session").then((response) => response.json()),
     loadEvidence(),
     loadCalibrationProfiles(),
+    loadLabPlan(),
   ]);
+  session = results[0];
   $("source").textContent = session.source;
   renderForecast();
   renderPath();
   renderTimeline();
   renderState();
+}
+
+async function loadLabPlan() {
+  const plan = await fetch("/api/lab-plan").then((response) => response.json());
+  const totalSessions = plan.scenarios.reduce((sum, item) => sum + item.sessions, 0);
+  const totalMinutes = totalSessions * plan.minimum_capture_minutes;
+  $("labStatus").textContent = `${plan.status.toUpperCase()} · ${totalSessions} SESSIONS`;
+  $("labStats").innerHTML = `<div><strong>${totalSessions}</strong><span>labelled sessions</span></div><div><strong>${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m</strong><span>minimum traffic</span></div><div><strong>${plan.window_seconds}s</strong><span>model windows</span></div>`;
+  $("splitBar").innerHTML = plan.partitions.map((item, index) => `<div class="split-${index}" style="width:${item.percent}%"><b>${item.percent}%</b></div>`).join("");
+  $("splitLegend").innerHTML = plan.partitions.map((item, index) => `<span><i class="split-${index}"></i>${item.name} · ${item.sessions} sessions</span>`).join("");
+  $("scenarioMix").innerHTML = plan.scenarios.map((item) => `<div class="scenario-row"><div><b>${item.name}</b><span>${item.family}</span></div><div class="scenario-count ${item.color}">${item.sessions}</div><p>${item.description}</p></div>`).join("");
+  $("labGates").innerHTML = plan.gates.map((gate) => `<li>${gate}</li>`).join("");
 }
 
 async function loadCalibrationProfiles(preferred = "") {
@@ -117,6 +131,12 @@ async function loadEvidence() {
   const worstFpr = evidence.cross_dataset.maximum_false_positive_rate;
   $("crossWarning").textContent = `${(worstFpr * 100).toFixed(0)}% CTU-13 FALSE POSITIVES`;
   $("crossDetail").textContent = `${(evidence.cross_dataset.ood_flag_rate * 100).toFixed(0)}% detected as out-of-distribution and suppressed. The classifier still fails, so deployment claims remain disabled.`;
+  $("qualityChart").innerHTML = evidence.horizons.map((item) => `<div class="quality-group"><span>+${item.step * 5}s</span><div><i class="f1" style="height:${Math.max(3, item.f1 * 900)}px" title="F1 ${(item.f1 * 100).toFixed(1)}%"></i><i class="recall" style="height:${Math.max(3, item.recall * 900)}px" title="Recall ${(item.recall * 100).toFixed(1)}%"></i></div></div>`).join("") + '<div class="quality-key"><span><i class="f1"></i>F1</span><span><i class="recall"></i>Recall</span></div>';
+  const cicRate = evidence.ood.cic_test_flag_rate * 100;
+  const ctuRate = evidence.cross_dataset.ood_flag_rate * 100;
+  $("oodChart").innerHTML = `<div class="ood-row"><span>Known CIC test</span><div><i style="width:${cicRate}%"></i></div><b>${cicRate.toFixed(1)}%</b></div><div class="ood-row danger"><span>External CTU-13</span><div><i style="width:${ctuRate}%"></i></div><b>${ctuRate.toFixed(0)}%</b></div><p>High external rejection prevents an untrusted probability from becoming an alert.</p>`;
+  const coverage = warning.attack_onsets ? warning.onsets_forecast_early / warning.attack_onsets * 100 : 0;
+  $("onsetCoverage").innerHTML = `<div class="coverage-ring" style="--coverage:${coverage}"><strong>${coverage.toFixed(1)}%</strong><span>forecast early</span></div><p><b>${warning.onsets_forecast_early}</b> early forecasts<br>from ${warning.attack_onsets} attack onsets</p>`;
 }
 
 function renderForecast() {
