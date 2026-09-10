@@ -57,3 +57,5 @@
 - Sequences remain inside their source capture and partition. Raw PCAP populates 29 of the 31-feature contract; authentication and identity-reuse features require joined honeypot or identity telemetry.
 - `datasets/pcap_training_plan.example.json` documents the input contract. Existing uploads remain excluded because they do not have trusted labels and partition provenance.
 - Raw-PCAP sequences include the attack state at the final observed window. `--onset-loss-weight` uses that anchor to emphasize benign-to-attack transitions without changing ordinary sequence labels; `make train-pcap-onset` enables a research weight of 4.
+- `datasets/cicids2018_raw_pcap_sources.json` records exact official S3 object sizes and selects the first research capture. `make preflight-pcap-acquisition` requires at least twice the compressed archive size to leave room for acquisition and extraction.
+- On 2026-09-09 the workstation had about 32 GiB free. The selected 39.9 GB archive needs a conservative 79.8 GB working area, so acquisition is intentionally blocked until more storage is available.

@@ -102,6 +102,14 @@ No sequence crosses a file/day boundary. Feature normalization is fitted on trai
 
 ### Build a labelled raw PCAP corpus
 
+Before acquiring an official CSE-CIC-IDS2018 capture, run:
+
+```bash
+make preflight-pcap-acquisition
+```
+
+This reports the exact public S3 object, archive size, conservative working-space requirement and download command. A non-zero result means acquisition must wait for more storage. Source sizes and the selection rationale are recorded in `datasets/cicids2018_raw_pcap_sources.json`.
+
 Copy `datasets/pcap_training_plan.example.json` to `datasets/pcap_training_plan.json`, then replace every example path, SHA-256 value and timeline with independently reviewed capture metadata. Keep complete captures in separate train, validation and test partitions. Build the dataset with:
 
 ```bash

@@ -1,0 +1,29 @@
+{
+  "dataset": "CSE-CIC-IDS2018 original network traffic",
+  "official_page": "https://www.unb.ca/cic/datasets/ids-2018.html",
+  "bucket": "s3://cse-cic-ids2018/Original Network Traffic and Log data/",
+  "region": "ca-central-1",
+  "storage_note": "Archive sizes were read from the official public S3 bucket on 2026-09-09. Extracted size is deliberately not guessed; inspect the ZIP central directory after acquisition.",
+  "minimum_working_space_factor": 2.0,
+  "recommended_first_capture": "Wednesday-14-02-2018",
+  "captures": [
+    {
+      "id": "Wednesday-14-02-2018",
+      "object": "Original Network Traffic and Log data/Wednesday-14-02-2018/pcap.zip",
+      "archive_bytes": 39913353098,
+      "reason": "Smallest ZIP selected for the first labelled whole-day experiment."
+    },
+    {
+      "id": "Friday-16-02-2018",
+      "object": "Original Network Traffic and Log data/Friday-16-02-2018/pcap.zip",
+      "archive_bytes": 38535667707,
+      "reason": "Smallest archive overall; retain as an alternative after schedule review."
+    },
+    {
+      "id": "Thursday-15-02-2018",
+      "object": "Original Network Traffic and Log data/Thursday-15-02-2018/pcap.zip",
+      "archive_bytes": 41283382768,
+      "reason": "Additional whole-day capture for attack-family and network-day separation."
+    }
+  ]
+}
