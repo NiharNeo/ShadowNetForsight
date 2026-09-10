@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import asyncio
 import json
 import re
 import tempfile
@@ -14,6 +15,7 @@ from pydantic import BaseModel
 from backend.replay_service import ReplayRegistry
 from backend.inference_service import LSTMInferenceService
 from backend.telemetry_service import TelemetryRegistry
+from backend.live_lab_service import LiveLabRegistry
 from backend.security import ROLE_LEVEL, Principal, SecurityManager
 from pipeline.mitigation_simulator import simulate_mitigation
 from pipeline.pcap_calibration import fit_pcap_domain_calibration
@@ -27,6 +29,7 @@ app.mount("/assets", StaticFiles(directory=FRONTEND), name="assets")
 inference_service = LSTMInferenceService(ROOT / "models" / "cic2018-phase1-lstm" / "lstm.pt")
 replays = ReplayRegistry(ROOT / "data" / "uploads", inference_service)
 telemetry = TelemetryRegistry(inference_service)
+live_labs = LiveLabRegistry(telemetry)
 security = SecurityManager(ROOT / "data" / "shadownet.db")
 MAX_PCAP_BYTES = 250 * 1024 * 1024
 
@@ -314,6 +317,32 @@ def create_telemetry_stream(request: TelemetryCreateRequest, http_request: Reque
     return {"stream_id": stream_id, "source": request.source, "calibration_domain": request.calibration_domain or "global", **handle.stream.status()}
 
 
+@app.post("/api/live-lab")
+def create_live_lab(request: Request) -> dict:
+    _principal(request, "operator")
+    session_id, session = live_labs.create()
+    return {"session_id": session_id, "mode": "controlled_live_lab", "tick_interval_ms": 900, **session.status()}
+
+
+@app.get("/api/live-lab/{session_id}")
+def live_lab_status(session_id: str, request: Request) -> dict:
+    _principal(request, "viewer")
+    try:
+        return live_labs.get(session_id).status()
+    except KeyError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.delete("/api/live-lab/{session_id}")
+def stop_live_lab(session_id: str, request: Request) -> dict[str, str]:
+    _principal(request, "operator")
+    try:
+        live_labs.remove(session_id)
+    except KeyError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return {"stopped": session_id}
+
+
 @app.post("/api/telemetry/streams/{stream_id}/events")
 def ingest_telemetry(stream_id: str, request: TelemetryBatchRequest, http_request: Request) -> dict:
     _principal(http_request, "operator")
@@ -451,3 +480,33 @@ async def replay_socket(websocket: WebSocket, replay_id: str) -> None:
             await websocket.send_json({"type": "replay_update", **handle.advance(seconds)})
     except WebSocketDisconnect:
         return
+
+
+@app.websocket("/ws/live-lab/{session_id}")
+async def live_lab_socket(websocket: WebSocket, session_id: str) -> None:
+    try:
+        session = live_labs.get(session_id)
+    except KeyError:
+        await websocket.close(code=4404, reason="Live lab session not found")
+        return
+    await websocket.accept()
+    try:
+        authentication = await websocket.receive_json()
+    except (WebSocketDisconnect, ValueError):
+        return
+    principal = security.verify_token(str(authentication.get("token", "")))
+    if authentication.get("type") != "auth" or principal is None or ROLE_LEVEL[principal.role] < ROLE_LEVEL["viewer"]:
+        await websocket.close(code=4401, reason="Valid viewer token required")
+        return
+    await websocket.send_json({"type": "connected", "session_id": session_id, **session.status()})
+    try:
+        while not session.status()["complete"]:
+            await asyncio.sleep(0.9)
+            await websocket.send_json({"type": "live_lab_update", **session.advance()})
+    except WebSocketDisconnect:
+        session.stop()
+    finally:
+        try:
+            live_labs.remove(session_id)
+        except KeyError:
+            pass

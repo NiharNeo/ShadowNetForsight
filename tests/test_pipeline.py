@@ -29,6 +29,8 @@ from pipeline.mitigation_simulator import simulate_mitigation
 from pipeline.host_graph import HostGraphTracker
 from pipeline.fit_domain_calibration import fit_domain_calibration
 from scripts.validate_cowrie_sample import validate as validate_cowrie_sample
+from backend.live_lab_service import LiveLabRegistry
+from backend.telemetry_service import TelemetryRegistry
 
 
 class StageMappingTests(unittest.TestCase):
@@ -43,6 +45,25 @@ class StageMappingTests(unittest.TestCase):
 
 
 class DatasetBuildTests(unittest.TestCase):
+    def test_controlled_live_lab_streams_phases_without_network_targets(self) -> None:
+        class UnavailableService:
+            sequence_length = 12
+            available = False
+            error = None
+
+        telemetry_registry = TelemetryRegistry(UnavailableService())
+        labs = LiveLabRegistry(telemetry_registry)
+        session_id, lab = labs.create()
+        updates = [lab.advance() for _ in range(lab.total_steps)]
+        self.assertEqual(updates[0]["phase"], "Baseline")
+        self.assertEqual(updates[6]["phase"], "Service discovery")
+        self.assertEqual(updates[12]["phase"], "Authentication pressure")
+        self.assertEqual(updates[18]["phase"], "Internal pivot")
+        self.assertTrue(updates[-1]["complete"])
+        self.assertIn("no packets", updates[-1]["safety"])
+        self.assertGreater(updates[-1]["events_accepted_total"], 0)
+        labs.remove(session_id)
+
     def test_network_interventions_reduce_simulated_compromise(self) -> None:
         results = [simulate_mitigation(action, trials=3000) for action in ("block_ip", "close_port", "isolate_host", "rate_limit")]
         self.assertTrue(all(result["after"] < result["before"] for result in results))
