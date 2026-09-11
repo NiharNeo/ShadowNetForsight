@@ -4,7 +4,6 @@ let timer;
 let selectedAction = "close_port";
 let liveSocket;
 let liveTimer;
-let liveLabId;
 let accessToken = sessionStorage.getItem("shadownetToken") || "";
 
 const $ = (id) => document.getElementById(id);
@@ -195,82 +194,12 @@ function startReplay() {
   }, 1700);
 }
 
-async function startLiveLab() {
-  clearInterval(timer);
-  clearInterval(liveTimer);
-  if (liveSocket) liveSocket.close();
-  const button = $("liveLab");
-  button.disabled = true;
-  button.innerHTML = "<span>●</span> Starting secure lab…";
-  $("modelStatus").textContent = "CONTROLLED LIVE LAB · CONNECTING";
-  $("source").textContent = "Synthetic NetFlow + Cowrie events · isolated scenario";
-  setSituationBrief("STARTING", "The controlled lab is starting.", "The server is opening a new live telemetry stream.", "This tests the full streaming path without sending attack packets to a real host.", "Watch the phase and model status as each five-second window arrives.", "watch");
-  const response = await authenticatedFetch("/api/live-lab", {method: "POST"});
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.detail || "Could not start the live lab");
-  liveLabId = result.session_id;
-  connectLiveLab(liveLabId);
-}
-
-function connectLiveLab(sessionId) {
-  const protocol = location.protocol === "https:" ? "wss" : "ws";
-  liveSocket = new WebSocket(`${protocol}://${location.host}/ws/live-lab/${sessionId}`);
-  liveSocket.addEventListener("open", () => liveSocket.send(JSON.stringify({type: "auth", token: accessToken})));
-  liveSocket.addEventListener("message", (event) => {
-    const update = JSON.parse(event.data);
-    if (update.type === "connected") {
-      $("modelStatus").textContent = "LIVE LAB · MODEL WARMING UP 0 / 12";
-      $("modelStatus").classList.add("live-model");
-      $("liveLab").innerHTML = "<span>■</span> Controlled attack running";
-      return;
-    }
-    if (update.type !== "live_lab_update") return;
-    const inference = update.inference;
-    $("source").textContent = `CONTROLLED LIVE LAB · ${update.phase.toUpperCase()} · ${update.elapsed_model_seconds}s model time`;
-    $("riskText").textContent = update.detail;
-    $("nextStage").textContent = update.phase.toUpperCase();
-    if (update.phase === "Internal pivot") $("targetHost").textContent = "10.10.0.12";
-    else if (update.phase !== "Baseline") $("targetHost").textContent = "10.10.0.5";
-    if (!inference.model_ready) {
-      $("modelStatus").textContent = `LIVE LAB · WARMING UP ${inference.warmup_states} / ${inference.required_states}`;
-      $("riskValue").textContent = "--";
-      $("riskTrend").textContent = "● STREAMING";
-      setSituationBrief(update.phase.toUpperCase(), update.detail, `${update.events_accepted} new lab events entered the stream.`, "The model requires a full sequence before issuing a forecast.", "Keep the controlled session running while evidence accumulates.", "watch");
-    } else {
-      applyLiveForecast(inference.forecast, inference.feature_contributions, inference.explanation_method, inference.uncertainty, inference.temporal_contributions);
-      $("modelStatus").textContent += ` · ${update.phase.toUpperCase()}`;
-    }
-    if (update.complete) {
-      $("liveLab").disabled = false;
-      $("liveLab").innerHTML = "<span>↻</span> Run controlled live attack again";
-      $("modelStatus").textContent += " · SESSION COMPLETE";
-      liveLabId = undefined;
-    }
-  });
-  liveSocket.addEventListener("error", () => {
-    $("modelStatus").textContent = "LIVE LAB CONNECTION ERROR";
-    $("liveLab").disabled = false;
-    $("liveLab").innerHTML = "<span>↻</span> Retry controlled live attack";
-  });
-  liveSocket.addEventListener("close", (event) => {
-    if (event.code === 4401) {
-      sessionStorage.removeItem("shadownetToken");
-      accessToken = "";
-      $("modelStatus").textContent = "LOGIN EXPIRED · START THE LIVE LAB AGAIN";
-    }
-  });
-}
-
 function resetReplay() {
   clearInterval(timer);
   clearInterval(liveTimer);
   if (liveSocket) liveSocket.close();
-  if (liveLabId && accessToken) authenticatedFetch(`/api/live-lab/${liveLabId}`, {method: "DELETE"}).catch(() => {});
-  liveLabId = undefined;
   step = 0;
   $("play").innerHTML = "<span>▶</span> Run scripted attack demo";
-  $("liveLab").disabled = false;
-  $("liveLab").innerHTML = "<span>●</span> Start controlled live attack";
   renderState();
 }
 
@@ -400,11 +329,6 @@ async function simulate() {
 }
 
 $("play").addEventListener("click", startReplay);
-$("liveLab").addEventListener("click", () => startLiveLab().catch((error) => {
-  $("liveLab").disabled = false;
-  $("liveLab").innerHTML = "<span>↻</span> Retry controlled live attack";
-  $("modelStatus").textContent = error.message.toUpperCase();
-}));
 $("reset").addEventListener("click", resetReplay);
 $("simulate").addEventListener("click", simulate);
 $("uploadPcap").addEventListener("click", () => $("pcapFile").click());

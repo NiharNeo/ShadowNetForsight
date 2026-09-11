@@ -52,7 +52,7 @@ make test
 make run
 ```
 
-Open <http://127.0.0.1:8000/>. Use **Start controlled live attack** for server-pushed telemetry, **Run scripted attack demo** for the narrated fixture, or **Upload PCAP for live inference** for the capture path.
+Open <http://127.0.0.1:8000/>. Use **Start attack replay** for the narrated fixture or **Upload PCAP for live inference** for the trained-model path.
 
 The dashboard is readable without an account. Uploads, telemetry ingestion and simulation prompt for an operator/admin login. Tokens expire after one hour; users and hash-chained audit records are stored in `data/shadownet.db`. Set `SHADOWNET_TOKEN_SECRET` to a stable deployment secret so tokens survive restarts.
 
@@ -77,12 +77,6 @@ Keep the PCAP used for final evaluation completely separate. After fitting, sele
 ## Live telemetry
 
 Create a stream with `POST /api/telemetry/streams`, then send Cowrie JSON or decoded NetFlow v5/v9/IPFIX records to `POST /api/telemetry/streams/{id}/events`. Connect a Kafka JSON topic with `POST /api/telemetry/streams/{id}/kafka`; the background consumer uses bounded polling and feeds the same event-time path. Event-time windows use configurable lateness and feed the same calibrated forecast path as PCAP replay. Responses include host-peer fanout, east-west traffic, authentication failures, and reused-identity context.
-
-### Controlled live attack lab
-
-`POST /api/live-lab` creates an authenticated, finite live session. `/ws/live-lab/{id}` then pushes a new five-second model window every 900 ms through four phases: baseline, service discovery, authentication pressure and internal pivot. These events use the production telemetry adapters, event-time windowing, host graph and trained inference session; they do not replay a PCAP.
-
-This mode deliberately generates synthetic NetFlow and Cowrie records only. It sends no packets, accepts no target address and cannot attack an external system. For a real owned lab, connect an exporter, honeypot or Kafka topic through the telemetry APIs and keep the capture network isolated.
 
 ## Run with Docker
 
