@@ -1,0 +1,30 @@
+name: ShadowNet validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pilot-and-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run gated pilot workflow
+        run: python scripts/run_project_workflow.py pilot --report data/workflow/ci-report.json
+      - name: Upload workflow evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadownet-validation-report
+          path: data/workflow/ci-report.json

@@ -1,4 +1,4 @@
-.PHONY: run test demo-data controlled-lab-pilot build-multiday train-multiday evaluate-multiday build-holdout train-holdout evaluate-holdout preflight-pcap-acquisition build-pcap-corpus train-pcap-onset evaluate-pcap-onset
+.PHONY: run test demo-data controlled-lab-pilot workflow-check workflow-full build-multiday train-multiday evaluate-multiday build-holdout train-holdout evaluate-holdout preflight-pcap-acquisition build-pcap-corpus train-pcap-onset evaluate-pcap-onset
 run:
 	.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
 test:
@@ -8,6 +8,10 @@ demo-data:
 	.venv/bin/python scripts/generate_demo_pcap.py
 controlled-lab-pilot:
 	.venv/bin/python scripts/generate_controlled_lab_pcaps.py
+workflow-check:
+	.venv/bin/python scripts/run_project_workflow.py pilot
+workflow-full:
+	.venv/bin/python scripts/run_project_workflow.py full
 build-multiday:
 	.venv/bin/python -m pipeline.build_partitioned_dataset --plan datasets/cic2018_multiday_split.json --output data/processed-cic2018-multiday
 train-multiday:

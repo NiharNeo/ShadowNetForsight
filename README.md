@@ -84,6 +84,14 @@ Run `make controlled-lab-pilot` to create two synthetic 15-minute PCAP fixtures 
 
 These files validate ingestion, timing, feature extraction and labelling only. They are not representative deployment evidence and must not replace independently collected train, validation and held-out test sessions from the owned target network.
 
+### Automated validation and training workflow
+
+Run `make workflow-check` for the fast gate used by continuous integration. It regenerates the offline pilot, verifies every capture hash and usable window count, runs unit and API integration tests, and writes `data/workflow/latest.json`.
+
+Run `make workflow-full` only after `datasets/pcap_training_plan.json` contains at least 18 independent training captures, 6 validation captures and 6 untouched test captures. The full gate rejects missing files, changed hashes, reused captures and missing timelines before it builds the dataset, trains the baseline and GRU model, and evaluates the held-out test partition. GitHub Actions runs the fast gate on pushes and pull requests.
+
+Blockchain is intentionally not part of this architecture. Capture provenance uses SHA-256, while administrative audit records use an HMAC-SHA256 hash chain. A distributed ledger would add operational complexity without improving trust for this single-organization deployment; it can be reconsidered only if independent organizations must jointly attest to evidence.
+
 ## Run with Docker
 
 ```bash
