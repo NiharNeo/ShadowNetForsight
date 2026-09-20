@@ -78,6 +78,12 @@ Keep the PCAP used for final evaluation completely separate. After fitting, sele
 
 Create a stream with `POST /api/telemetry/streams`, then send Cowrie JSON or decoded NetFlow v5/v9/IPFIX records to `POST /api/telemetry/streams/{id}/events`. Connect a Kafka JSON topic with `POST /api/telemetry/streams/{id}/kafka`; the background consumer uses bounded polling and feeds the same event-time path. Event-time windows use configurable lateness and feed the same calibrated forecast path as PCAP replay. Responses include host-peer fanout, east-west traffic, authentication failures, and reused-identity context.
 
+### Offline controlled-lab pilot
+
+Run `make controlled-lab-pilot` to create two synthetic 15-minute PCAP fixtures and a SHA-256 manifest under `data/controlled-lab/pilot`. The generator writes packets directly to disk and transmits nothing. The benign capture represents ordinary DNS, HTTPS and SSH administration; the attack-progression capture contains a benign warm-up, service discovery and SSH connection pressure.
+
+These files validate ingestion, timing, feature extraction and labelling only. They are not representative deployment evidence and must not replace independently collected train, validation and held-out test sessions from the owned target network.
+
 ## Run with Docker
 
 ```bash

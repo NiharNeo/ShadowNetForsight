@@ -20,6 +20,7 @@ from backend.inference_service import LSTMInferenceService
 from pipeline.evaluate import early_warning, evaluate
 from pipeline.build_partitioned_dataset import build_partitioned
 from pipeline.build_pcap_dataset import build as build_pcap_dataset
+from pipeline.pcap_calibration import pcap_states
 from scripts.generate_demo_flows import generate
 from pipeline.calibration import fit_ood_profile, ood_scores
 from pipeline.temporal_model import build_temporal_model
@@ -29,6 +30,7 @@ from pipeline.mitigation_simulator import simulate_mitigation
 from pipeline.host_graph import HostGraphTracker
 from pipeline.fit_domain_calibration import fit_domain_calibration
 from scripts.validate_cowrie_sample import validate as validate_cowrie_sample
+from scripts.generate_controlled_lab_pcaps import generate as generate_controlled_lab_pcaps
 
 
 class StageMappingTests(unittest.TestCase):
@@ -225,6 +227,19 @@ class DatasetBuildTests(unittest.TestCase):
 
 
 class PcapReplayTests(unittest.TestCase):
+    def test_controlled_lab_pilot_is_offline_labelled_and_hash_tracked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "pilot"
+            manifest = generate_controlled_lab_pcaps(output, duration_seconds=90)
+            self.assertEqual(manifest["status"], "pilot_only_not_for_final_claims")
+            self.assertIn("no network traffic", manifest["safety"])
+            self.assertEqual(len(manifest["captures"]), 2)
+            for capture in manifest["captures"]:
+                path = output / capture["path"]
+                self.assertTrue(path.exists())
+                self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), capture["sha256"])
+                self.assertGreaterEqual(len(pcap_states(path)), 18)
+
     def test_labelled_pcap_builder_preserves_capture_partitions(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
