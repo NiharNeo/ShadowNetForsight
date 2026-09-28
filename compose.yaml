@@ -1,0 +1,35 @@
+services:
+  shadownet:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      SHADOWNET_ENV: production
+      SHADOWNET_TOKEN_SECRET: ${SHADOWNET_TOKEN_SECRET:?Set a stable high-entropy deployment secret}
+      SHADOWNET_TRUSTED_HOSTS: ${SHADOWNET_TRUSTED_HOSTS:?Set the served hostname and localhost,127.0.0.1 for health checks}
+      SHADOWNET_CHECKPOINT_SHA256: c8011213c29902a2c7c0fe34e1e1cdf0ba03e8dfdd7dc70477f1b08687531d48
+      SHADOWNET_KAFKA_BROKERS: ${SHADOWNET_KAFKA_BROKERS:-}
+      SHADOWNET_KAFKA_SECURITY_PROTOCOL: ${SHADOWNET_KAFKA_SECURITY_PROTOCOL:-SSL}
+      SHADOWNET_KAFKA_CA_FILE: ${SHADOWNET_KAFKA_CA_FILE:-}
+      SHADOWNET_KAFKA_CERT_FILE: ${SHADOWNET_KAFKA_CERT_FILE:-}
+      SHADOWNET_KAFKA_KEY_FILE: ${SHADOWNET_KAFKA_KEY_FILE:-}
+      SHADOWNET_KAFKA_SASL_MECHANISM: ${SHADOWNET_KAFKA_SASL_MECHANISM:-}
+      SHADOWNET_KAFKA_USERNAME: ${SHADOWNET_KAFKA_USERNAME:-}
+      SHADOWNET_KAFKA_PASSWORD_FILE: ${SHADOWNET_KAFKA_PASSWORD_FILE:-}
+      WEB_CONCURRENCY: "1"
+    volumes:
+      - shadownet-data:/app/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=536870912,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 4g
+    cpus: 2
+    restart: unless-stopped
+    stop_grace_period: 15s
+volumes:
+  shadownet-data:

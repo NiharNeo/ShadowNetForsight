@@ -1,0 +1,236 @@
+{
+  "training_npz_sha256": "44aad8c7e02ccf2bf34b75b5d931b9aebf4bcedc1107703b2f0e2f6ffd291c54",
+  "comparison": "Exact float32 equality of all 31 current-window features against original pilot training anchors; no approximate matching.",
+  "false_positive_windows_with_malicious_training_collision": 18,
+  "windows": [
+    {
+      "false_positive_window_index": 0,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    },
+    {
+      "false_positive_window_index": 1,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 3,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 7,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 10,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    },
+    {
+      "false_positive_window_index": 12,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 16,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 22,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 35,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    },
+    {
+      "false_positive_window_index": 36,
+      "identical_training_windows": 1,
+      "malicious_training_windows": 1,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 37,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 38,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 42,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 48,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 62,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    },
+    {
+      "false_positive_window_index": 66,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 69,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 76,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 90,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    },
+    {
+      "false_positive_window_index": 91,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 93,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 96,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 99,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    },
+    {
+      "false_positive_window_index": 116,
+      "identical_training_windows": 228,
+      "malicious_training_windows": 228,
+      "benign_training_windows": 0,
+      "matching_capture_ids": [
+        "CTU-IoT-Malware-Capture-20-1",
+        "CTU-IoT-Malware-Capture-8-1"
+      ]
+    },
+    {
+      "false_positive_window_index": 117,
+      "identical_training_windows": 0,
+      "malicious_training_windows": 0,
+      "benign_training_windows": 0,
+      "matching_capture_ids": []
+    }
+  ],
+  "interpretation": "Under these publisher labels, current-window feature collisions cannot be distinguished by a deterministic classifier of this vector alone."
+}

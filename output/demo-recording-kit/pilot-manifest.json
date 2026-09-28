@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "dataset": "ShadowNet controlled-lab synthetic pilot",
+  "status": "pilot_only_not_for_final_claims",
+  "generated_at": "2026-09-24T18:09:17.985628+00:00",
+  "generator": "scripts/generate_controlled_lab_pcaps.py",
+  "safety": "Packets were written directly to PCAP files; no network traffic was transmitted.",
+  "window_seconds": 5,
+  "captures": [
+    {
+      "role": "benign_pilot",
+      "path": "pilot-benign-3m.pcap",
+      "sha256": "f8e854a4c19f0037b100e98cf338e9421ec4086f06d2de30dc30ea514669b411",
+      "bytes": 15474,
+      "packets": 180,
+      "duration_seconds": 180,
+      "timeline": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 180,
+          "label": 0,
+          "stage": "Normal"
+        }
+      ]
+    },
+    {
+      "role": "attack_progression_pilot",
+      "path": "pilot-attack-3m.pcap",
+      "sha256": "368a3a94ed858f6b12c9e65005fac5cfaa8c538114a6e529249861efedb1a893",
+      "bytes": 13574,
+      "packets": 180,
+      "duration_seconds": 180,
+      "timeline": [
+        {
+          "start_seconds": 0,
+          "end_seconds": 60,
+          "label": 0,
+          "stage": "Normal"
+        },
+        {
+          "start_seconds": 60,
+          "end_seconds": 120,
+          "label": 1,
+          "stage": "Reconnaissance"
+        },
+        {
+          "start_seconds": 120,
+          "end_seconds": 180,
+          "label": 1,
+          "stage": "Initial Access"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Synthetic pilot traffic is not representative evidence for deployment.",
+    "Authentication outcomes are unavailable in packet-only PCAP and require joined honeypot logs.",
+    "Additional independent sessions are required for train, validation and untouched test partitions."
+  ]
+}

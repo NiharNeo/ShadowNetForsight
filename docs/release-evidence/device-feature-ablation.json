@@ -1,0 +1,299 @@
+{
+  "purpose": "Post-test diagnostic ablation; test already inspected. No deployment approval.",
+  "excluded_features": [
+    "ttl_mean",
+    "ttl_variance",
+    "tcp_window_mean"
+  ],
+  "remaining_features": [
+    "flow_count",
+    "unique_src_ips",
+    "unique_dst_ips",
+    "unique_dst_ports",
+    "protocol_count",
+    "duration_mean",
+    "fwd_packets_sum",
+    "bwd_packets_sum",
+    "bytes_sum",
+    "iat_mean",
+    "syn_count",
+    "ack_count",
+    "rst_count",
+    "psh_count",
+    "syn_ack_ratio",
+    "unique_host_edges",
+    "max_source_fanout",
+    "max_destination_fanin",
+    "east_west_ratio",
+    "failed_auth_count",
+    "identity_reuse_count",
+    "fin_count",
+    "urg_count",
+    "fragment_count",
+    "payload_size_mean",
+    "payload_size_std",
+    "retransmission_count",
+    "sequential_port_ratio"
+  ],
+  "artifact_sha256": "e473ce29335e900cbf34ab4ac86e685551c2f1f148814f22783d4626a7956152",
+  "validation_f1": 0.9981350242446848,
+  "threshold": 0.5182101733279803,
+  "operational_claims_allowed": false,
+  "splits": {
+    "validation": {
+      "groups": {
+        "all": {
+          "support": 2877,
+          "tp": 1338,
+          "fp": 0,
+          "fn": 5,
+          "tn": 1534,
+          "recall": 0.996276991809382,
+          "false_positive_rate": 0.0,
+          "precision": 1.0,
+          "f1": 0.9981350242446848
+        },
+        "active_windows": {
+          "support": 2204,
+          "tp": 1338,
+          "fp": 0,
+          "fn": 5,
+          "tn": 861,
+          "recall": 0.996276991809382,
+          "false_positive_rate": 0.0,
+          "precision": 1.0,
+          "f1": 0.9981350242446848
+        },
+        "CTU-Honeypot-Capture-7-3": {
+          "support": 1438,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1438,
+          "recall": null,
+          "false_positive_rate": 0.0,
+          "precision": null,
+          "f1": null
+        },
+        "CTU-IoT-Malware-Capture-21-1": {
+          "support": 1439,
+          "tp": 1338,
+          "fp": 0,
+          "fn": 5,
+          "tn": 96,
+          "recall": 0.996276991809382,
+          "false_positive_rate": 0.0,
+          "precision": 1.0,
+          "f1": 0.9981350242446848
+        },
+        "CTU-Honeypot-Capture-7-3 / active": {
+          "support": 817,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 817,
+          "recall": null,
+          "false_positive_rate": 0.0,
+          "precision": null,
+          "f1": null
+        },
+        "CTU-IoT-Malware-Capture-21-1 / active": {
+          "support": 1387,
+          "tp": 1338,
+          "fp": 0,
+          "fn": 5,
+          "tn": 44,
+          "recall": 0.996276991809382,
+          "false_positive_rate": 0.0,
+          "precision": 1.0,
+          "f1": 0.9981350242446848
+        }
+      },
+      "ood_rejection_rate": 0.008689607229753215,
+      "accepted": {
+        "support": 2852,
+        "tp": 1324,
+        "fp": 0,
+        "fn": 4,
+        "tn": 1524,
+        "recall": 0.9969879518072289,
+        "false_positive_rate": 0.0,
+        "precision": 1.0,
+        "f1": 0.9984917043740573
+      },
+      "rejected_positive_windows": 15,
+      "rejected_negative_windows": 10,
+      "accepted_detection_fraction_all_positives": 0.9858525688756515
+    },
+    "inspected_test": {
+      "groups": {
+        "all": {
+          "support": 2873,
+          "tp": 1018,
+          "fp": 21,
+          "fn": 308,
+          "tn": 1526,
+          "recall": 0.7677224736048266,
+          "false_positive_rate": 0.013574660633484163,
+          "precision": 0.9797882579403272,
+          "f1": 0.8608879492600423
+        },
+        "active_windows": {
+          "support": 2190,
+          "tp": 1018,
+          "fp": 21,
+          "fn": 308,
+          "tn": 843,
+          "recall": 0.7677224736048266,
+          "false_positive_rate": 0.024305555555555556,
+          "precision": 0.9797882579403272,
+          "f1": 0.8608879492600423
+        },
+        "CTU-Honeypot-Capture-7-4": {
+          "support": 1438,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 1438,
+          "recall": null,
+          "false_positive_rate": 0.0,
+          "precision": null,
+          "f1": null
+        },
+        "CTU-IoT-Malware-Capture-34-1": {
+          "support": 1435,
+          "tp": 1018,
+          "fp": 21,
+          "fn": 308,
+          "tn": 88,
+          "recall": 0.7677224736048266,
+          "false_positive_rate": 0.1926605504587156,
+          "precision": 0.9797882579403272,
+          "f1": 0.8608879492600423
+        },
+        "CTU-Honeypot-Capture-7-4 / active": {
+          "support": 824,
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 824,
+          "recall": null,
+          "false_positive_rate": 0.0,
+          "precision": null,
+          "f1": null
+        },
+        "CTU-IoT-Malware-Capture-34-1 / active": {
+          "support": 1366,
+          "tp": 1018,
+          "fp": 21,
+          "fn": 308,
+          "tn": 19,
+          "recall": 0.7677224736048266,
+          "false_positive_rate": 0.525,
+          "precision": 0.9797882579403272,
+          "f1": 0.8608879492600423
+        }
+      },
+      "ood_rejection_rate": 0.08492864601461887,
+      "accepted": {
+        "support": 2629,
+        "tp": 910,
+        "fp": 20,
+        "fn": 186,
+        "tn": 1513,
+        "recall": 0.8302919708029197,
+        "false_positive_rate": 0.01304631441617743,
+        "precision": 0.978494623655914,
+        "f1": 0.8983218163869694
+      },
+      "rejected_positive_windows": 230,
+      "rejected_negative_windows": 14,
+      "accepted_detection_fraction_all_positives": 0.6862745098039216
+    }
+  },
+  "frozen_v2_comparison": {
+    "groups": {
+      "all": {
+        "support": 2873,
+        "tp": 1326,
+        "fp": 25,
+        "fn": 0,
+        "tn": 1522,
+        "recall": 1.0,
+        "false_positive_rate": 0.01616031027795734,
+        "precision": 0.9814951887490747,
+        "f1": 0.9906611878968995
+      },
+      "active_windows": {
+        "support": 2190,
+        "tp": 1326,
+        "fp": 25,
+        "fn": 0,
+        "tn": 839,
+        "recall": 1.0,
+        "false_positive_rate": 0.028935185185185185,
+        "precision": 0.9814951887490747,
+        "f1": 0.9906611878968995
+      },
+      "CTU-Honeypot-Capture-7-4": {
+        "support": 1438,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 1438,
+        "recall": null,
+        "false_positive_rate": 0.0,
+        "precision": null,
+        "f1": null
+      },
+      "CTU-IoT-Malware-Capture-34-1": {
+        "support": 1435,
+        "tp": 1326,
+        "fp": 25,
+        "fn": 0,
+        "tn": 84,
+        "recall": 1.0,
+        "false_positive_rate": 0.22935779816513763,
+        "precision": 0.9814951887490747,
+        "f1": 0.9906611878968995
+      },
+      "CTU-Honeypot-Capture-7-4 / active": {
+        "support": 824,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 824,
+        "recall": null,
+        "false_positive_rate": 0.0,
+        "precision": null,
+        "f1": null
+      },
+      "CTU-IoT-Malware-Capture-34-1 / active": {
+        "support": 1366,
+        "tp": 1326,
+        "fp": 25,
+        "fn": 0,
+        "tn": 15,
+        "recall": 1.0,
+        "false_positive_rate": 0.625,
+        "precision": 0.9814951887490747,
+        "f1": 0.9906611878968995
+      }
+    },
+    "ood_rejection_rate": 0.030978071702053602,
+    "accepted": {
+      "support": 2784,
+      "tp": 1249,
+      "fp": 23,
+      "fn": 0,
+      "tn": 1512,
+      "recall": 1.0,
+      "false_positive_rate": 0.01498371335504886,
+      "precision": 0.9819182389937107,
+      "f1": 0.9908766362554542
+    },
+    "rejected_positive_windows": 77,
+    "rejected_negative_windows": 12,
+    "accepted_detection_fraction_all_positives": 0.9419306184012066
+  }
+}

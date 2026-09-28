@@ -113,12 +113,15 @@ class DatasetBuildTests(unittest.TestCase):
             root = Path(directory)
             source = root / "flows.csv"
             output = root / "processed"
-            generate(source)
+            generate(source, seconds=600)
             manifest = build([source], output, BuildConfig(sequence_length=6, horizon=3))
             self.assertEqual(len(manifest["features"]), len(FEATURES))
             splits = {name: np.load(output / f"{name}.npz") for name in ("train", "validation", "test")}
             self.assertLess(splits["train"]["anchor_time"][-1], splits["validation"]["anchor_time"][0])
             self.assertLess(splits["validation"]["anchor_time"][-1], splits["test"]["anchor_time"][0])
+            train_last = pd.Timestamp(str(splits["train"]["anchor_time"][-1]))
+            validation_first = pd.Timestamp(str(splits["validation"]["anchor_time"][0]))
+            self.assertGreaterEqual((validation_first - train_last).total_seconds(), 45)
             self.assertEqual(splits["train"]["x"].shape[1:], (6, len(FEATURES)))
             self.assertEqual(splits["test"]["y_stage"].shape[1], 3)
             self.assertTrue((output / "network_states.csv").exists())
@@ -205,7 +208,7 @@ class DatasetBuildTests(unittest.TestCase):
         result = early_warning(split, probability, window_seconds=5, threshold=0.5)
         self.assertEqual(result["attack_onsets"], 1)
         self.assertEqual(result["onsets_forecast_early"], 1)
-        self.assertEqual(result["max_lead_seconds"], 10.0)
+        self.assertEqual(result["max_lead_seconds"], 5.0)
 
     def test_onset_weights_only_emphasize_benign_to_attack_transitions(self) -> None:
         split = {

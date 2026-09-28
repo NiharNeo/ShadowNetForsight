@@ -1,20 +1,34 @@
 from __future__ import annotations
 
 from pathlib import Path
+import asyncio
+from contextlib import asynccontextmanager, suppress
+import logging
+import os
+import sqlite3
+import time
+from uuid import uuid4
+from starlette.concurrency import run_in_threadpool
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from scapy.error import Scapy_Exception
 import json
 import re
 import tempfile
 from typing import Any, Literal, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
+from backend.config import Settings
+from backend.http_limits import BodyLimitMiddleware
 
-from backend.replay_service import ReplayRegistry
+from backend.replay_service import ReplayRegistry, CapacityError
 from backend.inference_service import LSTMInferenceService
 from backend.telemetry_service import TelemetryRegistry
 from backend.security import ROLE_LEVEL, Principal, SecurityManager
+from pipeline.evaluate_capture import evaluate as evaluate_capture
 from pipeline.mitigation_simulator import simulate_mitigation
 from pipeline.pcap_calibration import fit_pcap_domain_calibration
 
@@ -22,13 +36,56 @@ from pipeline.pcap_calibration import fit_pcap_domain_calibration
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
 
-app = FastAPI(title="ShadowNet ForeSight", version="0.1.0")
+settings = Settings.from_env()
+settings.data_dir.mkdir(parents=True, exist_ok=True)
+inference_service = LSTMInferenceService(settings.checkpoint, calibration_dir=settings.data_dir / "calibrations")
+replays = ReplayRegistry(settings.data_dir / "uploads", inference_service, settings.max_sessions, settings.session_ttl_seconds)
+telemetry = TelemetryRegistry(inference_service, settings.max_sessions, settings.session_ttl_seconds)
+security = SecurityManager(settings.data_dir / "shadownet.db")
+MAX_PCAP_BYTES = settings.max_pcap_bytes
+logger = logging.getLogger("shadownet.api")
+calibration_lock = asyncio.Lock()
+
+
+@asynccontextmanager
+async def lifespan(app):
+    if settings.production and not inference_service.available:
+        raise RuntimeError("Production requires a loadable model checkpoint")
+    async def expire_sessions():
+        while True:
+            await asyncio.sleep(60)
+            await run_in_threadpool(replays.cleanup)
+            await run_in_threadpool(telemetry.cleanup)
+    task = asyncio.create_task(expire_sessions())
+    try:
+        yield
+    finally:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+        await run_in_threadpool(replays.close)
+        await run_in_threadpool(telemetry.close)
+
+
+app = FastAPI(title="ShadowNet ForeSight", version="0.2.0", lifespan=lifespan,
+              docs_url=None if settings.production else "/docs",
+              redoc_url=None if settings.production else "/redoc",
+              openapi_url=None if settings.production else "/openapi.json")
+app.add_middleware(BodyLimitMiddleware, upload_limit=MAX_PCAP_BYTES)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.trusted_hosts))
 app.mount("/assets", StaticFiles(directory=FRONTEND), name="assets")
-inference_service = LSTMInferenceService(ROOT / "models" / "cic2018-phase1-lstm" / "lstm.pt")
-replays = ReplayRegistry(ROOT / "data" / "uploads", inference_service)
-telemetry = TelemetryRegistry(inference_service)
-security = SecurityManager(ROOT / "data" / "shadownet.db")
-MAX_PCAP_BYTES = 250 * 1024 * 1024
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(request, error):
+    # Do not echo passwords, uploaded bytes or NaN/Infinity in validation errors.
+    return JSONResponse({"detail": [{"loc": item["loc"], "msg": item["msg"], "type": item["type"]} for item in error.errors()]}, status_code=422)
+
+
+@app.exception_handler(CapacityError)
+async def capacity_error(request, error):
+    return JSONResponse({"detail": str(error)}, status_code=429, headers={"Retry-After": "60"})
+
 
 
 STAGES = [
@@ -90,13 +147,15 @@ class SimulationRequest(BaseModel):
 
 
 class AdvanceRequest(BaseModel):
-    seconds: float = 5.0
+    model_config = ConfigDict(allow_inf_nan=False)
+    seconds: float = Field(5.0, gt=0, le=60)
 
 
 class TelemetryCreateRequest(BaseModel):
     source: Literal["auto", "cowrie", "netflow", "ipfix", "kafka"] = "auto"
-    window_seconds: int = 5
-    allowed_lateness: float = 2.0
+    model_config = ConfigDict(allow_inf_nan=False)
+    window_seconds: Literal[5] = 5
+    allowed_lateness: float = Field(2.0, ge=0, le=60)
     calibration_domain: Optional[str] = None
 
 
@@ -112,13 +171,13 @@ class KafkaConnectRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(min_length=3, max_length=128)
+    password: str = Field(min_length=1, max_length=1024)
 
 
 class UserCreateRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(min_length=3, max_length=128)
+    password: str = Field(min_length=1, max_length=1024)
     role: Literal["viewer", "operator", "admin"]
 
 
@@ -135,12 +194,39 @@ def _principal(request: Request, minimum_role: str) -> Principal:
 
 @app.middleware("http")
 async def audit_mutations(request: Request, call_next):
-    response = await call_next(request)
-    if request.method in {"POST", "PUT", "PATCH", "DELETE"} and request.url.path != "/api/auth/login":
-        authorization = request.headers.get("authorization", "")
-        principal = security.verify_token(authorization[7:]) if authorization.lower().startswith("bearer ") else None
-        security.audit(principal.username if principal else "anonymous", request.method, request.url.path, response.status_code,
-                       {"client": request.client.host if request.client else "unknown"})
+    request_id = uuid4().hex
+    started = time.monotonic()
+    mutation = request.method in {"POST", "PUT", "PATCH", "DELETE"}
+    principal = None
+    try:
+        # Authorize uploads before FastAPI consumes multipart bodies.
+        if mutation and request.url.path != "/api/auth/login":
+            minimum_role = "operator"
+            if request.url.path == "/api/auth/logout":
+                minimum_role = "viewer"
+            elif request.url.path == "/api/calibration/profiles" or request.url.path.startswith("/api/admin/") or request.url.path.endswith("/kafka"):
+                minimum_role = "admin"
+            principal = await run_in_threadpool(_principal, request, minimum_role)
+        response = await call_next(request)
+    except HTTPException as error:
+        response = JSONResponse({"detail": error.detail}, error.status_code, headers=error.headers)
+    except Exception:
+        logger.exception("request failed id=%s", request_id)
+        response = JSONResponse({"detail": "Internal server error"}, status_code=500)
+    if mutation and request.url.path != "/api/auth/login":
+        try:
+            await run_in_threadpool(security.audit, principal.username if principal else "anonymous", request.method, request.url.path, response.status_code, {"request_id": request_id})
+        except Exception:
+            logger.exception("audit write failed id=%s", request_id)
+            response = JSONResponse({"detail": "Audit recording failed; the operation may have completed. Check its state before retrying."}, status_code=503)
+    response.headers["X-Request-ID"] = request_id
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    logger.info("request id=%s method=%s path=%s status=%s duration_ms=%.2f", request_id, request.method, request.url.path, response.status_code, (time.monotonic() - started) * 1000)
     return response
 
 
@@ -153,7 +239,9 @@ def dashboard() -> FileResponse:
 def session() -> dict:
     return {
         "session_id": "SNF-DEMO-042",
-        "source": "CIC-IDS2018 replay / SSH brute-force scenario",
+        "source": "Scripted illustration / not trained inference",
+        "mode": "scripted_demo",
+        "measured_result": False,
         "window_seconds": 5,
         "lead_time_seconds": 65,
         "stages": STAGES,
@@ -187,15 +275,57 @@ def health() -> dict:
         "model": "ready" if inference_service.available else "unavailable",
         "model_source": "CSE-CIC-IDS2018 five-day, multi-family whole-day training partition",
         "decision_thresholds": inference_service.thresholds,
+        "checkpoint_sha256": inference_service.checkpoint_sha256,
+        "claims_allowed": False,
         "calibration": "per_horizon_temperature_scaling",
         "ood_rejection": "ready" if inference_service.ood_threshold is not None else "unavailable",
     }
 
 
+@app.get("/api/ready")
+def readiness():
+    checks = {"model": inference_service.available,
+              "ood": inference_service.ood_threshold is not None,
+              "lab_plan": (ROOT / "datasets/controlled_lab_capture_plan.json").is_file(),
+              "evidence": (ROOT / "models/cic2018-multiday-lstm/evaluation-summary.json").is_file()}
+    try:
+        checks["audit_integrity"] = security.audit_health()["valid"]
+        with security._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("UPDATE users SET enabled=enabled WHERE 0")
+            db.rollback()
+        checks["database"] = True
+    except sqlite3.Error:
+        checks["database"] = False
+    ready = all(checks.values())
+    return JSONResponse({"status": "ready" if ready else "not_ready", "checks": checks,
+                         "claims_allowed": False, "operating_mode": "research_shadow_mode",
+                         "checkpoint_sha256": inference_service.checkpoint_sha256}, status_code=200 if ready else 503)
+
+
+class CaptureEvaluationRequest(BaseModel):
+    report: dict[str, Any]
+    labels: dict[str, Any]
+
+
+@app.post("/api/evaluate-capture")
+def evaluate_capture_report(body: CaptureEvaluationRequest, request: Request) -> dict:
+    _principal(request, "operator")
+    try:
+        return evaluate_capture(body.report, body.labels)
+    except (ValueError, TypeError, KeyError) as error:
+        raise HTTPException(422, str(error)) from error
+
+
 @app.get("/api/evidence")
 def evidence() -> dict:
     summary_path = ROOT / "models" / "cic2018-multiday-lstm" / "evaluation-summary.json"
-    return json.loads(summary_path.read_text(encoding="utf-8"))
+    result = json.loads(summary_path.read_text(encoding="utf-8"))
+    result["early_warning"]["status"] = "legacy_timing_superseded"
+    studies = ROOT / "docs/release-evidence/demo-model-studies.json"
+    if studies.is_file():
+        result["offline_studies"] = json.loads(studies.read_text(encoding="utf-8"))
+    return result
 
 
 @app.get("/api/lab-plan")
@@ -205,7 +335,8 @@ def lab_plan() -> dict:
 
 
 @app.get("/api/calibration/profiles")
-def calibration_profiles() -> list[dict]:
+def calibration_profiles(request: Request) -> list[dict]:
+    _principal(request, "viewer")
     return [{
         "domain": domain,
         "sample_count": profile.get("sample_count", 0),
@@ -222,15 +353,21 @@ async def create_calibration_profile(
     benign_files: list[UploadFile] = File(...),
     attack_files: list[UploadFile] = File(...),
 ) -> dict:
-    _principal(request, "operator")
+    _principal(request, "admin")
+    if not inference_service.available:
+        raise HTTPException(503, "Model unavailable")
+    if calibration_lock.locked():
+        raise HTTPException(409, "A calibration job is already running")
     domain = domain.strip().lower()
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,39}", domain):
         raise HTTPException(status_code=422, detail="Profile name must be 2-40 lowercase letters, numbers or hyphens")
     if domain in inference_service.domain_calibrations:
         raise HTTPException(status_code=409, detail="A calibration profile with this name already exists")
+    if len(benign_files) + len(attack_files) > 16:
+        raise HTTPException(413, "Calibration accepts at most 16 files")
     if not benign_files or not attack_files:
         raise HTTPException(status_code=422, detail="Provide at least one benign and one attack PCAP")
-    with tempfile.TemporaryDirectory(prefix="calibration-", dir=ROOT / "data") as directory:
+    with tempfile.TemporaryDirectory(prefix="calibration-", dir=settings.data_dir) as directory:
         temp_root = Path(directory)
         saved: dict[str, list[Path]] = {"benign": [], "attack": []}
         total_size = 0
@@ -248,16 +385,23 @@ async def create_calibration_profile(
                         stream.write(chunk)
                 saved[label].append(path)
         try:
-            output = inference_service.checkpoint_path.parent / "domain_calibrations" / f"{domain}.json"
-            profile = fit_pcap_domain_calibration(inference_service.checkpoint_path, saved["benign"], saved["attack"], domain, output)
+            output = settings.data_dir / "calibrations" / f"{domain}.json"
+            async with calibration_lock:
+                if domain in inference_service.domain_calibrations:
+                    raise HTTPException(409, "A calibration profile with this name already exists")
+                profile = await run_in_threadpool(fit_pcap_domain_calibration, inference_service.checkpoint_path, saved["benign"], saved["attack"], domain, output)
+                inference_service.validate_calibration(profile)
+                inference_service.domain_calibrations[domain] = profile
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
-    inference_service.domain_calibrations[domain] = profile
     return profile
 
 
 @app.post("/api/auth/login")
-def login(request: LoginRequest) -> dict:
+def login(request: LoginRequest, http_request: Request) -> dict:
+    client = http_request.client.host if http_request.client else "unknown"
+    if not security.allow_login(client, request.username):
+        raise HTTPException(429, "Too many login attempts. Try again later.", headers={"Retry-After": "300"})
     token = security.authenticate(request.username, request.password)
     if token is None:
         security.audit(request.username, "LOGIN", "/api/auth/login", 401)
@@ -265,6 +409,13 @@ def login(request: LoginRequest) -> dict:
     principal = security.verify_token(token)
     security.audit(request.username, "LOGIN", "/api/auth/login", 200)
     return {"access_token": token, "token_type": "bearer", "expires_in": 3600, "role": principal.role}
+
+
+@app.post("/api/auth/logout")
+def logout(request: Request) -> dict:
+    principal = _principal(request, "viewer")
+    security.revoke_tokens(principal.username)
+    return {"revoked": True}
 
 
 @app.get("/api/auth/me")
@@ -280,7 +431,7 @@ def create_user(request: Request, body: UserCreateRequest) -> dict:
         security.create_user(body.username, body.password, body.role)
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
-    except Exception as error:
+    except sqlite3.IntegrityError as error:
         raise HTTPException(status_code=409, detail="Username already exists") from error
     return {"username": body.username, "role": body.role}
 
@@ -306,6 +457,8 @@ def verify_audit_log(request: Request) -> dict:
 @app.post("/api/telemetry/streams")
 def create_telemetry_stream(request: TelemetryCreateRequest, http_request: Request) -> dict:
     _principal(http_request, "operator")
+    if not inference_service.available:
+        raise HTTPException(503, "Model unavailable")
     if not 1 <= request.window_seconds <= 60 or not 0 <= request.allowed_lateness <= 60:
         raise HTTPException(status_code=422, detail="window_seconds must be 1-60 and allowed_lateness 0-60")
     if request.calibration_domain and request.calibration_domain not in inference_service.domain_calibrations:
@@ -331,11 +484,7 @@ def ingest_telemetry(stream_id: str, request: TelemetryBatchRequest, http_reques
 def telemetry_status(stream_id: str, request: Request) -> dict:
     _principal(request, "viewer")
     try:
-        handle = telemetry.get(stream_id)
-        return {"source": handle.source, **handle.stream.status(),
-                "calibration_domain": handle.inference.domain or "global",
-                "warmup_states": len(handle.inference.states), "required_states": inference_service.sequence_length,
-                "host_graph": handle.graph.features()}
+        return telemetry.status(stream_id)
     except KeyError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 
@@ -352,7 +501,11 @@ def delete_telemetry_stream(stream_id: str, request: Request) -> dict[str, str]:
 
 @app.post("/api/telemetry/streams/{stream_id}/kafka")
 def connect_kafka(stream_id: str, body: KafkaConnectRequest, request: Request) -> dict:
-    _principal(request, "operator")
+    _principal(request, "admin")
+    allowed = {item.strip() for item in os.getenv("SHADOWNET_KAFKA_BROKERS", "").split(",") if item.strip()}
+    requested = {item.strip() for item in body.bootstrap_servers.split(",") if item.strip()}
+    if not requested or not requested.issubset(allowed):
+        raise HTTPException(403, "Kafka brokers must be explicitly allowed by deployment configuration")
     if not body.bootstrap_servers.strip() or not body.topic.strip():
         raise HTTPException(status_code=422, detail="bootstrap_servers and topic are required")
     try:
@@ -368,30 +521,44 @@ def connect_kafka(stream_id: str, body: KafkaConnectRequest, request: Request) -
 async def create_replay(
     request: Request,
     file: UploadFile = File(...),
-    window_seconds: int = Query(5, ge=1, le=60),
+    window_seconds: int = Query(5, ge=5, le=5),
     calibration_domain: Optional[str] = Query(None),
 ) -> dict:
     _principal(request, "operator")
     if calibration_domain and calibration_domain not in inference_service.domain_calibrations:
         raise HTTPException(status_code=422, detail=f"Unknown calibration domain: {calibration_domain}")
+    if not inference_service.available:
+        raise HTTPException(503, "Model unavailable")
     suffix = Path(file.filename or "capture.pcap").suffix.lower()
     if suffix not in {".pcap", ".pcapng"}:
         raise HTTPException(status_code=415, detail="Only .pcap and .pcapng files are accepted.")
     destination = replays.allocate_path(suffix)
     size = 0
+    import hashlib
+    capture_hash = hashlib.sha256()
     try:
         with destination.open("wb") as stream:
             while chunk := await file.read(1024 * 1024):
                 size += len(chunk)
                 if size > MAX_PCAP_BYTES:
                     raise HTTPException(status_code=413, detail="PCAP exceeds the 250 MB prototype limit.")
+                capture_hash.update(chunk)
                 stream.write(chunk)
         replay_id, handle = replays.create(destination, file.filename or destination.name, window_seconds, calibration_domain)
+    except (ValueError, Scapy_Exception, EOFError) as error:
+        destination.unlink(missing_ok=True)
+        if isinstance(error, CapacityError):
+            raise
+        raise HTTPException(422, "Invalid or unsupported PCAP capture") from error
     except Exception:
         destination.unlink(missing_ok=True)
         raise
+    finally:
+        await file.close()
     return {"replay_id": replay_id, "filename": handle.original_name, "size_bytes": size,
-            "calibration_domain": calibration_domain or "global", **handle.replay.status()}
+            "calibration_domain": calibration_domain or "global",
+            "capture_sha256": capture_hash.hexdigest(), "checkpoint_sha256": inference_service.checkpoint_sha256,
+            **handle.replay.status()}
 
 
 @app.post("/api/replays/{replay_id}/advance")
@@ -409,7 +576,7 @@ def advance_replay(replay_id: str, request: AdvanceRequest, http_request: Reques
 def replay_status(replay_id: str, request: Request) -> dict:
     _principal(request, "viewer")
     try:
-        return replays.get(replay_id).replay.status()
+        return replays.get(replay_id).status()
     except KeyError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 
@@ -426,28 +593,52 @@ def delete_replay(replay_id: str, request: Request) -> dict[str, str]:
 
 @app.websocket("/ws/replays/{replay_id}")
 async def replay_socket(websocket: WebSocket, replay_id: str) -> None:
-    try:
-        handle = replays.get(replay_id)
-    except KeyError:
-        await websocket.close(code=4404, reason="Replay session not found")
-        return
     await websocket.accept()
     try:
-        authentication = await websocket.receive_json()
-    except (WebSocketDisconnect, ValueError):
-        return
-    principal = security.verify_token(str(authentication.get("token", "")))
-    if authentication.get("type") != "auth" or principal is None or ROLE_LEVEL[principal.role] < ROLE_LEVEL["viewer"]:
-        await websocket.close(code=4401, reason="Valid viewer token required")
-        return
-    await websocket.send_json({"type": "connected", "replay_id": replay_id, **handle.replay.status()})
-    try:
+        raw = await asyncio.wait_for(websocket.receive_text(), timeout=10)
+        if len(raw) > 8192:
+            await websocket.close(code=1009)
+            return
+        authentication = json.loads(raw)
+        token = authentication.get("token", "") if isinstance(authentication, dict) else ""
+        principal = await run_in_threadpool(security.verify_token, token)
+        if not isinstance(authentication, dict) or authentication.get("type") != "auth" or principal is None:
+            await websocket.close(code=4401, reason="Valid token required")
+            return
+        if ROLE_LEVEL[principal.role] < ROLE_LEVEL["operator"]:
+            await websocket.close(code=4403, reason="Operator role required")
+            return
+        handle = await run_in_threadpool(replays.get, replay_id)
+        status = await run_in_threadpool(handle.status)
+        await websocket.send_json({"type": "connected", "replay_id": replay_id, **status})
         while True:
-            message = await websocket.receive_json()
-            seconds = float(message.get("seconds", 5))
-            if seconds <= 0 or seconds > 60:
-                await websocket.send_json({"type": "error", "detail": "seconds must be between 0 and 60"})
+            raw = await asyncio.wait_for(websocket.receive_text(), timeout=60)
+            if len(raw) > 8192:
+                await websocket.close(code=1009)
+                return
+            principal = await run_in_threadpool(security.verify_token, token)
+            if principal is None:
+                await websocket.close(code=4401, reason="Session expired or revoked")
+                return
+            try:
+                message = json.loads(raw)
+                if isinstance(message, dict) and message.get("type") == "ping":
+                    await run_in_threadpool(handle.status)
+                    await websocket.send_json({"type": "pong"})
+                    continue
+                body = AdvanceRequest.model_validate_json(raw)
+                result = await run_in_threadpool(handle.advance, body.seconds)
+            except ValueError:
+                await websocket.send_json({"type": "error", "detail": "Invalid advance. Seconds must be finite and between 0 and 60."})
                 continue
-            await websocket.send_json({"type": "replay_update", **handle.advance(seconds)})
+            await run_in_threadpool(security.audit, principal.username, "WS_ADVANCE", f"/ws/replays/{replay_id}", 200)
+            await websocket.send_json({"type": "replay_update", **result})
+            if result["complete"]:
+                await websocket.close(code=1000, reason="Replay complete")
+                return
+    except KeyError:
+        await websocket.close(code=4404, reason="Replay session not found")
+    except (asyncio.TimeoutError, ValueError):
+        await websocket.close(code=4400, reason="Invalid or timed-out message")
     except WebSocketDisconnect:
         return

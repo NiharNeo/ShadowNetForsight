@@ -1,0 +1,11 @@
+{
+  "scope": "synthetic in-process inference including explanations; not HTTP, real traffic, accuracy or capacity certification",
+  "duration_seconds": 30.12,
+  "workers": 4,
+  "predictions": 790,
+  "p95_ms": 156.65,
+  "max_ms": 168.09,
+  "checkpoint_sha256": "c8011213c29902a2c7c0fe34e1e1cdf0ba03e8dfdd7dc70477f1b08687531d48",
+  "finite_outputs": true,
+  "operational_alerts": 0
+}

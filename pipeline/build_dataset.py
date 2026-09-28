@@ -6,6 +6,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
+from pipeline.feature_contract import CSV_CONTRACT
+
 import numpy as np
 import pandas as pd
 
@@ -203,12 +205,17 @@ def make_sequences(windows: pd.DataFrame, config: BuildConfig) -> dict[str, np.n
     count = len(windows) - config.sequence_length - config.horizon + 1
     if count <= 0:
         raise ValueError(f"Need at least {config.sequence_length + config.horizon} windows; found {len(windows)}.")
-    x = np.stack([feature_matrix[i : i + config.sequence_length] for i in range(count)])
-    y_stage = np.stack([stage[i + config.sequence_length : i + config.sequence_length + config.horizon] for i in range(count)])
-    y_attack = np.stack([attack[i + config.sequence_length : i + config.sequence_length + config.horizon] for i in range(count)])
-    y_state = np.stack([feature_matrix[i + config.sequence_length : i + config.sequence_length + config.horizon] for i in range(count)])
-    anchor_values = windows["window_start"].iloc[config.sequence_length - 1 : config.sequence_length - 1 + count].astype(str).tolist()
-    anchors = np.asarray(anchor_values, dtype="U32")
+    timestamps = pd.to_datetime(windows["window_start"]).to_numpy(dtype="datetime64[ns]")
+    consecutive = np.diff(timestamps).astype("timedelta64[ns]").astype(np.int64) == config.window_seconds * 1_000_000_000
+    span = config.sequence_length + config.horizon
+    starts = [i for i in range(count) if consecutive[i:i + span - 1].all()]
+    if not starts:
+        raise ValueError("No continuous sequence spans the required history and forecast horizon")
+    x = np.stack([feature_matrix[i:i + config.sequence_length] for i in starts])
+    y_stage = np.stack([stage[i + config.sequence_length:i + span] for i in starts])
+    y_attack = np.stack([attack[i + config.sequence_length:i + span] for i in starts])
+    y_state = np.stack([feature_matrix[i + config.sequence_length:i + span] for i in starts])
+    anchors = np.asarray([str(windows["window_start"].iloc[i + config.sequence_length - 1]) for i in starts], dtype="U32")
     return {"x": x, "y_state": y_state, "y_stage": y_stage, "y_attack": y_attack, "anchor_time": anchors}
 
 
@@ -226,16 +233,25 @@ def build(paths: list[Path], output_dir: Path, config: BuildConfig) -> dict:
     windows = aggregate_windows(flows, config.window_seconds)
     sequences = make_sequences(windows, config)
     slices = chronological_slices(len(sequences["x"]), config)
+    purge = config.sequence_length + config.horizon - 1
+    for name in ("validation", "test"):
+        partition = slices[name]
+        if partition.start + purge >= partition.stop:
+            raise ValueError("Dataset is too small for independent chronological splits after overlap purging")
+        slices[name] = slice(partition.start + purge, partition.stop)
     windows.to_csv(output_dir / "network_states.csv", index=False)
     for name, split in slices.items():
         np.savez_compressed(output_dir / f"{name}.npz", **{key: value[split] for key, value in sequences.items()})
     manifest = {
+        "feature_contract": CSV_CONTRACT,
         "config": asdict(config),
         "inputs": [str(path) for path in paths],
         "flow_rows": len(flows),
         "network_states": len(windows),
         "sequences": len(sequences["x"]),
         "split_sizes": {name: split.stop - split.start for name, split in slices.items()},
+        "purged_sequences_per_boundary": purge,
+        "time_policy": "strict_contiguous_five_second_windows" if config.window_seconds == 5 else "strict_contiguous_windows",
         "features": FEATURES,
         "stage_order": STAGE_ORDER,
         "label_rules": [{"pattern": pattern, "stage": stage, "rationale": rationale} for pattern, stage, rationale in LABEL_RULES],

@@ -8,3 +8,16 @@ models/*
 !models/cic2018-multiday-lstm/**
 !models/cic2018-phase1-lstm
 !models/cic2018-phase1-lstm/**
+.env
+.env.*
+tmp
+output
+deliverables
+.idea
+.codex-finalizer
+.pptx-template-*
+*.pptx
+*.pdf
+*.ndjson
+models/*/domain_calibrations
+.venv-enterprise

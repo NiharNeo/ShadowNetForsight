@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,7 @@ from pipeline.build_dataset import BuildConfig, FEATURES
 from pipeline.pcap_calibration import pcap_states
 from pipeline.pcap_replay import summarize
 from pipeline.stage_mapping import STAGE_ORDER
+from pipeline.feature_contract import PCAP_CONTRACT
 
 
 REQUIRED_PARTITIONS = ("train", "validation", "test")
@@ -38,6 +40,8 @@ def _capture_start(path: Path) -> float:
 
 
 def _validate_timeline(entry: dict[str, Any], duration_seconds: float) -> list[dict[str, Any]]:
+    if not math.isfinite(duration_seconds) or duration_seconds <= 0:
+        raise ValueError("Capture duration must be positive and finite")
     timeline = entry.get("timeline")
     if not isinstance(timeline, list) or not timeline:
         raise ValueError(f"{entry.get('path', 'capture')} requires a non-empty timeline")
@@ -46,7 +50,10 @@ def _validate_timeline(entry: dict[str, Any], duration_seconds: float) -> list[d
     for index, interval in enumerate(timeline):
         start = float(interval.get("start_seconds", 0.0))
         end = float(interval.get("end_seconds", duration_seconds))
-        label = int(interval.get("label", -1))
+        raw_label = interval.get("label", -1)
+        if isinstance(raw_label, bool) or not isinstance(raw_label, (int, float)) or raw_label not in (0, 1):
+            raise ValueError(f"timeline interval {index} label must be exactly 0 or 1")
+        label = int(raw_label)
         stage = str(interval.get("stage", ""))
         if label not in (0, 1):
             raise ValueError(f"timeline interval {index} label must be 0 or 1")
@@ -54,6 +61,8 @@ def _validate_timeline(entry: dict[str, Any], duration_seconds: float) -> list[d
             raise ValueError(f"timeline interval {index} has unknown stage: {stage}")
         if (label == 0) != (stage == "Normal"):
             raise ValueError(f"timeline interval {index} must pair label 0 with Normal and label 1 with an attack stage")
+        if not math.isfinite(start) or not math.isfinite(end):
+            raise ValueError(f"timeline interval {index} timestamps must be finite")
         if start < previous_end or end <= start or end > duration_seconds + 1e-6:
             raise ValueError(f"timeline interval {index} is overlapping or outside capture duration")
         validated.append({"start_seconds": start, "end_seconds": end, "label": label, "stage": stage})
@@ -131,6 +140,7 @@ def build(plan_path: Path, output_dir: Path) -> dict[str, Any]:
     manifest: dict[str, Any] = {
         "dataset": plan.get("dataset", plan_path.stem),
         "source_plan": str(plan_path),
+        "feature_contract": PCAP_CONTRACT,
         "config": {"window_seconds": config.window_seconds, "sequence_length": config.sequence_length, "horizon": config.horizon},
         "features": FEATURES,
         "feature_observed": {name: name not in PCAP_UNOBSERVED_FEATURES for name in FEATURES},

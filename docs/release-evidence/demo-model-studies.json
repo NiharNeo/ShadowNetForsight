@@ -1,0 +1,27 @@
+{
+  "as_of": "2026-09-28",
+  "scope": "Offline current-window detection studies. These models are not serving this dashboard; these are not forecasts. Context study reuses an inspected test.",
+  "decision": "Not promoted: both exceed the 5% per-capture false-positive screen.",
+  "studies": [
+    {
+      "name": "Packet-window detector",
+      "detected": 1326,
+      "positive": 1326,
+      "false_positives": 25,
+      "negative": 1547,
+      "capture_fpr": 0.22935779816513763,
+      "source": "expanded-detector-v2.json",
+      "sha256": "40bf83f7674fcd05ac76786837af87500b86660da6fe629c02d02ed168edc1a6"
+    },
+    {
+      "name": "Context-aware detector",
+      "detected": 1326,
+      "positive": 1326,
+      "false_positives": 28,
+      "negative": 1547,
+      "capture_fpr": 0.22935779816513763,
+      "source": "context-detector.json",
+      "sha256": "a7df826a82eb009b70c57df55a143a443884813654b685e8d94c0b8bee0051f8"
+    }
+  ]
+}

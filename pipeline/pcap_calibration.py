@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+import hashlib
+import math
+import os
 
 import numpy as np
 import torch
@@ -17,10 +20,16 @@ from pipeline.transforms import normalize_features
 
 def pcap_states(path: Path, window_seconds: int = 5) -> list[dict[str, float]]:
     summaries = []
+    previous = -math.inf
     with PcapReader(str(path)) as reader:
         for packet in reader:
             item = summarize(packet)
             if item is not None:
+                if not math.isfinite(item.timestamp) or item.timestamp < previous:
+                    raise ValueError("PCAP timestamps must be finite and chronological")
+                previous = item.timestamp
+                if len(summaries) >= 500000:
+                    raise ValueError("Calibration capture exceeds 500,000 packets")
                 summaries.append(item)
     if not summaries:
         raise ValueError(f"{path.name} contains no IPv4 or IPv6 packets")
@@ -28,6 +37,8 @@ def pcap_states(path: Path, window_seconds: int = 5) -> list[dict[str, float]]:
     windows: dict[int, WindowAccumulator] = {}
     for packet in summaries:
         index = max(int((packet.timestamp - origin) // window_seconds), 0)
+        if index > 17280:
+            raise ValueError("Calibration capture spans more than 24 hours")
         windows.setdefault(index, WindowAccumulator(origin + index * window_seconds)).add(packet)
     return [windows.get(index, WindowAccumulator(origin + index * window_seconds)).as_state()
             for index in range(max(windows) + 1)]
@@ -58,6 +69,8 @@ def fit_pcap_domain_calibration(checkpoint_path: Path, benign_paths: list[Path],
     attack_x, attack_y = _sequences(attack_paths, features, 1, sequence_length, horizon)
     if len(benign_x) < 5 or len(attack_x) < 5:
         raise ValueError("Calibration needs at least five usable benign and five usable attack sequences")
+    if len(benign_x) + len(attack_x) > 50000:
+        raise ValueError("Calibration exceeds 50,000 sequences")
     raw_x = np.stack(benign_x + attack_x)
     truth = np.stack(benign_y + attack_y)
     normalized = normalize_features(
@@ -106,8 +119,11 @@ def fit_pcap_domain_calibration(checkpoint_path: Path, benign_paths: list[Path],
         "ood_upper": ood["upper"].tolist(),
         "ood_threshold": ood["threshold"],
         "checkpoint": checkpoint_path.name,
+        "checkpoint_sha256": hashlib.sha256(checkpoint_path.read_bytes()).hexdigest(),
         "warning": "Labels apply to each complete calibration capture. Evaluate on a separate untouched PCAP before operational use.",
     }
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    temporary = output.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    os.replace(temporary, output)
     return profile

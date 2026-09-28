@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from collections import Counter, deque
 from pathlib import Path
 from typing import Iterator
 
+import math
 import numpy as np
 from scapy.all import IP, IPv6, TCP, UDP, PcapReader
 
@@ -247,41 +249,59 @@ class StreamingPcapReplay:
         self.window_seconds = window_seconds
         self._reader = PcapReader(str(path))
         self._packets = self._summaries()
-        self._next = next(self._packets, None)
+        try:
+            self._next = next(self._packets, None)
+        except Exception:
+            self._reader.close()
+            raise
         if self._next is None:
             self._reader.close()
             raise ValueError("PCAP contains no IPv4 or IPv6 packets.")
+        self._last_packet_time = self._next.timestamp
         self.capture_start = self._next.timestamp
         self.current_time = self.capture_start
         self.processed_packets = 0
         self.complete = False
         self._windows: dict[int, WindowAccumulator] = {}
         self._emitted_through = -1
+        self._observed_packets = deque(maxlen=10000)
 
     def _summaries(self) -> Iterator[PacketSummary]:
+        previous = -math.inf
         for packet in self._reader:
             summary = summarize(packet)
             if summary is not None:
+                if not math.isfinite(summary.timestamp) or summary.timestamp < previous:
+                    raise ValueError("PCAP timestamps must be finite and chronological")
+                previous = summary.timestamp
                 yield summary
 
     def _window_index(self, timestamp: float) -> int:
         return max(int((timestamp - self.capture_start) // self.window_seconds), 0)
 
     def advance(self, seconds: float) -> dict:
-        if seconds <= 0:
-            raise ValueError("advance seconds must be positive")
+        if not math.isfinite(seconds) or not 0 < seconds <= 60:
+            raise ValueError("advance seconds must be finite and between 0 and 60")
+        if self.complete:
+            return {**self.status(), "packets_consumed": 0, "states": []}
         cutoff = self.current_time + seconds
         consumed = 0
         while self._next is not None and self._next.timestamp <= cutoff:
             index = self._window_index(self._next.timestamp)
             accumulator = self._windows.setdefault(index, WindowAccumulator(self.capture_start + index * self.window_seconds))
+            if accumulator.packet_count >= 100000:
+                raise ValueError("PCAP window exceeds 100,000 packets")
             accumulator.add(self._next)
+            self._observed_packets.append((self._next.src, self._next.dst, self._next.dst_port, self._next.protocol, self._next.syn, self._next.ack, self._next.length))
+            self._last_packet_time = self._next.timestamp
             self.processed_packets += 1
             consumed += 1
             self._next = next(self._packets, None)
         self.current_time = cutoff
         if self._next is None:
-            self.complete = True
+            final_end = self.capture_start + (self._window_index(self._last_packet_time) + 1) * self.window_seconds
+            self.current_time = min(cutoff, final_end)
+            self.complete = self.current_time >= final_end
             self._reader.close()
 
         last_closed = int((self.current_time - self.capture_start) // self.window_seconds) - 1
@@ -299,14 +319,37 @@ class StreamingPcapReplay:
         return {
             "simulated_time": self.current_time,
             "elapsed_seconds": self.current_time - self.capture_start,
+            "observed_network": self.observed_network(),
             "packets_consumed": consumed,
             "processed_packets": self.processed_packets,
             "complete": self.complete,
             "states": emitted,
         }
 
+    def observed_network(self) -> dict:
+        edges = Counter((src, dst, port, protocol) for src, dst, port, protocol, *_ in self._observed_packets)
+        hosts = {host for src, dst, *_ in self._observed_packets for host in (src, dst)}
+        ports = {port for _, _, port, protocol, *_ in self._observed_packets if protocol in (6, 17)}
+        syn_requests = sum(syn and not ack for _, _, _, _, syn, ack, _ in self._observed_packets)
+        protocols = Counter(packet[3] for packet in self._observed_packets)
+        byte_counts = Counter()
+        for packet in self._observed_packets:
+            byte_counts[packet[3]] += packet[6]
+        names = {1: "ICMP", 6: "TCP", 17: "UDP", 58: "ICMPv6"}
+        return {"source": "observed_packets",
+                "captured_packet_bytes": sum(byte_counts.values()),
+                "protocols": [{"number": number, "name": names.get(number, f"IP {number}"),
+                               "packets": count, "captured_packet_bytes": byte_counts[number]}
+                              for number, count in sorted(protocols.items(), key=lambda item: (-item[1], item[0]))], "scope": "most_recent_10000_processed_packets",
+                "packets_in_scope": len(self._observed_packets), "host_count": len(hosts),
+                "destination_port_count": len(ports), "syn_requests": syn_requests,
+                "connections": [{"src": src, "dst": dst, "destination_port": port,
+                                 "protocol": protocol, "packets": count}
+                                for (src, dst, port, protocol), count in edges.most_common(6)]}
+
     def status(self) -> dict:
         return {
+            "observed_network": self.observed_network(),
             "capture_start": self.capture_start,
             "simulated_time": self.current_time,
             "elapsed_seconds": self.current_time - self.capture_start,

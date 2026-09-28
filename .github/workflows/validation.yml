@@ -1,4 +1,4 @@
-name: ShadowNet validation
+name: ShadowNet release validation
 
 on:
   push:
@@ -16,15 +16,57 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install tested dependencies
+        run: |
+          python -m pip install --upgrade pip==26.2.1
+          pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+          pip check
       - name: Run gated pilot workflow
         run: python scripts/run_project_workflow.py pilot --report data/workflow/ci-report.json
-      - name: Upload workflow evidence
+      - name: Verify production startup and restart
+        run: python scripts/verify_production.py
+      - name: Exercise concurrent model inference
+        run: python scripts/verify_inference_endurance.py --seconds 30 --workers 4
+      - name: Audit installed runtime
+        run: |
+          python -m venv /tmp/shadownet-auditor
+          /tmp/shadownet-auditor/bin/pip install pip-audit==2.9.0
+          runtime_site=$(python -c 'import sysconfig; print(sysconfig.get_path("purelib"))')
+          /tmp/shadownet-auditor/bin/pip-audit --path "$runtime_site" --format json --output data/workflow/dependency-audit.json
+      - name: Upload release evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: shadownet-validation-report
-          path: data/workflow/ci-report.json
+          path: data/workflow/*.json
+
+  container-smoke:
+    needs: pilot-and-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and check production container
+        run: |
+          docker build -t shadownet-ci .
+          secret=$(python -c 'import secrets; print(secrets.token_urlsafe(48))')
+          echo "::add-mask::$secret"
+          docker run -d --name shadownet-ci --read-only --tmpfs /tmp:rw,size=512m --cap-drop ALL --security-opt no-new-privileges:true -p 127.0.0.1:8000:8000 -e SHADOWNET_ENV=production -e SHADOWNET_TOKEN_SECRET="$secret" -e SHADOWNET_TRUSTED_HOSTS=localhost,127.0.0.1 -e SHADOWNET_CHECKPOINT_SHA256=c8011213c29902a2c7c0fe34e1e1cdf0ba03e8dfdd7dc70477f1b08687531d48 -v shadownet-ci:/app/data shadownet-ci
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/api/ready; then break; fi
+            sleep 2
+          done
+          curl --fail http://127.0.0.1:8000/api/ready
+          curl --fail http://127.0.0.1:8000/api/lab-plan
+          test "$(docker exec shadownet-ci id -u)" = 10001
+          docker restart shadownet-ci
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/api/ready; then break; fi
+            sleep 2
+          done
+          curl --fail http://127.0.0.1:8000/api/ready
+      - name: Container diagnostics
+        if: always()
+        run: docker logs shadownet-ci

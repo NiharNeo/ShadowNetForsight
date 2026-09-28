@@ -1,0 +1,11 @@
+{
+  "ready": false,
+  "capture_id": "Wednesday-14-02-2018",
+  "source": "s3://cse-cic-ids2018/Original Network Traffic and Log data/Wednesday-14-02-2018/pcap.zip",
+  "archive_bytes": 39913353098,
+  "minimum_working_bytes": 79826706196,
+  "free_bytes": 61849600000,
+  "shortfall_bytes": 17977106196,
+  "destination": "/Users/niharchavan/Documents/ChatGPT/SIH26153/data/raw-pcap/pcap.zip",
+  "next_command_when_ready": "aws s3 cp --no-sign-request --region ca-central-1 's3://cse-cic-ids2018/Original Network Traffic and Log data/Wednesday-14-02-2018/pcap.zip' '/Users/niharchavan/Documents/ChatGPT/SIH26153/data/raw-pcap/pcap.zip'"
+}

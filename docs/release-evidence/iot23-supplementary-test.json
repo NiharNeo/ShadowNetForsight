@@ -1,0 +1,207 @@
+{
+  "checkpoint_sha256": "b3547819f1510c4abdfee98a095dc08e4000a36b6256d6316a84e90426cbe367",
+  "baseline_sha256": "562c634f7bc9402a5658b04a0904ba99c484b47b531426bad2d8ab865a1a0798",
+  "plan_sha256": "802030cee9432c70a06c466f0868afc9bb462b33f571a79b1736a81ada3941d7",
+  "selection_policy": "Capture 3-1 selected by manageable published size and not used in pilot training or validation. First two hours fixed before downloading or scoring; preserve results regardless of outcome.",
+  "training_or_tuning_performed": false,
+  "operational_claims_allowed": false,
+  "captures": [
+    {
+      "provenance": {
+        "id": "CTU-IoT-Malware-Capture-3-1",
+        "partition": "supplementary_test",
+        "source_pcap_sha256": "c674dc0c8d584fa66e6f00c60df973c5fbacad551c850a76d75ec9952641d00b",
+        "source_labels_sha256": "9851009bbca03e15089fa1a356dd4b5eee4a98161a51703626058a0b507f50d0",
+        "derived_pcap": "data/pcap-corpus/iot23/CTU-IoT-Malware-Capture-3-1.pcap",
+        "derived_pcap_sha256": "e464338742b6263d343f0ecaa6d0f3406104c06e07376fb04727a2bc2390a22f",
+        "label_basis": "Publisher per-flow labels",
+        "flow_label_counts": {
+          "malicious": 151567,
+          "benign": 4536
+        },
+        "packet_label_counts": {
+          "0": 1760,
+          "1": 24057,
+          "-1": 332
+        },
+        "windows": 1200,
+        "unknown_windows": 0,
+        "attack_windows": 1196,
+        "empty_windows": 1,
+        "sequences": 1185,
+        "positive_targets": 1185,
+        "capture_start": 1526756239.958006
+      },
+      "evaluation": {
+        "sequences": 1185,
+        "ood_rejection_rate": 0.6084388185654008,
+        "horizons": [
+          {
+            "step": 1,
+            "threshold": 0.8222049283981324,
+            "raw": {
+              "support": 1185,
+              "tp": 78,
+              "fp": 0,
+              "fn": 1107,
+              "tn": 0,
+              "recall": 0.06582278481012659,
+              "false_positive_rate": null,
+              "precision": 1.0,
+              "f1": 0.12351543942992874
+            },
+            "accepted": {
+              "support": 464,
+              "tp": 41,
+              "fp": 0,
+              "fn": 423,
+              "tn": 0,
+              "recall": 0.08836206896551724,
+              "false_positive_rate": null,
+              "precision": 1.0,
+              "f1": 0.16237623762376238
+            },
+            "active_anchor": {
+              "support": 1185,
+              "tp": 78,
+              "fp": 0,
+              "fn": 1107,
+              "tn": 0,
+              "recall": 0.06582278481012659,
+              "false_positive_rate": null,
+              "precision": 1.0,
+              "f1": 0.12351543942992874
+            },
+            "rejected_positive_targets": 721,
+            "rejected_negative_targets": 0,
+            "accepted_detection_fraction_all_positives": 0.03459915611814346
+          },
+          {
+            "step": 2,
+            "threshold": 0.8601256537437441,
+            "raw": {
+              "support": 1185,
+              "tp": 33,
+              "fp": 0,
+              "fn": 1152,
+              "tn": 0,
+              "recall": 0.027848101265822784,
+              "false_positive_rate": null,
+              "precision": 1.0,
+              "f1": 0.054187192118226604
+            },
+            "accepted": {
+              "support": 464,
+              "tp": 14,
+              "fp": 0,
+              "fn": 450,
+              "tn": 0,
+              "recall": 0.03017241379310345,
+              "false_positive_rate": null,
+              "precision": 1.0,
+              "f1": 0.058577405857740586
+            },
+            "active_anchor": {
+              "support": 1185,
+              "tp": 33,
+              "fp": 0,
+              "fn": 1152,
+              "tn": 0,
+              "recall": 0.027848101265822784,
+              "false_positive_rate": null,
+              "precision": 1.0,
+              "f1": 0.054187192118226604
+            },
+            "rejected_positive_targets": 721,
+            "rejected_negative_targets": 0,
+            "accepted_detection_fraction_all_positives": 0.01181434599156118
+          },
+          {
+            "step": 3,
+            "threshold": 0.8099917960166931,
+            "raw": {
+              "support": 1185,
+              "tp": 0,
+              "fp": 0,
+              "fn": 1185,
+              "tn": 0,
+              "recall": 0.0,
+              "false_positive_rate": null,
+              "precision": null,
+              "f1": 0.0
+            },
+            "accepted": {
+              "support": 464,
+              "tp": 0,
+              "fp": 0,
+              "fn": 464,
+              "tn": 0,
+              "recall": 0.0,
+              "false_positive_rate": null,
+              "precision": null,
+              "f1": 0.0
+            },
+            "active_anchor": {
+              "support": 1185,
+              "tp": 0,
+              "fp": 0,
+              "fn": 1185,
+              "tn": 0,
+              "recall": 0.0,
+              "false_positive_rate": null,
+              "precision": null,
+              "f1": 0.0
+            },
+            "rejected_positive_targets": 721,
+            "rejected_negative_targets": 0,
+            "accepted_detection_fraction_all_positives": 0.0
+          }
+        ],
+        "baseline_next_window": {
+          "support": 1185,
+          "tp": 1036,
+          "fp": 0,
+          "fn": 149,
+          "tn": 0,
+          "recall": 0.8742616033755274,
+          "false_positive_rate": null,
+          "precision": 1.0,
+          "f1": 0.9329131022062134
+        },
+        "early_warning_raw": {
+          "threshold": [
+            0.8222049474716187,
+            0.8601256608963013,
+            0.8099917769432068
+          ],
+          "attack_onsets": 0,
+          "onsets_forecast_early": 0,
+          "forecast_before_onset_rate": null,
+          "mean_lead_seconds": null,
+          "median_lead_seconds": null,
+          "max_lead_seconds": null,
+          "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+        },
+        "early_warning_accepted": {
+          "threshold": [
+            0.8222049474716187,
+            0.8601256608963013,
+            0.8099917769432068
+          ],
+          "attack_onsets": 0,
+          "onsets_forecast_early": 0,
+          "forecast_before_onset_rate": null,
+          "mean_lead_seconds": null,
+          "median_lead_seconds": null,
+          "max_lead_seconds": null,
+          "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "One additional capture does not establish network-wide generalization.",
+    "Publisher labels are not independently audited; overlapping windows are correlated.",
+    "Traffic-window onsets are not evidence of forecasting initial compromise."
+  ]
+}

@@ -75,6 +75,7 @@ def validate_full_plan(plan_path: Path) -> dict[str, Any]:
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
     partitions = plan.get("partitions", {})
     seen_paths: set[Path] = set()
+    seen_hashes: set[str] = set()
     counts: dict[str, int] = {}
     for partition, required in REQUIRED_CAPTURE_COUNTS.items():
         entries = partitions.get(partition, [])
@@ -85,13 +86,18 @@ def validate_full_plan(plan_path: Path) -> dict[str, Any]:
             path = Path(entry["path"])
             if not path.is_absolute():
                 path = (plan_path.parent / path).resolve()
+            path = path.resolve()
             if path in seen_paths:
                 raise ValueError(f"Capture appears in more than one partition: {path}")
             seen_paths.add(path)
             if not path.is_file():
                 raise FileNotFoundError(path)
-            if sha256(path) != str(entry.get("sha256", "")).lower():
+            fingerprint = sha256(path)
+            if fingerprint != str(entry.get("sha256", "")).lower():
                 raise ValueError(f"SHA-256 mismatch for {path}")
+            if fingerprint in seen_hashes:
+                raise ValueError(f"Duplicate capture content cannot count as an independent session: {path}")
+            seen_hashes.add(fingerprint)
             if not entry.get("timeline"):
                 raise ValueError(f"Capture has no reviewed label timeline: {path}")
     return {"status": "passed", "partition_counts": counts, "unique_captures": len(seen_paths)}

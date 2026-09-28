@@ -107,10 +107,11 @@ def early_warning(split: dict[str, np.ndarray], probability: np.ndarray, window_
     forecasts_by_target: dict[tuple[str, datetime], list[tuple[datetime, float, float]]] = {}
     capture_ids = split.get("capture_id", np.asarray(["partition"] * len(split["anchor_time"])))
     for row, anchor_value in enumerate(split["anchor_time"]):
-        issued_at = parse_anchor(anchor_value)
+        anchor_start = parse_anchor(anchor_value)
+        issued_at = anchor_start + timedelta(seconds=window_seconds)
         capture_id = str(capture_ids[row])
         for horizon in range(split["y_attack"].shape[1]):
-            target = issued_at + timedelta(seconds=(horizon + 1) * window_seconds)
+            target = anchor_start + timedelta(seconds=(horizon + 1) * window_seconds)
             key = (capture_id, target)
             actual_by_target[key] = int(split["y_attack"][row, horizon] > 0)
             forecasts_by_target.setdefault(key, []).append((issued_at, float(probability[row, horizon]), float(thresholds[horizon])))
@@ -119,7 +120,8 @@ def early_warning(split: dict[str, np.ndarray], probability: np.ndarray, window_
     for capture_id in sorted(set(key[0] for key in actual_by_target)):
         ordered = sorted(key for key in actual_by_target if key[0] == capture_id)
         onsets.extend(key for index, key in enumerate(ordered)
-                      if actual_by_target[key] == 1 and index > 0 and actual_by_target[ordered[index - 1]] == 0)
+                      if actual_by_target[key] == 1 and index > 0 and actual_by_target[ordered[index - 1]] == 0
+                      and (key[1] - ordered[index - 1][1]).total_seconds() == window_seconds)
     leads = []
     for onset_key in onsets:
         onset = onset_key[1]
@@ -134,7 +136,7 @@ def early_warning(split: dict[str, np.ndarray], probability: np.ndarray, window_
         "mean_lead_seconds": float(np.mean(leads)) if leads else None,
         "median_lead_seconds": float(np.median(leads)) if leads else None,
         "max_lead_seconds": float(np.max(leads)) if leads else None,
-        "note": "Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros.",
+        "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros.",
     }
 
 

@@ -7,3 +7,9 @@ data/
 .pptx-template-*/
 *.inspect.ndjson
 models/*/domain_calibrations/*.json
+.env
+.env.*
+!.env.example
+.venv-enterprise/
+.idea/
+.codex-finalizer/

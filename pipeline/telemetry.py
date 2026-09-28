@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
+import math
 from typing import Any, Iterable
 
 from pipeline.pcap_replay import WindowAccumulator
@@ -11,10 +12,14 @@ from pipeline.pcap_replay import WindowAccumulator
 def _timestamp(value: Any) -> float:
     if isinstance(value, (int, float)):
         return float(value)
-    if not value:
+    if value is None or value == "":
         return datetime.now(timezone.utc).timestamp()
     text = str(value).replace("Z", "+00:00")
-    return datetime.fromisoformat(text).timestamp()
+    parsed = datetime.fromisoformat(text)
+    if parsed.tzinfo is None:
+        # Legacy Cowrie exports omit the offset. Interpret deterministically as UTC.
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.timestamp()
 
 
 def _integer(record: dict[str, Any], *names: str, default: int = 0) -> int:
@@ -44,6 +49,31 @@ class TelemetryEvent:
     identity: str | None = None
     outcome: str | None = None
 
+    def __post_init__(self):
+        if not math.isfinite(self.timestamp) or self.timestamp < 0:
+            raise ValueError("Telemetry timestamp must be finite and non-negative")
+        if not math.isfinite(self.duration) or not 0 <= self.duration <= 86400:
+            raise ValueError("Flow duration must be finite and within one day")
+        if not 0 <= self.src_port <= 65535 or not 0 <= self.dst_port <= 65535 or not 0 <= self.protocol <= 255:
+            raise ValueError("Invalid port or protocol")
+        if not 1 <= self.packets <= 10**9 or not 0 <= self.bytes_count <= 10**15:
+            raise ValueError("Invalid packet or byte count")
+        if any(len(value) > 256 for value in (self.src_ip, self.dst_ip, self.identity or "")):
+            raise ValueError("Telemetry identifiers exceed 256 characters")
+
+
+def _flow_timestamp(record):
+    if "flowEndMilliseconds" in record:
+        return float(record["flowEndMilliseconds"]) / 1000.0
+    if "timestamp" in record:
+        return _timestamp(record["timestamp"])
+    if "LAST_SWITCHED" in record:
+        if "unix_secs" not in record or "sysUpTime" not in record:
+            raise ValueError("NetFlow LAST_SWITCHED requires unix_secs and sysUpTime from the exporter header")
+        age_ms = (int(record["sysUpTime"]) - int(record["LAST_SWITCHED"])) % (2**32)
+        return float(record["unix_secs"]) - age_ms / 1000.0
+    raise ValueError("Flow timestamp is required")
+
 
 def adapt_netflow(record: dict[str, Any], source: str = "netflow") -> TelemetryEvent:
     """Normalize common NetFlow v5/v9 and IPFIX field aliases."""
@@ -52,7 +82,7 @@ def adapt_netflow(record: dict[str, Any], source: str = "netflow") -> TelemetryE
         protocol = {"tcp": 6, "udp": 17, "icmp": 1}.get(protocol.lower(), 0)
     flags = _integer(record, "tcpControlBits", "TCP_FLAGS", "tcp_flags")
     return TelemetryEvent(
-        timestamp=_timestamp(record.get("flowEndMilliseconds", record.get("LAST_SWITCHED", record.get("timestamp")))),
+        timestamp=_flow_timestamp(record),
         src_ip=str(record.get("sourceIPv4Address", record.get("IPV4_SRC_ADDR", record.get("src_ip", "unknown")))),
         dst_ip=str(record.get("destinationIPv4Address", record.get("IPV4_DST_ADDR", record.get("dst_ip", "unknown")))),
         src_port=_integer(record, "sourceTransportPort", "L4_SRC_PORT", "src_port"),
@@ -104,7 +134,7 @@ class StreamingTelemetry:
     """Event-time telemetry windowing with bounded lateness and no future leakage."""
 
     def __init__(self, window_seconds: int = 5, allowed_lateness: float = 2.0) -> None:
-        if window_seconds <= 0 or allowed_lateness < 0:
+        if window_seconds <= 0 or not math.isfinite(allowed_lateness) or allowed_lateness < 0:
             raise ValueError("window_seconds must be positive and allowed_lateness non-negative")
         self.window_seconds = window_seconds
         self.allowed_lateness = allowed_lateness
@@ -114,13 +144,29 @@ class StreamingTelemetry:
         self.windows: dict[int, WindowAccumulator] = {}
         self.accepted = 0
         self.rejected_late = 0
+        self.max_batch_windows = 720
+        self.max_window_records = 50000
 
     def ingest(self, events: Iterable[TelemetryEvent], flush: bool = False) -> dict[str, Any]:
+        events = sorted(events, key=lambda item: item.timestamp)
+        # Validate the complete batch before mutating any window or watermark.
+        if events:
+            origin = self.origin if self.origin is not None else events[0].timestamp
+            furthest = int((events[-1].timestamp - origin) // self.window_seconds)
+            if furthest - self.emitted_through > self.max_batch_windows:
+                raise ValueError("Telemetry gap exceeds 720 windows. Start a new stream after a long gap.")
+            counts = {}
+            for event in events:
+                index = int((event.timestamp - origin) // self.window_seconds)
+                counts[index] = counts.get(index, 0) + 1
+                existing = len(self.windows[index].iats) + 1 if index in self.windows else 0
+                if counts[index] + existing > self.max_window_records:
+                    raise ValueError("Telemetry window capacity reached")
         accepted_now = 0
-        for event in sorted(events, key=lambda item: item.timestamp):
+        for event in events:
             if self.origin is None:
                 self.origin = event.timestamp
-            index = max(int((event.timestamp - self.origin) // self.window_seconds), 0)
+            index = int((event.timestamp - self.origin) // self.window_seconds)
             if index <= self.emitted_through:
                 self.rejected_late += 1
                 continue

@@ -1,0 +1,849 @@
+{
+  "dataset_manifest_sha256": "e4bb7fa5ab5fb44a6f44077541fbcf4e3decd8c42eb77dea830a6b18973f8e99",
+  "checkpoint_sha256": "b3547819f1510c4abdfee98a095dc08e4000a36b6256d6316a84e90426cbe367",
+  "feature_contract": "shadownet.packet-window.v1",
+  "baseline_threshold": 0.7905025649070745,
+  "selection": "One fixed training run; validation selects early stopping, temperature, OOD and thresholds; no test tuning.",
+  "operational_claims_allowed": false,
+  "automatic_promotion": false,
+  "splits": {
+    "validation": {
+      "ood_rejection_rate": 0.009828009828009828,
+      "groups": {
+        "all": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 2849,
+                "tp": 1332,
+                "fp": 50,
+                "fn": 9,
+                "tn": 1458,
+                "recall": 0.9932885906040269,
+                "false_positive_rate": 0.033156498673740056,
+                "precision": 0.9638205499276411,
+                "f1": 0.9783327212633125
+              },
+              "accepted": {
+                "support": 2821,
+                "tp": 1332,
+                "fp": 50,
+                "fn": 9,
+                "tn": 1430,
+                "recall": 0.9932885906040269,
+                "false_positive_rate": 0.033783783783783786,
+                "precision": 0.9638205499276411,
+                "f1": 0.9783327212633125
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 28
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 2849,
+                "tp": 1333,
+                "fp": 49,
+                "fn": 9,
+                "tn": 1458,
+                "recall": 0.9932935916542474,
+                "false_positive_rate": 0.0325149303251493,
+                "precision": 0.9645441389290883,
+                "f1": 0.9787077826725403
+              },
+              "accepted": {
+                "support": 2821,
+                "tp": 1333,
+                "fp": 49,
+                "fn": 9,
+                "tn": 1430,
+                "recall": 0.9932935916542474,
+                "false_positive_rate": 0.03313049357674104,
+                "precision": 0.9645441389290883,
+                "f1": 0.9787077826725403
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 28
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 2849,
+                "tp": 1330,
+                "fp": 52,
+                "fn": 13,
+                "tn": 1454,
+                "recall": 0.9903201787043932,
+                "false_positive_rate": 0.034528552456839307,
+                "precision": 0.9623733719247467,
+                "f1": 0.9761467889908257
+              },
+              "accepted": {
+                "support": 2821,
+                "tp": 1330,
+                "fp": 52,
+                "fn": 13,
+                "tn": 1426,
+                "recall": 0.9903201787043932,
+                "false_positive_rate": 0.035182679296346414,
+                "precision": 0.9623733719247467,
+                "f1": 0.9761467889908257
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 28
+            }
+          ],
+          "baseline_next_window": {
+            "support": 2849,
+            "tp": 1287,
+            "fp": 52,
+            "fn": 54,
+            "tn": 1456,
+            "recall": 0.959731543624161,
+            "false_positive_rate": 0.034482758620689655,
+            "precision": 0.9611650485436893,
+            "f1": 0.9604477611940299
+          }
+        },
+        "active_anchor": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 2185,
+                "tp": 1297,
+                "fp": 50,
+                "fn": 8,
+                "tn": 830,
+                "recall": 0.9938697318007663,
+                "false_positive_rate": 0.056818181818181816,
+                "precision": 0.9628804751299184,
+                "f1": 0.978129713423831
+              },
+              "accepted": {
+                "support": 2165,
+                "tp": 1297,
+                "fp": 50,
+                "fn": 8,
+                "tn": 810,
+                "recall": 0.9938697318007663,
+                "false_positive_rate": 0.05813953488372093,
+                "precision": 0.9628804751299184,
+                "f1": 0.978129713423831
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 20
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 2185,
+                "tp": 1298,
+                "fp": 49,
+                "fn": 8,
+                "tn": 830,
+                "recall": 0.9938744257274119,
+                "false_positive_rate": 0.055745164960182024,
+                "precision": 0.96362286562732,
+                "f1": 0.9785148888051263
+              },
+              "accepted": {
+                "support": 2165,
+                "tp": 1298,
+                "fp": 49,
+                "fn": 8,
+                "tn": 810,
+                "recall": 0.9938744257274119,
+                "false_positive_rate": 0.0570430733410943,
+                "precision": 0.96362286562732,
+                "f1": 0.9785148888051263
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 20
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 2185,
+                "tp": 1295,
+                "fp": 51,
+                "fn": 12,
+                "tn": 827,
+                "recall": 0.9908186687069626,
+                "false_positive_rate": 0.05808656036446469,
+                "precision": 0.962109955423477,
+                "f1": 0.9762532981530343
+              },
+              "accepted": {
+                "support": 2165,
+                "tp": 1295,
+                "fp": 51,
+                "fn": 12,
+                "tn": 807,
+                "recall": 0.9908186687069626,
+                "false_positive_rate": 0.05944055944055944,
+                "precision": 0.962109955423477,
+                "f1": 0.9762532981530343
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 20
+            }
+          ],
+          "baseline_next_window": {
+            "support": 2185,
+            "tp": 1287,
+            "fp": 52,
+            "fn": 18,
+            "tn": 828,
+            "recall": 0.9862068965517241,
+            "false_positive_rate": 0.05909090909090909,
+            "precision": 0.9611650485436893,
+            "f1": 0.9735249621785174
+          }
+        },
+        "CTU-Honeypot-Capture-7-3": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 2,
+                "fn": 0,
+                "tn": 1422,
+                "recall": null,
+                "false_positive_rate": 0.0014044943820224719,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1396,
+                "tp": 0,
+                "fp": 2,
+                "fn": 0,
+                "tn": 1394,
+                "recall": null,
+                "false_positive_rate": 0.0014326647564469914,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 28
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 1423,
+                "recall": null,
+                "false_positive_rate": 0.0007022471910112359,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1396,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 1395,
+                "recall": null,
+                "false_positive_rate": 0.0007163323782234957,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 28
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 5,
+                "fn": 0,
+                "tn": 1419,
+                "recall": null,
+                "false_positive_rate": 0.0035112359550561797,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1396,
+                "tp": 0,
+                "fp": 5,
+                "fn": 0,
+                "tn": 1391,
+                "recall": null,
+                "false_positive_rate": 0.0035816618911174787,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 28
+            }
+          ],
+          "baseline_next_window": {
+            "support": 1424,
+            "tp": 0,
+            "fp": 4,
+            "fn": 0,
+            "tn": 1420,
+            "recall": null,
+            "false_positive_rate": 0.0028089887640449437,
+            "precision": 0.0,
+            "f1": 0.0
+          }
+        },
+        "CTU-IoT-Malware-Capture-21-1": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 1425,
+                "tp": 1332,
+                "fp": 48,
+                "fn": 9,
+                "tn": 36,
+                "recall": 0.9932885906040269,
+                "false_positive_rate": 0.5714285714285714,
+                "precision": 0.9652173913043478,
+                "f1": 0.9790518191841234
+              },
+              "accepted": {
+                "support": 1425,
+                "tp": 1332,
+                "fp": 48,
+                "fn": 9,
+                "tn": 36,
+                "recall": 0.9932885906040269,
+                "false_positive_rate": 0.5714285714285714,
+                "precision": 0.9652173913043478,
+                "f1": 0.9790518191841234
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 0
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 1425,
+                "tp": 1333,
+                "fp": 48,
+                "fn": 9,
+                "tn": 35,
+                "recall": 0.9932935916542474,
+                "false_positive_rate": 0.5783132530120482,
+                "precision": 0.9652425778421434,
+                "f1": 0.979067205288285
+              },
+              "accepted": {
+                "support": 1425,
+                "tp": 1333,
+                "fp": 48,
+                "fn": 9,
+                "tn": 35,
+                "recall": 0.9932935916542474,
+                "false_positive_rate": 0.5783132530120482,
+                "precision": 0.9652425778421434,
+                "f1": 0.979067205288285
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 0
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 1425,
+                "tp": 1330,
+                "fp": 47,
+                "fn": 13,
+                "tn": 35,
+                "recall": 0.9903201787043932,
+                "false_positive_rate": 0.573170731707317,
+                "precision": 0.9658678286129266,
+                "f1": 0.9779411764705882
+              },
+              "accepted": {
+                "support": 1425,
+                "tp": 1330,
+                "fp": 47,
+                "fn": 13,
+                "tn": 35,
+                "recall": 0.9903201787043932,
+                "false_positive_rate": 0.573170731707317,
+                "precision": 0.9658678286129266,
+                "f1": 0.9779411764705882
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 0
+            }
+          ],
+          "baseline_next_window": {
+            "support": 1425,
+            "tp": 1287,
+            "fp": 48,
+            "fn": 54,
+            "tn": 36,
+            "recall": 0.959731543624161,
+            "false_positive_rate": 0.5714285714285714,
+            "precision": 0.9640449438202248,
+            "f1": 0.9618834080717489
+          }
+        }
+      },
+      "early_warning_raw": {
+        "threshold": [
+          0.8222049474716187,
+          0.8601256608963013,
+          0.8099917769432068
+        ],
+        "attack_onsets": 51,
+        "onsets_forecast_early": 48,
+        "forecast_before_onset_rate": 0.9411764705882353,
+        "mean_lead_seconds": 9.895833333333334,
+        "median_lead_seconds": 10.0,
+        "max_lead_seconds": 10.0,
+        "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+      },
+      "early_warning_accepted": {
+        "threshold": [
+          0.8222049474716187,
+          0.8601256608963013,
+          0.8099917769432068
+        ],
+        "attack_onsets": 51,
+        "onsets_forecast_early": 48,
+        "forecast_before_onset_rate": 0.9411764705882353,
+        "mean_lead_seconds": 9.895833333333334,
+        "median_lead_seconds": 10.0,
+        "max_lead_seconds": 10.0,
+        "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+      }
+    },
+    "test": {
+      "ood_rejection_rate": 0.08483563096500531,
+      "groups": {
+        "all": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 2829,
+                "tp": 0,
+                "fp": 12,
+                "fn": 0,
+                "tn": 2817,
+                "recall": null,
+                "false_positive_rate": 0.0042417815482502655,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 2589,
+                "tp": 0,
+                "fp": 10,
+                "fn": 0,
+                "tn": 2579,
+                "recall": null,
+                "false_positive_rate": 0.003862495171881035,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 2829,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 2828,
+                "recall": null,
+                "false_positive_rate": 0.0003534817956875221,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 2589,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 2588,
+                "recall": null,
+                "false_positive_rate": 0.0003862495171881035,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 2829,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0,
+                "tn": 2825,
+                "recall": null,
+                "false_positive_rate": 0.0014139271827500884,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 2589,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0,
+                "tn": 2585,
+                "recall": null,
+                "false_positive_rate": 0.001544998068752414,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            }
+          ],
+          "baseline_next_window": {
+            "support": 2829,
+            "tp": 0,
+            "fp": 985,
+            "fn": 0,
+            "tn": 1844,
+            "recall": null,
+            "false_positive_rate": 0.34817956875220923,
+            "precision": 0.0,
+            "f1": 0.0
+          }
+        },
+        "active_anchor": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 2099,
+                "tp": 0,
+                "fp": 12,
+                "fn": 0,
+                "tn": 2087,
+                "recall": null,
+                "false_positive_rate": 0.005717008099094807,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1859,
+                "tp": 0,
+                "fp": 10,
+                "fn": 0,
+                "tn": 1849,
+                "recall": null,
+                "false_positive_rate": 0.0053792361484669175,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 2099,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 2098,
+                "recall": null,
+                "false_positive_rate": 0.0004764173415912339,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1859,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 1858,
+                "recall": null,
+                "false_positive_rate": 0.0005379236148466917,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 2099,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0,
+                "tn": 2095,
+                "recall": null,
+                "false_positive_rate": 0.0019056693663649356,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1859,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0,
+                "tn": 1855,
+                "recall": null,
+                "false_positive_rate": 0.002151694459386767,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            }
+          ],
+          "baseline_next_window": {
+            "support": 2099,
+            "tp": 0,
+            "fp": 985,
+            "fn": 0,
+            "tn": 1114,
+            "recall": null,
+            "false_positive_rate": 0.4692710814673654,
+            "precision": 0.0,
+            "f1": 0.0
+          }
+        },
+        "CTU-Honeypot-Capture-7-2": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 0,
+                "fn": 0,
+                "tn": 1424,
+                "recall": null,
+                "false_positive_rate": 0.0,
+                "precision": null,
+                "f1": null
+              },
+              "accepted": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 0,
+                "fn": 0,
+                "tn": 1424,
+                "recall": null,
+                "false_positive_rate": 0.0,
+                "precision": null,
+                "f1": null
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 0
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 1423,
+                "recall": null,
+                "false_positive_rate": 0.0007022471910112359,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 1,
+                "fn": 0,
+                "tn": 1423,
+                "recall": null,
+                "false_positive_rate": 0.0007022471910112359,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 0
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0,
+                "tn": 1420,
+                "recall": null,
+                "false_positive_rate": 0.0028089887640449437,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1424,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0,
+                "tn": 1420,
+                "recall": null,
+                "false_positive_rate": 0.0028089887640449437,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 0
+            }
+          ],
+          "baseline_next_window": {
+            "support": 1424,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 1424,
+            "recall": null,
+            "false_positive_rate": 0.0,
+            "precision": null,
+            "f1": null
+          }
+        },
+        "CTU-IoT-Malware-Capture-42-1": {
+          "lstm": [
+            {
+              "step": 1,
+              "raw": {
+                "support": 1405,
+                "tp": 0,
+                "fp": 12,
+                "fn": 0,
+                "tn": 1393,
+                "recall": null,
+                "false_positive_rate": 0.008540925266903915,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "accepted": {
+                "support": 1165,
+                "tp": 0,
+                "fp": 10,
+                "fn": 0,
+                "tn": 1155,
+                "recall": null,
+                "false_positive_rate": 0.008583690987124463,
+                "precision": 0.0,
+                "f1": 0.0
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            },
+            {
+              "step": 2,
+              "raw": {
+                "support": 1405,
+                "tp": 0,
+                "fp": 0,
+                "fn": 0,
+                "tn": 1405,
+                "recall": null,
+                "false_positive_rate": 0.0,
+                "precision": null,
+                "f1": null
+              },
+              "accepted": {
+                "support": 1165,
+                "tp": 0,
+                "fp": 0,
+                "fn": 0,
+                "tn": 1165,
+                "recall": null,
+                "false_positive_rate": 0.0,
+                "precision": null,
+                "f1": null
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            },
+            {
+              "step": 3,
+              "raw": {
+                "support": 1405,
+                "tp": 0,
+                "fp": 0,
+                "fn": 0,
+                "tn": 1405,
+                "recall": null,
+                "false_positive_rate": 0.0,
+                "precision": null,
+                "f1": null
+              },
+              "accepted": {
+                "support": 1165,
+                "tp": 0,
+                "fp": 0,
+                "fn": 0,
+                "tn": 1165,
+                "recall": null,
+                "false_positive_rate": 0.0,
+                "precision": null,
+                "f1": null
+              },
+              "rejected_positive_targets": 0,
+              "rejected_negative_targets": 240
+            }
+          ],
+          "baseline_next_window": {
+            "support": 1405,
+            "tp": 0,
+            "fp": 985,
+            "fn": 0,
+            "tn": 420,
+            "recall": null,
+            "false_positive_rate": 0.701067615658363,
+            "precision": 0.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "early_warning_raw": {
+        "threshold": [
+          0.8222049474716187,
+          0.8601256608963013,
+          0.8099917769432068
+        ],
+        "attack_onsets": 0,
+        "onsets_forecast_early": 0,
+        "forecast_before_onset_rate": null,
+        "mean_lead_seconds": null,
+        "median_lead_seconds": null,
+        "max_lead_seconds": null,
+        "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+      },
+      "early_warning_accepted": {
+        "threshold": [
+          0.8222049474716187,
+          0.8601256608963013,
+          0.8099917769432068
+        ],
+        "attack_onsets": 0,
+        "onsets_forecast_early": 0,
+        "forecast_before_onset_rate": null,
+        "mean_lead_seconds": null,
+        "median_lead_seconds": null,
+        "max_lead_seconds": null,
+        "note": "Issued time is the end of the last observed window. Onsets require adjacent labelled windows. Null lead-time values mean this split contains no benign-to-attack onset or no early forecast; they are not zeros."
+      }
+    }
+  },
+  "promotion_blockers": [
+    "Test capture has no labelled attacks after the 60-second warm-up, so held-out recall and early warning are unmeasured.",
+    "Small IoT pilot, not enterprise validation; publisher v2 is work in progress."
+  ]
+}

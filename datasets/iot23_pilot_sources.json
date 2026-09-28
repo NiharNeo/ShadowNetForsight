@@ -1,0 +1,56 @@
+{
+  "dataset": "IoT-23 v2 small capture-disjoint research pilot",
+  "publisher": "https://www.stratosphereips.org/datasets-iot23",
+  "base_url": "https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset-v2/",
+  "status": "publisher_v2_work_in_progress; narrow research subset, not production certification",
+  "selection_policy": "Small downloadable captures selected by size before model fitting; whole captures assigned to partitions. First two hours per capture, fixed before examining model results. Before fitting, the 364 MB Echo validation capture was replaced by the 17 MB Somfy capture to bound acquisition time. Validation/test benign captures are different sessions from the same Somfy device, not device-disjoint.",
+  "maximum_capture_seconds": 7200,
+  "captures": [
+    {
+      "id": "CTU-Honeypot-Capture-4-1",
+      "partition": "train",
+      "pcap": "2018-10-25-14-06-32-192.168.1.132.pcap",
+      "labels": "2018-10-25-14-06-32-192.168.1.132-zeek-conn.log.labeled"
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-8-1",
+      "partition": "train",
+      "pcap": "2018-07-31-15-15-09-192.168.100.113.pcap",
+      "labels": "2018-07-31-15-15-09-192.168.100.113-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-20-1",
+      "partition": "train",
+      "pcap": "2018-10-02-13-12-30-192.168.100.103.pcap",
+      "labels": "2018-10-02-13-12-30-192.168.100.103-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-Honeypot-Capture-7-3",
+      "partition": "validation",
+      "pcap": "2019-07-04-16-41-10-192.168.1.158.pcap",
+      "labels": "2019-07-04-16-41-10-192.168.1.158-zeek-conn-log.labeled",
+      "publisher_capture_label": "benign",
+      "label_basis": "Publisher README explicitly declares Type of Capture: benign; supplied flow log lacks a label column. Only packets matching logged flows inherit this capture annotation; unmatched packets remain unknown."
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-21-1",
+      "partition": "validation",
+      "pcap": "2018-10-03-15-22-32-192.168.100.113.pcap",
+      "labels": "2018-10-03-15-22-32-192.168.100.113-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-Honeypot-Capture-7-2",
+      "partition": "test",
+      "pcap": "2019-07-03-16-41-09-192.168.1.158.pcap",
+      "labels": "2019-07-03-16-41-09-192.168.1.158-zeek-conn-log.labeled",
+      "publisher_capture_label": "benign",
+      "label_basis": "Publisher README explicitly declares Type of Capture: benign; supplied flow log lacks a label column. Only packets matching logged flows inherit this capture annotation; unmatched packets remain unknown."
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-42-1",
+      "partition": "test",
+      "pcap": "2019-01-10-14-34-38-192.168.1.197.pcap",
+      "labels": "2019-01-10-14-34-38-192.168.1.197-zeek-conn-log.labeled"
+    }
+  ]
+}

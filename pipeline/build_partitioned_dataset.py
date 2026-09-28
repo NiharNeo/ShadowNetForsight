@@ -5,6 +5,8 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+from pipeline.feature_contract import CSV_CONTRACT
+
 import numpy as np
 import pandas as pd
 
@@ -49,6 +51,7 @@ def build_partitioned(plan_path: Path, raw_dir: Path, output_dir: Path, config: 
         split_sizes[partition] = len(merged["x"])
 
     manifest = {
+        "feature_contract": CSV_CONTRACT,
         "dataset": plan["dataset"],
         "split_strategy": plan["strategy"],
         "config": asdict(config),

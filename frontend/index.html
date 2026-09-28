@@ -6,58 +6,59 @@
     <meta name="theme-color" content="#07110f" />
     <title>ShadowNet ForeSight</title>
     <link rel="stylesheet" href="/assets/styles.css" />
-  </head>
+  <link rel="stylesheet" href="/assets/dashboard.css?v=20260926-2" /></head>
   <body>
-    <div class="noise"></div>
+
     <header>
       <a class="brand" href="#"><span class="brand-mark">S</span><span>SHADOWNET <b>FORESIGHT</b></span></a>
-      <div class="header-status"><span class="pulse"></span> LIVE MODEL <span class="divider"></span> SNF-DEMO-042</div>
-      <button class="icon-button" aria-label="Notifications">03</button>
+      <div class="header-status"><span class="pulse"></span> SHADOW MODE <span class="divider"></span> TECHTREK · 140638</div>
+      <button id="logout" class="secondary" hidden>Sign out</button>
     </header>
 
-    <main>
-      <section class="hero">
-        <div>
-          <p class="eyebrow">PREDICTIVE SECURITY OPERATIONS</p>
-          <h1>See the breach<br /><em>before it happens.</em></h1>
-          <p class="hero-copy">A living network twin that forecasts attacker movement, explains the warning, and tests the action you take next.</p>
-        </div>
-        <div class="hero-actions">
-          <button id="play" class="primary"><span>▶</span> Run scripted attack demo</button>
-          <button id="uploadPcap" class="secondary">Upload PCAP for live inference</button>
-          <input id="pcapFile" type="file" accept=".pcap,.pcapng" hidden />
-          <button id="reset" class="secondary">Reset scenario</button>
-          <p id="source">Loading scenario…</p>
-          <p id="modelStatus" class="model-status">DEMO ADAPTER</p>
-        </div>
-      </section>
-
-      <section class="metrics">
+    <main><nav class="workspace-nav" aria-label="Workspace"><button data-view="analysis" aria-current="page">Capture analysis</button><button data-view="evidence">Model evidence</button><button data-view="setup">Calibration & collection</button><button data-view="sandbox">Illustrative sandbox</button></nav>
+<div id="view-analysis" class="workspace-view"><section class="capture-toolbar"><div><h1>Capture analysis</h1><p>Inspect network activity and temporal model outputs.</p></div><div class="capture-actions"><button id="uploadPcap" class="primary">Upload capture</button><input id="pcapFile" type="file" accept=".pcap,.pcapng" hidden /><button id="reset" class="secondary">Clear capture</button></div></section>
+<div class="capture-meta"><p id="source">No capture selected</p><p id="modelStatus">AWAITING CAPTURE</p></div>
+<div class="mode-note">Shadow mode · Outputs support analyst review. Operational alerts are disabled. <button class="text-button" data-view="evidence">View model validation →</button></div>
+<div class="replay-controls"><button id="pauseReplay" class="secondary" disabled>Pause replay</button><label>Replay speed <select id="replaySpeed"><option value="1">1×</option><option value="5" selected>5×</option><option value="10">10×</option><option value="20">20×</option></select></label><button id="exportReport" class="secondary" disabled>Export analysis JSON</button><span id="exportStatus" role="status"></span></div><div id="compatibilityNotice" class="mode-note" hidden></div><div class="replay-summary"><strong id="labReplayStats">No capture loaded</strong><span id="labReplayDetail">Upload a capture with at least 60 seconds of traffic.</span></div>      <section class="traffic-evidence" aria-label="Observed traffic evidence"><div class="traffic-stat"><span>Captured bytes · IP packets</span><strong id="observedBytes">—</strong></div><div class="traffic-stat"><span>Observed hosts</span><strong id="observedHosts">—</strong></div><div class="traffic-stat"><span>TCP SYN without ACK</span><strong id="observedSyn">—</strong></div><div class="protocol-evidence"><span>Protocol mix · packet share</span><div id="protocolMix">Upload a capture to inspect protocols.</div></div><p id="trafficScope">Evidence from the latest 10,000 processed IP packets; no attack classification implied.</p></section><section class="metrics">
         <article class="metric risk-card">
-          <div class="metric-label">COMPROMISE RISK <span id="riskTrend">● RISING</span></div>
+          <div class="metric-label">FORECAST SCORE <span id="riskTrend">● RISING</span></div>
           <div class="risk-row"><strong id="riskValue">08</strong><span>%</span><div class="ring"><i id="riskRing"></i></div></div>
           <p id="riskText">Baseline established</p>
         </article>
         <article class="metric">
-          <div class="metric-label">NEXT LIKELY STAGE</div>
+          <div class="metric-label">MODEL STAGE</div>
           <strong class="stage" id="nextStage">NORMAL</strong>
           <p id="eta">No progression</p>
         </article>
         <article class="metric">
-          <div class="metric-label">EXPECTED TARGET</div>
+          <div id="targetLabel" class="metric-label">EXPECTED TARGET</div>
           <strong class="host" id="targetHost">Edge gateway</strong>
-          <p>Temporal rollout · K = 3</p>
+          <p>Most frequent observed connection</p>
         </article>
         <article class="metric">
-          <div class="metric-label">MODEL CONFIDENCE</div>
+          <div class="metric-label">STAGE SCORE</div>
           <strong class="confidence" id="confidence">96%</strong>
-          <p>Calibrated uncertainty</p>
+          <p>Not a measure of reliability</p>
         </article>
-      </section>
-
-      <section class="situation-brief" aria-live="polite">
+      </section><section class="grid">        <article class="panel event-panel">
+          <div class="panel-head"><div><span class="kicker">LIVE REPLAY</span><h2>Signal stream</h2></div><span id="streamStatus" class="live">SCRIPTED SCENARIO</span></div>
+          <div id="signalGraph" class="signal-graph"></div><div class="timeline" id="timeline"></div>
+        </article>        <article class="panel forecast-panel">
+          <div class="panel-head"><div><span class="kicker">01 / TEMPORAL FORECAST</span><h2>Forecast horizon</h2></div><span class="badge">5 SEC WINDOWS</span></div>
+          <div id="forecastChart" class="chart" aria-label="Forecast risk chart"></div>
+          <div id="forecastLegend" class="legend"><span><i class="lime"></i>Predicted risk</span><span><i class="band"></i>Illustrative range (demo only)</span><span class="lead">SCRIPTED DEMO LEAD <b>01:05</b></span></div>
+        </article>        <article class="panel path-panel">
+          <div class="panel-head"><div><span class="kicker">02 / NETWORK CONTEXT</span><h2 id="pathTitle">Illustrative scenario path</h2></div><span id="pathBadge" class="badge">PROXY STAGES</span></div>
+          <label class="host-filter">Filter displayed connections <input id="hostFilter" type="search" placeholder="Source or destination IP" /></label><div id="connectionGraph" class="connection-graph" hidden></div><div class="path" id="attackPath"></div>
+          <div id="pathLegend" class="path-legend"><span><i class="observed-dot"></i>Observed</span><span><i class="target-dot"></i>Targeted</span><span><i class="predicted-dot"></i>Predicted</span></div>
+        </article>        <article class="panel explain-panel">
+          <div class="panel-head"><div><span class="kicker">03 / EXPLAINABILITY</span><h2>Feature attribution</h2></div><span class="badge">INTEGRATED GRADIENTS</span></div>
+          <p id="explanation">Traffic is within the learned baseline.</p>
+          <div id="features" class="features"></div>
+          <p id="explainMethod" class="model-note">Scenario evidence is illustrative until a live PCAP replay reaches model readiness.</p>
+        </article></section>      <section class="situation-brief" aria-live="polite">
         <div class="brief-heading">
-          <div><span class="kicker">LIVE PLAIN-LANGUAGE SUMMARY</span><h2>Situation Brief</h2></div>
+          <div><span class="kicker">DECISION-SUPPORT SUMMARY</span><h2>Capture assessment</h2></div>
           <span id="briefStatus" class="brief-status normal">NORMAL</span>
         </div>
         <p id="briefHeadline" class="brief-headline">The network looks normal right now.</p>
@@ -67,22 +68,21 @@
           <div><span>WHAT TO DO NEXT</span><p id="briefAction">Keep monitoring. No defensive action is recommended yet.</p></div>
         </div>
         <p class="brief-disclaimer">Decision support only. An analyst should verify the evidence before taking action.</p>
-      </section>
-
-      <section class="lab-panel">
-        <div class="panel-head"><div><span class="kicker">CONTROLLED DATA PROGRAM</span><h2>Lab corpus command centre</h2></div><span id="labStatus" class="badge accent">PLAN LOADING</span></div>
-        <div class="lab-overview">
-          <div>
-            <p class="lab-intro">Small, labelled sessions replace the immediate 40 GB download. Every capture includes benign warm-up, an exact event timeline and a cryptographic fingerprint.</p>
-            <div id="labStats" class="lab-stats"></div>
-            <div class="split-wrap"><span class="viz-label">CAPTURE-LEVEL PARTITIONS</span><div id="splitBar" class="split-bar" aria-label="Dataset partition plan"></div><div id="splitLegend" class="split-legend"></div></div>
+      </section></div>
+<div id="view-evidence" class="workspace-view" hidden><div class="view-heading"><h1>Model evidence</h1><p>Live checkpoint evidence and separately evaluated research candidates.</p></div><section class="panel" id="offlineStudies" hidden><div class="panel-head"><div><span class="kicker">OFFLINE RESEARCH · NOT DEPLOYED</span><h2>Latest detector studies</h2></div></div><p id="studyScope"></p><div id="studyRows" class="evidence-metrics"></div><p id="studyDecision"></p></section><section class="panel capture-evaluation"><div class="panel-head"><div><span class="kicker">CAPTURE VALIDATION</span><h2>Compare forecasts with ground truth</h2></div></div><p>Use a labelled timeline with the same capture SHA-256. Leave the report field empty to evaluate the current replay. Synthetic fixtures demonstrate this workflow only.</p><div class="evaluation-inputs"><label>Analysis export (optional)<input id="evaluationReport" type="file" accept=".json,application/json" /></label><label>Labelled timeline / capture manifest<input id="evaluationLabels" type="file" accept=".json,application/json" /></label><button id="evaluateCapture" class="primary">Evaluate capture</button><button id="exportEvaluation" class="secondary" disabled>Export evaluation</button></div><p id="evaluationStatus" role="status">No capture evaluation yet.</p><div id="evaluationResults"></div></section>        <article class="panel evidence-panel">
+          <div class="panel-head"><div><span class="kicker">04 / VALIDATION EVIDENCE</span><h2>What the model can—and cannot—claim</h2></div><span id="claimBadge" class="badge danger">CLAIMS RESTRICTED</span></div>
+          <div id="evidenceMetrics" class="evidence-metrics"></div>
+          <div class="evidence-viz-grid">
+            <div><span class="viz-label">HORIZON QUALITY · HIGHER IS BETTER</span><div id="qualityChart" class="quality-chart"></div></div>
+            <div><span class="viz-label">DISTRIBUTION SHIFT · REJECTION RATE</span><div id="oodChart" class="ood-chart"></div></div>
+            <div><span class="viz-label">EARLY-WARNING COVERAGE</span><div id="onsetCoverage" class="coverage-chart"></div></div>
           </div>
-          <div><span class="viz-label">TARGET SCENARIO MIX</span><div id="scenarioMix" class="scenario-mix"></div></div>
-        </div>
-        <div class="lab-bottom"><div><span class="viz-label">COLLECTION GATES</span><ol id="labGates"></ol></div><div class="onset-diagram"><span class="viz-label">ONE LABELLED CAPTURE</span><div class="onset-track"><i class="warmup"></i><i class="attack"></i><b>Attack onset</b></div><div class="onset-labels"><span>Benign warm-up</span><span>Forecast window</span><span>Observed attack</span></div></div></div>
-      </section>
-
-      <section class="calibration-panel">
+          <div class="evidence-bottom">
+            <div><span class="kicker">EARLY WARNING</span><strong id="leadEvidence">—</strong><p id="onsetEvidence">Loading evaluation…</p></div>
+            <div class="warning-card"><span class="kicker">EXTERNAL GENERALIZATION</span><strong id="crossWarning">CTU-13 CHECK PENDING</strong><p id="crossDetail">Independent dataset results are shown without hiding failure modes.</p></div>
+          </div>
+        </article></div>
+<div id="view-setup" class="workspace-view" hidden><div class="view-heading"><h1>Calibration & collection</h1><p>Independent local captures are required before operational use.</p></div>      <section class="calibration-panel">
         <div class="panel-head"><div><span class="kicker">LOCAL NETWORK ADAPTATION</span><h2>Calibrate this network</h2></div><span class="badge accent">VALIDATION FILES ONLY</span></div>
         <p class="calibration-intro">Create a profile from labelled captures from one network. Keep the PCAP used for final testing separate.</p>
         <div class="calibration-grid">
@@ -95,48 +95,19 @@
           <label>PROFILE FOR LIVE PCAP<select id="calibrationProfile"><option value="">Global model (no local profile)</option></select></label>
           <p id="calibrationStatus">No local profile selected. Unknown networks remain protected by global OOD rejection.</p>
         </div>
-      </section>
-
-      <section class="grid">
-        <article class="panel forecast-panel">
-          <div class="panel-head"><div><span class="kicker">01 / TEMPORAL WORLD MODEL</span><h2>Forecast horizon</h2></div><span class="badge">5 SEC WINDOWS</span></div>
-          <div id="forecastChart" class="chart" aria-label="Forecast risk chart"></div>
-          <div class="legend"><span><i class="lime"></i>Predicted risk</span><span><i class="band"></i>Confidence interval</span><span class="lead">EARLY WARNING LEAD TIME <b>01:05</b></span></div>
-        </article>
-
-        <article class="panel event-panel">
-          <div class="panel-head"><div><span class="kicker">LIVE REPLAY</span><h2>Signal stream</h2></div><span class="live"><i></i> RUNNING</span></div>
-          <div class="timeline" id="timeline"></div>
-        </article>
-
-        <article class="panel path-panel">
-          <div class="panel-head"><div><span class="kicker">02 / PROBABLE PROGRESSION</span><h2>Predicted attack path</h2></div><span class="badge">MITRE MAPPED</span></div>
-          <div class="path" id="attackPath"></div>
-          <div class="path-legend"><span><i class="observed-dot"></i>Observed</span><span><i class="target-dot"></i>Targeted</span><span><i class="predicted-dot"></i>Predicted</span></div>
-        </article>
-
-        <article class="panel explain-panel">
-          <div class="panel-head"><div><span class="kicker">03 / EXPLAINABILITY</span><h2>Why ForeSight is warning</h2></div><span class="badge">INTEGRATED GRADIENTS</span></div>
-          <p id="explanation">Traffic is within the learned baseline.</p>
-          <div id="features" class="features"></div>
-          <p id="explainMethod" class="model-note">Scenario evidence is illustrative until a live PCAP replay reaches model readiness.</p>
-        </article>
-
-        <article class="panel evidence-panel">
-          <div class="panel-head"><div><span class="kicker">04 / VALIDATION EVIDENCE</span><h2>What the model can—and cannot—claim</h2></div><span id="claimBadge" class="badge danger">CLAIMS RESTRICTED</span></div>
-          <div id="evidenceMetrics" class="evidence-metrics"></div>
-          <div class="evidence-viz-grid">
-            <div><span class="viz-label">HORIZON QUALITY · HIGHER IS BETTER</span><div id="qualityChart" class="quality-chart"></div></div>
-            <div><span class="viz-label">GENERALIZATION CHECK · OOD FLAG RATE</span><div id="oodChart" class="ood-chart"></div></div>
-            <div><span class="viz-label">EARLY-WARNING COVERAGE</span><div id="onsetCoverage" class="coverage-chart"></div></div>
+      </section>      <section class="lab-panel">
+        <div class="panel-head"><div><span class="kicker">CONTROLLED DATA PROGRAM</span><h2>Lab corpus command centre</h2></div><span id="labStatus" class="badge accent">PLAN LOADING</span></div>
+        <div class="lab-overview">
+          <div>
+            <p class="lab-intro">Small, labelled sessions replace the immediate 40 GB download. Every capture includes benign warm-up, an exact event timeline and a cryptographic fingerprint.</p>
+            <div id="labStats" class="lab-stats"></div>
+            <div class="split-wrap"><span class="viz-label">CAPTURE-LEVEL PARTITIONS</span><div id="splitBar" class="split-bar" aria-label="Dataset partition plan"></div><div id="splitLegend" class="split-legend"></div></div>
           </div>
-          <div class="evidence-bottom">
-            <div><span class="kicker">EARLY WARNING</span><strong id="leadEvidence">—</strong><p id="onsetEvidence">Loading evaluation…</p></div>
-            <div class="warning-card"><span class="kicker">EXTERNAL GENERALIZATION</span><strong id="crossWarning">CTU-13 CHECK PENDING</strong><p id="crossDetail">Independent dataset results are shown without hiding failure modes.</p></div>
-          </div>
-        </article>
-
-        <article class="panel simulator-panel">
+          <div><span class="viz-label">TARGET SCENARIO MIX</span><div id="scenarioMix" class="scenario-mix"></div><div id="scenarioDetail" class="scenario-detail" aria-live="polite"></div></div>
+        </div>
+        <div class="lab-bottom"><div><span class="viz-label">COLLECTION GATES</span><ol id="labGates"></ol></div><div class="onset-diagram"><span class="viz-label">ONE LABELLED CAPTURE</span><div class="onset-track"><i class="warmup"></i><i class="attack"></i><b>Attack onset</b></div><div class="onset-labels"><span>Benign warm-up</span><span>Forecast window</span><span>Observed attack</span></div></div></div>
+      </section></div>
+<div id="view-sandbox" class="workspace-view" hidden><div class="view-heading"><h1>Illustrative sandbox</h1><p>Scripted scenarios and assumed interventions. These are not detection results.</p><button id="play" class="secondary">Run scripted attack demo</button></div>        <article class="panel simulator-panel">
           <div class="panel-head"><div><span class="kicker">05 / COUNTERFACTUAL</span><h2>Test a defence before deploying it</h2></div><span class="badge accent">ESTIMATED EFFECT</span></div>
           <div class="sim-layout">
             <div class="actions" id="actions">
@@ -147,16 +118,26 @@
             </div>
             <div class="result">
               <div class="before-after"><div><small>BEFORE</small><b id="beforeRisk">—</b></div><span>→</span><div class="after"><small>AFTER</small><b id="afterRisk">—</b></div></div>
-              <div class="delta" id="delta">−49 pts projected risk</div>
-              <p id="simExplanation">Removes SSH as the forecast initial-access route.</p>
+              <div class="delta" id="delta">Scenario estimate pending</div>
+              <p id="simExplanation">Simulation uses assumed topology and probabilities.</p>
               <button id="simulate" class="primary">Run simulation</button>
             </div>
           </div>
-        </article>
-      </section>
-    </main>
+        </article></div></main>
 
-    <footer><span>SHADOWNET FORESIGHT · PREDICTION, NOT PROMISE</span><span>DATASET: CSE-CIC-IDS2018 · 5 TRAIN DAYS · FIXED VALIDATION + TEST</span></footer>
-    <script src="/assets/app.js?v=20260910-2"></script>
+    <footer><span>TECHTREK · SIH 140638</span><span>DATASET: CSE-CIC-IDS2018 · 5 TRAIN DAYS · FIXED VALIDATION + TEST</span></footer>
+    <dialog id="analysisDialog"><h2>Analysis report</h2><p>JSON includes observed windows and exploratory model outputs. You can select and copy this preview if your browser does not save the download.</p><button id="closeAnalysis" class="secondary">Close report</button><pre id="analysisPreview" tabindex="0"></pre></dialog>
+    <dialog id="loginDialog">
+      <form id="loginForm">
+        <h2>Sign in to ShadowNet</h2>
+        <label>Username<input id="loginUsername" autocomplete="username" minlength="3" maxlength="128" required /></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" maxlength="1024" required /></label>
+        <p id="loginError" role="alert"></p>
+        <button id="submitLogin" class="primary" type="submit">Sign in</button>
+        <button id="cancelLogin" class="secondary" type="button">Cancel</button>
+      </form>
+    </dialog>
+    <script src="/assets/visuals.js?v=20260926-2"></script>
+    <script src="/assets/app.js?v=20260926-2"></script>
   </body>
 </html>

@@ -1,0 +1,23 @@
+{
+  "scope": "isolated production-mode smoke; not a capacity certification",
+  "checks": {
+    "production_startup": true,
+    "docs_disabled": true,
+    "unauthenticated_mutation_denied": true,
+    "trained_inference": true,
+    "claims_restricted": true,
+    "shadow_only_forecasts": true,
+    "telemetry_status_and_late_event_boundary": true,
+    "concurrent_liveness": true,
+    "restored_database_startup": true,
+    "user_and_token_survive_restart": true,
+    "audit_survives_restart": true,
+    "logout_revokes_token": true
+  },
+  "health_smoke": {
+    "requests": 64,
+    "concurrency": 8,
+    "p95_ms": 5.3
+  },
+  "passed": true
+}

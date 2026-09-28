@@ -1,0 +1,106 @@
+{
+  "date": "2026-09-28",
+  "release_status": "local_docker_demo_verified",
+  "automated_tests": 115,
+  "pilot_workflow": "passed",
+  "production_smoke": "passed",
+  "audited_packages": 40,
+  "known_vulnerabilities": 0,
+  "runtime": "Python 3.12.14, macOS arm64",
+  "requirements_sha256": "8810b8179883547e1002f6a856fd49acf81cb3c50bbb98d16c25c3a9926e1e33",
+  "checkpoint_sha256": "c8011213c29902a2c7c0fe34e1e1cdf0ba03e8dfdd7dc70477f1b08687531d48",
+  "production_alerting_approved": false,
+  "pending": [
+    "Target-host TLS, access controls, encrypted storage and backup restore",
+    "Representative 30-session model evaluation",
+    "Load/endurance test with real telemetry and agreed SLOs",
+    "External security review and centralized audit/identity integration",
+    "Remote CI and other deployment architectures remain unverified"
+  ],
+  "synthetic_inference_exercise": {
+    "duration_seconds": 30.12,
+    "workers": 4,
+    "predictions": 790,
+    "p95_ms": 156.65,
+    "finite_outputs": true,
+    "operational_alerts": 0
+  },
+  "telemetry_consistency": "passed",
+  "kafka_failure_tests": "passed with consumer doubles; real-broker validation pending",
+  "backup_restore": "passed: authenticated snapshot, corruption rejection, account and audit recovery, production-mode startup from restored database",
+  "request_failure_handling": "passed: correlated authentication errors, redacted exceptions, explicit uncertain outcome on audit failure",
+  "readiness_audit": "streamed verification; five-second process-local cache; fresh admin verification",
+  "kafka_transport_security": "verified TLS, optional mutual TLS and SASL_SSL; configuration and consumer wiring tests passed; real-broker integration pending",
+  "capture_split_gate": "rejects duplicate paths and byte-identical captures across or within partitions",
+  "timeline_validation": "rejects nonfinite timestamps, invalid capture durations and fractional/boolean labels",
+  "demo_deadline": "Recording preparation complete; enterprise work deferred",
+  "docker_demo": {
+    "platform": "linux/arm64 on Docker Desktop",
+    "image": "sha256:b393d88a56be462e168eaedfafdfc890cfbb5df67615be941826629bc2b7d1f7",
+    "http_websocket_replay": "passed before and after container restart",
+    "runtime_user": "10001:10001",
+    "read_only_root": true,
+    "dependency_consistency": "pip check passed",
+    "browser": "verified login, PCAP selection, clean warm-up, complete 180-second trained replay, explanations, simulation, reset and logout",
+    "url": "http://localhost:8000",
+    "final_rehearsal_2026_09_28": "Passed Docker verification and browser login, 180-packet/180-second replay at 20x, pause/resume, JSON preview, and current offline study panel."
+  },
+  "demo_recording": "materials packaged; actual video not recorded",
+  "observed_network": "PCAP-derived connections from at most 10000 processed packets; no future-packet leakage; OOD caution retained",
+  "dashboard_update": {
+    "default": "Empty capture analysis; no scripted startup scores",
+    "navigation": "Analysis, model evidence, calibration/collection, illustrative sandbox",
+    "verified": "Browser navigation, authenticated fixture upload, packet-rate polyline, observed graph, trained forecast after warm-up",
+    "capture_audit": "Both synthetic 180-packet fixtures complete; all 25 model-ready updates per fixture OOD; no detector-validation claim"
+  },
+  "feature_contract": "PCAP offline/online parity verified; deployed legacy CSV checkpoint remains unverified for PCAP and shadow alerts are suppressed",
+  "training_data_quality": "Packet-window candidate trained on separate real IoT-23 captures; independently tested without tuning; broader representative lab corpus still pending.",
+  "replay_controls": "Browser verified pause holds position, resume, 20x speed, displayed-host filtering and JSON preview with correct capture/model fingerprints and no credentials",
+  "observed_traffic_evidence": "Protocol mix, captured packet bytes, host counts and SYN-without-ACK counts over the latest 10000 processed IP packets; non-transport protocols excluded from observed port counts",
+  "replay_heartbeat": "Authenticated 20-second browser heartbeat; server test verifies unchanged position and revoked-token rejection",
+  "replay_heartbeat_browser": "Paused beyond the server idle limit, remained resumable, then resumed at 20x",
+  "capture_evaluation": "Authenticated API, dashboard and CLI; hash-bound label matching, future-window alignment, mixed-label/out-of-capture censoring, raw vs accepted-only counts; supplied artifacts are not authenticated",
+  "model_candidate": {
+    "checkpoint_sha256": "b3547819f1510c4abdfee98a095dc08e4000a36b6256d6316a84e90426cbe367",
+    "deployed": false,
+    "supplementary_test": "iot23-supplementary-test.json",
+    "next_window_raw_recall": 0.06582278481012659,
+    "ood_rejection_rate": 0.6084388185654008,
+    "accepted_detections_over_all_positives": 0.03459915611814346,
+    "decision": "Do not promote; independent generalization inadequate"
+  },
+  "current_window_detector": {
+    "report": "current-detector.json",
+    "deployed": false,
+    "selected_by_validation": "random_forest",
+    "decision": "Not promoted; false-positive generalization failure on inspected test captures."
+  },
+  "expanded_current_detector": {
+    "report": "expanded-detector-v2.json",
+    "deployed": false,
+    "raw_recall": 1.0,
+    "aggregate_fpr": 0.01616031027795734,
+    "ood_rejection_rate": 0.030978071702053602,
+    "accepted_detection_fraction_all_positives": 0.9419306184012066,
+    "mirai_capture_fpr": 0.22935779816513763,
+    "research_screen_passed": false,
+    "reason": "Per-capture false-positive budget exceeded despite strong aggregate metrics."
+  },
+  "error_diagnosis": {
+    "report": "current-window-feature-collisions.json",
+    "exact_colliding_false_positive_windows": 18,
+    "flow_audit": "360 packets in 25 false-positive windows match publisher benign labels",
+    "ablation": "Not promoted: 21 false positives but 308 missed malicious windows",
+    "connection_context": "Implemented, trained and evaluated; failed per-capture false-positive gate; not deployed"
+  },
+  "context_detector": {
+    "report": "context-detector.json",
+    "trained": true,
+    "deployed": false,
+    "raw_recall": 1.0,
+    "raw_false_positives": 28,
+    "mirai_capture_fpr": 0.22935779816513763,
+    "accepted_detection_fraction_all_positives": 0.9419306184012066,
+    "decision": "Not promoted; context did not resolve per-capture false positives on inspected tests."
+  }
+}

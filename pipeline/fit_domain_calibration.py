@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
+import os
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +34,7 @@ def fit_domain_calibration(checkpoint_path: Path, data_dir: Path, domain: str, o
     calibrated = predictions(model, validation, temperature)
     thresholds, validation_f1 = tune_threshold(validation, calibrated)
     profile = {
-        "schema_version": 1,
+        "schema_version": 2,
         "domain": domain,
         "fit_partition": "validation",
         "sample_count": int(len(validation["x"])),
@@ -40,9 +42,15 @@ def fit_domain_calibration(checkpoint_path: Path, data_dir: Path, domain: str, o
         "decision_threshold": thresholds,
         "validation_macro_f1": validation_f1,
         "checkpoint": checkpoint_path.name,
+        "checkpoint_sha256": hashlib.sha256(checkpoint_path.read_bytes()).hexdigest(),
+        "ood_lower": np.asarray(checkpoint["ood_lower"]).tolist(),
+        "ood_upper": np.asarray(checkpoint["ood_upper"]).tolist(),
+        "ood_threshold": float(checkpoint["ood_threshold"]),
     }
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    temporary = output.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    os.replace(temporary, output)
     return profile
 
 

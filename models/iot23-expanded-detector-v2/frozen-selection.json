@@ -1,0 +1,412 @@
+{
+  "plan_sha256": "379da9bbf86af7f8a4a999da1c3e624e9732d9908778c67b2c72b1a7b069fd94",
+  "capture_provenance": [
+    {
+      "id": "CTU-Honeypot-Capture-4-1",
+      "partition": "train",
+      "source_pcap_sha256": "f770897e6cc3fa45857aee25ef7d3ab39dba39127b5bb813e0e0d48d3b905347",
+      "source_labels_sha256": "aebe40ea0e03b120265a5c7bc140dd9b0d3fe2fce65559e84776b7dd5360e71e",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-Honeypot-Capture-4-1.pcap",
+      "derived_pcap_sha256": "49839e7193e3e55e9a58c1ec05db3824be1d7870614b7bff4b35a9403705beb3",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "benign": 452
+      },
+      "packet_label_counts": {
+        "0": 1503,
+        "-1": 12
+      },
+      "windows": 1440,
+      "unknown_windows": 10,
+      "attack_windows": 0,
+      "empty_windows": 1071,
+      "sequences": 1390,
+      "positive_targets": 0,
+      "capture_start": 1540469197.400159
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-8-1",
+      "partition": "train",
+      "source_pcap_sha256": "80dcc2602519479ddcde889fa902fee19a76696630811452f8df38888af894f2",
+      "source_labels_sha256": "4877ca8f0f01902fbd18d28b7d06cb3d0be082355b7f2c8862c9deef1782eb8a",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-IoT-Malware-Capture-8-1.pcap",
+      "derived_pcap_sha256": "1af94cdcd1e004ca71030f9b15c458ea23a446c065c755db680de2fa115eb9a2",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "benign": 2181,
+        "malicious": 8222
+      },
+      "packet_label_counts": {
+        "0": 346,
+        "1": 461
+      },
+      "windows": 1439,
+      "unknown_windows": 0,
+      "attack_windows": 344,
+      "empty_windows": 951,
+      "sequences": 1424,
+      "positive_targets": 342,
+      "capture_start": 1533042911.474174
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-20-1",
+      "partition": "train",
+      "source_pcap_sha256": "4d0a00c33a4bf11228158baddd47c38f702731ea8d75ef1201061fc8bbd878b9",
+      "source_labels_sha256": "ef48ad72f65efd13d517223e61e4d877ba53a082ddb8159324b18d3f310d0711",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-IoT-Malware-Capture-20-1.pcap",
+      "derived_pcap_sha256": "e3110352c9417e661bc9ea9a0ce1ecb4f409816f36aeccdc5af6c015d10943a8",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "benign": 3193,
+        "malicious": 16
+      },
+      "packet_label_counts": {
+        "0": 1192,
+        "1": 2753
+      },
+      "windows": 1440,
+      "unknown_windows": 0,
+      "attack_windows": 1299,
+      "empty_windows": 57,
+      "sequences": 1425,
+      "positive_targets": 1296,
+      "capture_start": 1538478769.600293
+    },
+    {
+      "id": "CTU-Honeypot-Capture-7-3",
+      "partition": "validation",
+      "source_pcap_sha256": "a31800a81b634bf834027ccd11c7d0e0f55d06abce3176c5238b703620d12860",
+      "source_labels_sha256": "6b86a6ef0e4c1f96a793e13ccddfedea846e77571cb6c949aa4e56023d3a5b03",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-Honeypot-Capture-7-3.pcap",
+      "derived_pcap_sha256": "c24c104b19b2adb86b6de1ee0e42377d45b875f478e8c0c3cac698a935658676",
+      "label_basis": "Publisher README explicitly declares Type of Capture: benign; supplied flow log lacks a label column. Only packets matching logged flows inherit this capture annotation; unmatched packets remain unknown.",
+      "flow_label_counts": {
+        "benign": 26
+      },
+      "packet_label_counts": {
+        "0": 9684
+      },
+      "windows": 1439,
+      "unknown_windows": 0,
+      "attack_windows": 0,
+      "empty_windows": 621,
+      "sequences": 1424,
+      "positive_targets": 0,
+      "capture_start": 1562251277.589968
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-21-1",
+      "partition": "validation",
+      "source_pcap_sha256": "40b6928cedcda03fe5ded8a9994ec007a6d784028f37cbc00bbe3a26a7893023",
+      "source_labels_sha256": "b63db259aead078f50fc150aa97ace4d1f69576e1245334962759d978ce437eb",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-IoT-Malware-Capture-21-1.pcap",
+      "derived_pcap_sha256": "5bba143b79ca8f7885f7372bc8f38b00cb966c0aad294136a4ab7edaa2e94e63",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "benign": 3272,
+        "malicious": 14
+      },
+      "packet_label_counts": {
+        "0": 1084,
+        "1": 2866
+      },
+      "windows": 1440,
+      "unknown_windows": 0,
+      "attack_windows": 1344,
+      "empty_windows": 52,
+      "sequences": 1425,
+      "positive_targets": 1341,
+      "capture_start": 1538572953.710599
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-1-1",
+      "partition": "train",
+      "source_pcap_sha256": "8ebcd17af4e2d20b1cf7ad564760756f457a80b791a0757a2b1a624b2724969c",
+      "source_labels_sha256": "803577ecc31cd67293feffa04cd0f4e26866f5fd1ed4b79eba48229b22ed9546",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-IoT-Malware-Capture-1-1.pcap",
+      "derived_pcap_sha256": "9689f48ce626b08a9e88cf227b2e54b04f22fe76a0839b4424e210566324427c",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "malicious": 539473,
+        "benign": 469275
+      },
+      "packet_label_counts": {
+        "0": 9666,
+        "1": 18140,
+        "-1": 3
+      },
+      "windows": 1440,
+      "unknown_windows": 0,
+      "attack_windows": 1440,
+      "empty_windows": 0,
+      "sequences": 1425,
+      "positive_targets": 1425,
+      "capture_start": 1525879831.015073
+    },
+    {
+      "id": "CTU-Honeypot-Capture-5-1",
+      "partition": "train",
+      "source_pcap_sha256": "f7867a836e416d6914aa56ddf6d75abe05453c7aa03851d108678e4c2688cca7",
+      "source_labels_sha256": "f36db06e7d6ba7364e932a5b003f75835e004b320d70019e8a2f0ba8685d9262",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-Honeypot-Capture-5-1.pcap",
+      "derived_pcap_sha256": "183f07523b036cc4220d7d4d18e727b123444d21b63cc021dd8bf4d2ea4f0c4c",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "benign": 1374
+      },
+      "packet_label_counts": {
+        "0": 387947,
+        "-1": 228
+      },
+      "windows": 1440,
+      "unknown_windows": 66,
+      "attack_windows": 0,
+      "empty_windows": 487,
+      "sequences": 1252,
+      "positive_targets": 0,
+      "capture_start": 1537522822.96553
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-34-1",
+      "partition": "fresh_test",
+      "source_pcap_sha256": "92ec7e2f6658ee4b007d0b816986c46cc0338bc5e2bec6ceaaca566c695e4699",
+      "source_labels_sha256": "7d1d052835439d77dae246b588d7628813bbdef21fdf3b323f4b3eb2c61ef146",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-IoT-Malware-Capture-34-1.pcap",
+      "derived_pcap_sha256": "ef6d11cedada798a975c32b79cf5a80eada2f7f46d92e29a8af88f9e500a8f10",
+      "label_basis": "Publisher per-flow labels",
+      "flow_label_counts": {
+        "benign": 1923,
+        "malicious": 21222
+      },
+      "packet_label_counts": {
+        "0": 2817,
+        "-1": 15,
+        "1": 8413
+      },
+      "windows": 1440,
+      "unknown_windows": 4,
+      "attack_windows": 1327,
+      "empty_windows": 69,
+      "sequences": 1421,
+      "positive_targets": 1323,
+      "capture_start": 1545403816.8709
+    },
+    {
+      "id": "CTU-Honeypot-Capture-7-4",
+      "partition": "fresh_test",
+      "source_pcap_sha256": "b7e06c6dbd9cc731b13c741cb6244a36de0f181eeb884c409704f1d5bb991738",
+      "source_labels_sha256": "6ec54976d54a9b4c1c0b82b478c29b7637a2a51e9b69e5247b20225738a5eaf9",
+      "derived_pcap": "data/pcap-corpus/iot23/CTU-Honeypot-Capture-7-4.pcap",
+      "derived_pcap_sha256": "51a2da47f5c638b8e0da55b6202af017a119d3b3e19e681c04eef2a197381caf",
+      "label_basis": "Publisher README declares Type of Capture: benign; supplied flow log has no label column. Only packets matching logged flows inherit the capture annotation. Unmatched packets remain unknown.",
+      "flow_label_counts": {
+        "benign": 49
+      },
+      "packet_label_counts": {
+        "0": 9316
+      },
+      "windows": 1439,
+      "unknown_windows": 0,
+      "attack_windows": 0,
+      "empty_windows": 614,
+      "sequences": 1424,
+      "positive_targets": 0,
+      "capture_start": 1562337673.800187
+    }
+  ],
+  "models": {
+    "logistic": {
+      "validation_selection_f1": 0.9992559523809523,
+      "threshold": 0.18877764239907527,
+      "artifact_sha256": "0d8bb950511d48948158b9ef2c4a1fe01468bd21bf01a09635e3e9bb590943ea",
+      "validation": {
+        "groups": {
+          "all": {
+            "support": 2877,
+            "tp": 1343,
+            "fp": 2,
+            "fn": 0,
+            "tn": 1532,
+            "recall": 1.0,
+            "false_positive_rate": 0.001303780964797914,
+            "precision": 0.9985130111524163,
+            "f1": 0.9992559523809523
+          },
+          "active_windows": {
+            "support": 2204,
+            "tp": 1343,
+            "fp": 2,
+            "fn": 0,
+            "tn": 859,
+            "recall": 1.0,
+            "false_positive_rate": 0.0023228803716608595,
+            "precision": 0.9985130111524163,
+            "f1": 0.9992559523809523
+          },
+          "CTU-Honeypot-Capture-7-3": {
+            "support": 1438,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 1438,
+            "recall": null,
+            "false_positive_rate": 0.0,
+            "precision": null,
+            "f1": null
+          },
+          "CTU-IoT-Malware-Capture-21-1": {
+            "support": 1439,
+            "tp": 1343,
+            "fp": 2,
+            "fn": 0,
+            "tn": 94,
+            "recall": 1.0,
+            "false_positive_rate": 0.020833333333333332,
+            "precision": 0.9985130111524163,
+            "f1": 0.9992559523809523
+          },
+          "CTU-Honeypot-Capture-7-3 / active": {
+            "support": 817,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "tn": 817,
+            "recall": null,
+            "false_positive_rate": 0.0,
+            "precision": null,
+            "f1": null
+          },
+          "CTU-IoT-Malware-Capture-21-1 / active": {
+            "support": 1387,
+            "tp": 1343,
+            "fp": 2,
+            "fn": 0,
+            "tn": 42,
+            "recall": 1.0,
+            "false_positive_rate": 0.045454545454545456,
+            "precision": 0.9985130111524163,
+            "f1": 0.9992559523809523
+          }
+        },
+        "ood_rejection_rate": 0.003475842891901286,
+        "accepted": {
+          "support": 2867,
+          "tp": 1341,
+          "fp": 2,
+          "fn": 0,
+          "tn": 1524,
+          "recall": 1.0,
+          "false_positive_rate": 0.001310615989515072,
+          "precision": 0.9985107967237528,
+          "f1": 0.9992548435171386
+        },
+        "rejected_positive_windows": 2,
+        "rejected_negative_windows": 8,
+        "accepted_detection_fraction_all_positives": 0.9985107967237528
+      }
+    },
+    "random_forest": {
+      "validation_selection_f1": 0.9992559523809523,
+      "threshold": 0.21318753584597339,
+      "artifact_sha256": "41fa65f5183f098e97a88848ac7167dab51162d741687517b1e85d335d5508d8",
+      "validation": {
+        "groups": {
+          "all": {
+            "support": 2877,
+            "tp": 1343,
+            "fp": 2,
+            "fn": 0,
+            "tn": 1532,
+            "recall": 1.0,
+            "false_positive_rate": 0.001303780964797914,
+            "precision": 0.9985130111524163,
+            "f1": 0.9992559523809523
+          },
+          "active_windows": {
+            "support": 2204,
+            "tp": 1343,
+            "fp": 2,
+            "fn": 0,
+            "tn": 859,
+            "recall": 1.0,
+            "false_positive_rate": 0.0023228803716608595,
+            "precision": 0.9985130111524163,
+            "f1": 0.9992559523809523
+          },
+          "CTU-Honeypot-Capture-7-3": {
+            "support": 1438,
+            "tp": 0,
+            "fp": 1,
+            "fn": 0,
+            "tn": 1437,
+            "recall": null,
+            "false_positive_rate": 0.0006954102920723226,
+            "precision": 0.0,
+            "f1": 0.0
+          },
+          "CTU-IoT-Malware-Capture-21-1": {
+            "support": 1439,
+            "tp": 1343,
+            "fp": 1,
+            "fn": 0,
+            "tn": 95,
+            "recall": 1.0,
+            "false_positive_rate": 0.010416666666666666,
+            "precision": 0.9992559523809523,
+            "f1": 0.9996278377372534
+          },
+          "CTU-Honeypot-Capture-7-3 / active": {
+            "support": 817,
+            "tp": 0,
+            "fp": 1,
+            "fn": 0,
+            "tn": 816,
+            "recall": null,
+            "false_positive_rate": 0.0012239902080783353,
+            "precision": 0.0,
+            "f1": 0.0
+          },
+          "CTU-IoT-Malware-Capture-21-1 / active": {
+            "support": 1387,
+            "tp": 1343,
+            "fp": 1,
+            "fn": 0,
+            "tn": 43,
+            "recall": 1.0,
+            "false_positive_rate": 0.022727272727272728,
+            "precision": 0.9992559523809523,
+            "f1": 0.9996278377372534
+          }
+        },
+        "ood_rejection_rate": 0.003475842891901286,
+        "accepted": {
+          "support": 2867,
+          "tp": 1341,
+          "fp": 2,
+          "fn": 0,
+          "tn": 1524,
+          "recall": 1.0,
+          "false_positive_rate": 0.001310615989515072,
+          "precision": 0.9985107967237528,
+          "f1": 0.9992548435171386
+        },
+        "rejected_positive_windows": 2,
+        "rejected_negative_windows": 8,
+        "accepted_detection_fraction_all_positives": 0.9985107967237528
+      }
+    }
+  },
+  "operational_claims_allowed": false,
+  "implementation_sha256": {
+    "scripts/train_expanded_detector.py": "809110d1ddc9e46ecdebae8935dd4cfb3c0fdbb4a8f05e00216f42d57e70eaf3",
+    "pipeline/current_detector.py": "25b27ee3dca6ea56e4f1105aa1f0b271f601189367e57b621049e50ce8a0cda2",
+    "pipeline/build_iot23_dataset.py": "527d6227cb60de5765596ff94a5839322308c4e30de12305eb077e1b29f9d3af",
+    "pipeline/pcap_replay.py": "8e3fe5b6649c54edebef71d4c381d01dbe31be5aaec637406f59901698d7e6b4"
+  },
+  "split_sizes": {
+    "train": 7118,
+    "validation": 2877,
+    "fresh_test": 2873
+  },
+  "selected_by_validation": "random_forest"
+}

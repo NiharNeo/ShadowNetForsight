@@ -1,0 +1,77 @@
+{
+  "training_contract": "shadownet.completed-flow-window.v1",
+  "replay_contract": "shadownet.packet-window.v1",
+  "equivalent": false,
+  "differences": [
+    {
+      "feature": "duration_mean",
+      "csv": "Mean full flow durations as supplied by source CSV; no unit conversion",
+      "pcap": "Mean duration in seconds of bidirectional flows restricted to the current packet window"
+    },
+    {
+      "feature": "iat_mean",
+      "csv": "Mean of per-flow IAT means as supplied by source CSV",
+      "pcap": "Mean gap in seconds between consecutive packets across all flows within the window"
+    },
+    {
+      "feature": "flow_count",
+      "csv": "Flow records grouped by their start timestamp",
+      "pcap": "Distinct bidirectional endpoint/protocol tuples observed in each packet window"
+    },
+    {
+      "feature": "bytes_sum",
+      "csv": "Total supplied forward/backward flow bytes attributed to flow-start window",
+      "pcap": "Captured packet lengths (including link-layer headers when present) within each window"
+    },
+    {
+      "feature": "unique_src_ips / unique_dst_ips",
+      "csv": "Missing address columns become one unknown category",
+      "pcap": "Actual packet addresses"
+    },
+    {
+      "feature": "time continuity",
+      "csv": "Legacy sequence builder joined consecutive nonempty rows even across time gaps",
+      "pcap": "Emits empty windows to preserve five-second timing"
+    }
+  ],
+  "legacy_dataset_anchor_diagnostics": {
+    "train": {
+      "sequences": 21850,
+      "non_five_second_adjacent_anchors": 488,
+      "largest_adjacent_gap_seconds": 569874
+    },
+    "validation": {
+      "sequences": 6564,
+      "non_five_second_adjacent_anchors": 1,
+      "largest_adjacent_gap_seconds": 10315
+    },
+    "test": {
+      "sequences": 6655,
+      "non_five_second_adjacent_anchors": 1,
+      "largest_adjacent_gap_seconds": 9860
+    }
+  },
+  "remediation": "Train from independently labelled PCAP sessions via build_pcap_dataset, which shares WindowAccumulator with replay. Do not retrofit a contract tag or tune OOD bounds on demonstration captures.",
+  "production_prediction_ready": false,
+  "rerun_static_baseline": {
+    "precision": 0.06878306878306878,
+    "recall": 0.04318936877076412,
+    "f1": 0.053061224489795916,
+    "false_positive_rate": 0.027699087189172175,
+    "roc_auc": 0.5359396388284985,
+    "pr_auc": 0.05248162388106876,
+    "confusion_matrix": [
+      [
+        6178,
+        176
+      ],
+      [
+        288,
+        13
+      ]
+    ],
+    "support": 6655,
+    "positive_support": 301
+  },
+  "baseline_scope": "Original fixed CSV test split, not PCAP validation. No threshold or test-set tuning performed."
+}

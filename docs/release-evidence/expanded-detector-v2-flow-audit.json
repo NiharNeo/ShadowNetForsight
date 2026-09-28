@@ -1,0 +1,540 @@
+{
+  "capture_id": "CTU-IoT-Malware-Capture-34-1",
+  "artifact_sha256": "41fa65f5183f098e97a88848ac7167dab51162d741687517b1e85d335d5508d8",
+  "derived_pcap_sha256": "ef6d11cedada798a975c32b79cf5a80eada2f7f46d92e29a8af88f9e500a8f10",
+  "purpose": "Post-test error diagnosis; no labels, thresholds or model weights modified.",
+  "tolerance_check": "1ms match is diagnostic only; training labels retain original 1us matching.",
+  "windows": [
+    {
+      "window_index": 0,
+      "packets": 12,
+      "labels": {
+        "benign": 12
+      },
+      "services": {
+        "-": 12
+      },
+      "destination_ports": {
+        "22": 5,
+        "40831": 4,
+        "80": 3
+      },
+      "tcp_flags": {
+        "PA": 5,
+        "A": 4,
+        "S": 3
+      },
+      "flow_ids": [
+        "CZVKY732XLLAUm01ci",
+        "CrDn63WjJEmrWGjqf"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 1,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CY9lJW3gh1Eje4usP6"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 3,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CcFXLynukEDnUlvgl"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 7,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CTWZQf2oJSvq6zmPAc"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 10,
+      "packets": 2,
+      "labels": {
+        "benign": 2
+      },
+      "services": {
+        "-": 2
+      },
+      "destination_ports": {
+        "80": 2
+      },
+      "tcp_flags": {
+        "S": 2
+      },
+      "flow_ids": [
+        "CLiCX23f1W7uIct9R9",
+        "CYQTGJ1oQvLAxMiUe3"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 12,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CN6R9n1qo4SS2QuWg3"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 16,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "Csi3Lj1Uq4LS2mxs0f"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 22,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "ChkV5w4IfU0ia6kFv1"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 35,
+      "packets": 6,
+      "labels": {
+        "benign": 6
+      },
+      "services": {
+        "-": 6
+      },
+      "destination_ports": {
+        "40831": 2,
+        "22": 2,
+        "123": 1,
+        "80": 1
+      },
+      "tcp_flags": {
+        "PA": 2,
+        "A": 2,
+        "not_tcp": 1,
+        "S": 1
+      },
+      "flow_ids": [
+        "CDjInd1qIYbICYhQL7",
+        "CXGFvG19LNJjQKqy2j",
+        "CZVKY732XLLAUm01ci"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 36,
+      "packets": 2,
+      "labels": {
+        "benign": 2
+      },
+      "services": {
+        "-": 2
+      },
+      "destination_ports": {
+        "80": 2
+      },
+      "tcp_flags": {
+        "S": 2
+      },
+      "flow_ids": [
+        "CXGFvG19LNJjQKqy2j"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 37,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "Czqan31ONpzR93YMp4"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 38,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CXde5g4XGzmDvCyln5"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 42,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CWfo2Ibo3LtTPbbFc"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 48,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CHyyBq4oF4KamTOoF7"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 62,
+      "packets": 285,
+      "labels": {
+        "benign": 285
+      },
+      "services": {
+        "-": 55,
+        "http": 230
+      },
+      "destination_ports": {
+        "40831": 28,
+        "22": 27,
+        "80": 113,
+        "41052": 117
+      },
+      "tcp_flags": {
+        "PA": 40,
+        "A": 243,
+        "S": 1,
+        "SA": 1
+      },
+      "flow_ids": [
+        "CZVKY732XLLAUm01ci",
+        "CcSgZloEzkJknQDIk"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 66,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CnDIJe4VpDWUCnW8n2"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 69,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CcqjPB4Eu86bEklSRb"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 76,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CZlM4924xKO6mbOVmf"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 90,
+      "packets": 5,
+      "labels": {
+        "benign": 5
+      },
+      "services": {
+        "-": 5
+      },
+      "destination_ports": {
+        "80": 3,
+        "40831": 1,
+        "22": 1
+      },
+      "tcp_flags": {
+        "S": 3,
+        "PA": 1,
+        "A": 1
+      },
+      "flow_ids": [
+        "CZQJdEOmrhUzmBnQf",
+        "CZVKY732XLLAUm01ci"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 91,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CnTfvT32IQsazkHiFl"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 93,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CEtgcB3kWOYDVSWFHh"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 96,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "C4B6uTWzZJLKBpFUh"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 99,
+      "packets": 29,
+      "labels": {
+        "benign": 29
+      },
+      "services": {
+        "-": 29
+      },
+      "destination_ports": {
+        "22": 19,
+        "40831": 10
+      },
+      "tcp_flags": {
+        "PA": 19,
+        "A": 10
+      },
+      "flow_ids": [
+        "CZVKY732XLLAUm01ci"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 116,
+      "packets": 1,
+      "labels": {
+        "benign": 1
+      },
+      "services": {
+        "-": 1
+      },
+      "destination_ports": {
+        "80": 1
+      },
+      "tcp_flags": {
+        "S": 1
+      },
+      "flow_ids": [
+        "CpXXCO3VX4Qx9hcIL2"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    },
+    {
+      "window_index": 117,
+      "packets": 2,
+      "labels": {
+        "benign": 2
+      },
+      "services": {
+        "-": 2
+      },
+      "destination_ports": {
+        "80": 2
+      },
+      "tcp_flags": {
+        "S": 2
+      },
+      "flow_ids": [
+        "CpXXCO3VX4Qx9hcIL2"
+      ],
+      "malicious_match_with_1ms_tolerance": 0
+    }
+  ],
+  "total_packets": 360,
+  "malicious_matches_with_1ms_tolerance": 0
+}

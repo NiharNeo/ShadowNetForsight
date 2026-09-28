@@ -1,0 +1,94 @@
+{
+  "dataset": "IoT-23 expanded current-window detector experiment v2",
+  "publisher": "https://www.stratosphereips.org/datasets-iot23",
+  "base_url": "https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset-v2/",
+  "status": "publisher_v2_work_in_progress; narrow research subset, not production certification",
+  "selection_policy": "Fixed before acquisition and training: retain original train/validation assignments; add Hide-and-Seek and Echo captures to training; reserve Mirai 34-1 and Somfy 7-4 as fresh test sessions. Original test and Muhstik supplementary remain inspected diagnostics, never training. First two hours of every capture; same-device Somfy sessions are not device-disjoint. Selection by published size and additional scenario/device coverage, not scores.",
+  "maximum_capture_seconds": 7200,
+  "captures": [
+    {
+      "id": "CTU-Honeypot-Capture-4-1",
+      "partition": "train",
+      "pcap": "2018-10-25-14-06-32-192.168.1.132.pcap",
+      "labels": "2018-10-25-14-06-32-192.168.1.132-zeek-conn.log.labeled"
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-8-1",
+      "partition": "train",
+      "pcap": "2018-07-31-15-15-09-192.168.100.113.pcap",
+      "labels": "2018-07-31-15-15-09-192.168.100.113-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-20-1",
+      "partition": "train",
+      "pcap": "2018-10-02-13-12-30-192.168.100.103.pcap",
+      "labels": "2018-10-02-13-12-30-192.168.100.103-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-Honeypot-Capture-7-3",
+      "partition": "validation",
+      "pcap": "2019-07-04-16-41-10-192.168.1.158.pcap",
+      "labels": "2019-07-04-16-41-10-192.168.1.158-zeek-conn-log.labeled",
+      "publisher_capture_label": "benign",
+      "label_basis": "Publisher README explicitly declares Type of Capture: benign; supplied flow log lacks a label column. Only packets matching logged flows inherit this capture annotation; unmatched packets remain unknown."
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-21-1",
+      "partition": "validation",
+      "pcap": "2018-10-03-15-22-32-192.168.100.113.pcap",
+      "labels": "2018-10-03-15-22-32-192.168.100.113-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-1-1",
+      "partition": "train",
+      "pcap": "2018-05-09-17-30-31-192.168.100.103.pcap",
+      "labels": "2018-05-09-17-30-31-192.168.100.103-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-Honeypot-Capture-5-1",
+      "partition": "train",
+      "pcap": "2018-09-21-11-40-22-192.168.2.3.pcap",
+      "labels": "2018-09-21-11-40-22-192.168.2.3-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-IoT-Malware-Capture-34-1",
+      "partition": "fresh_test",
+      "pcap": "2018-12-21-15-50-14-192.168.1.195.pcap",
+      "labels": "2018-12-21-15-50-14-192.168.1.195-zeek-conn-log.labeled"
+    },
+    {
+      "id": "CTU-Honeypot-Capture-7-4",
+      "partition": "fresh_test",
+      "pcap": "2019-07-05-16-41-14-192.168.1.158.pcap",
+      "labels": "2019-07-05-16-41-14-192.168.1.158-zeek-conn-log.labeled",
+      "publisher_capture_label": "benign",
+      "label_basis": "Publisher README declares Type of Capture: benign; supplied flow log has no label column. Only packets matching logged flows inherit the capture annotation. Unmatched packets remain unknown."
+    }
+  ],
+  "model_plan": {
+    "models": [
+      "logistic",
+      "random_forest"
+    ],
+    "random_forest": {
+      "n_estimators": 200,
+      "max_depth": 10,
+      "min_samples_leaf": 5,
+      "seed": 42
+    },
+    "validation_fpr_budget_per_capture": 0.05,
+    "selection": "Maximum validation F1; ties use model name lexical order. No test selection.",
+    "experimental_gates": {
+      "minimum_positive_test_windows": 100,
+      "minimum_negative_test_windows": 100,
+      "minimum_raw_recall": 0.8,
+      "minimum_accepted_detection_fraction": 0.7,
+      "maximum_per_capture_fpr": 0.05,
+      "maximum_rejection_rate": 0.2
+    },
+    "note": "Research screening gates chosen before this run, not enterprise acceptance criteria; passing does not authorize operational alerts."
+  },
+  "data_quality_notes": [
+    "Before training/scoring, inspected headers revealed the fresh Somfy flow log has no label column. Applied the same explicit publisher-benign annotation policy as the original Somfy sessions; no results used for this decision."
+  ]
+}

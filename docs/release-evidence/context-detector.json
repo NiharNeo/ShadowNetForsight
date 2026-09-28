@@ -1,0 +1,332 @@
+{
+  "experiment": "Same expanded-data split and RF settings; add nine causal context features. Threshold and OOD use validation only.",
+  "test_status": "Previously inspected; diagnostic only. Fresh independent tests still required.",
+  "pre_fit_adjustment": "Initial extraction stopped at the 100000-packet context bound on the benign Echo capture. Before fitting, increased the explicit bound to 500000; no packets were silently dropped.",
+  "plan_sha256": "379da9bbf86af7f8a4a999da1c3e624e9732d9908778c67b2c72b1a7b069fd94",
+  "artifact_sha256": "c22be80b835adef66e612ed8d282ca779c97bc0bb1074ad793a12c8fb9a4f4d2",
+  "feature_contract": "shadownet.packet-context-window.v1",
+  "context_parameters": {
+    "seconds": 60,
+    "max_packets": 500000
+  },
+  "features": [
+    "flow_count",
+    "unique_src_ips",
+    "unique_dst_ips",
+    "unique_dst_ports",
+    "protocol_count",
+    "duration_mean",
+    "fwd_packets_sum",
+    "bwd_packets_sum",
+    "bytes_sum",
+    "iat_mean",
+    "syn_count",
+    "ack_count",
+    "rst_count",
+    "psh_count",
+    "syn_ack_ratio",
+    "unique_host_edges",
+    "max_source_fanout",
+    "max_destination_fanin",
+    "east_west_ratio",
+    "failed_auth_count",
+    "identity_reuse_count",
+    "fin_count",
+    "urg_count",
+    "ttl_mean",
+    "ttl_variance",
+    "tcp_window_mean",
+    "fragment_count",
+    "payload_size_mean",
+    "payload_size_std",
+    "retransmission_count",
+    "sequential_port_ratio",
+    "context_packets",
+    "context_destination_endpoints",
+    "context_source_hosts",
+    "context_syn_packets",
+    "context_syn_destinations",
+    "context_syn_connection_keys",
+    "context_repeated_syn_fraction",
+    "context_max_syn_destination_share",
+    "context_observed_seconds"
+  ],
+  "threshold": 0.2322576292202559,
+  "validation_selection_f1": 0.9992559523809523,
+  "operational_claims_allowed": false,
+  "release_decision": "not_promoted",
+  "splits": {
+    "validation": {
+      "groups": {
+        "all": {
+          "support": 2877,
+          "tp": 1343,
+          "fp": 2,
+          "fn": 0,
+          "tn": 1532,
+          "recall": 1.0,
+          "false_positive_rate": 0.001303780964797914,
+          "precision": 0.9985130111524163,
+          "f1": 0.9992559523809523
+        },
+        "active_windows": {
+          "support": 2204,
+          "tp": 1343,
+          "fp": 2,
+          "fn": 0,
+          "tn": 859,
+          "recall": 1.0,
+          "false_positive_rate": 0.0023228803716608595,
+          "precision": 0.9985130111524163,
+          "f1": 0.9992559523809523
+        },
+        "CTU-Honeypot-Capture-7-3": {
+          "support": 1438,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "tn": 1437,
+          "recall": null,
+          "false_positive_rate": 0.0006954102920723226,
+          "precision": 0.0,
+          "f1": 0.0
+        },
+        "CTU-IoT-Malware-Capture-21-1": {
+          "support": 1439,
+          "tp": 1343,
+          "fp": 1,
+          "fn": 0,
+          "tn": 95,
+          "recall": 1.0,
+          "false_positive_rate": 0.010416666666666666,
+          "precision": 0.9992559523809523,
+          "f1": 0.9996278377372534
+        },
+        "CTU-Honeypot-Capture-7-3 / active": {
+          "support": 817,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "tn": 816,
+          "recall": null,
+          "false_positive_rate": 0.0012239902080783353,
+          "precision": 0.0,
+          "f1": 0.0
+        },
+        "CTU-IoT-Malware-Capture-21-1 / active": {
+          "support": 1387,
+          "tp": 1343,
+          "fp": 1,
+          "fn": 0,
+          "tn": 43,
+          "recall": 1.0,
+          "false_positive_rate": 0.022727272727272728,
+          "precision": 0.9992559523809523,
+          "f1": 0.9996278377372534
+        }
+      },
+      "ood_rejection_rate": 0.005213764337851929,
+      "accepted": {
+        "support": 2862,
+        "tp": 1341,
+        "fp": 2,
+        "fn": 0,
+        "tn": 1519,
+        "recall": 1.0,
+        "false_positive_rate": 0.0013149243918474688,
+        "precision": 0.9985107967237528,
+        "f1": 0.9992548435171386
+      },
+      "rejected_positive_windows": 2,
+      "rejected_negative_windows": 13,
+      "accepted_detection_fraction_all_positives": 0.9985107967237528
+    },
+    "inspected_test": {
+      "groups": {
+        "all": {
+          "support": 2873,
+          "tp": 1326,
+          "fp": 28,
+          "fn": 0,
+          "tn": 1519,
+          "recall": 1.0,
+          "false_positive_rate": 0.01809954751131222,
+          "precision": 0.9793205317577548,
+          "f1": 0.9895522388059701
+        },
+        "active_windows": {
+          "support": 2190,
+          "tp": 1326,
+          "fp": 28,
+          "fn": 0,
+          "tn": 836,
+          "recall": 1.0,
+          "false_positive_rate": 0.032407407407407406,
+          "precision": 0.9793205317577548,
+          "f1": 0.9895522388059701
+        },
+        "CTU-Honeypot-Capture-7-4": {
+          "support": 1438,
+          "tp": 0,
+          "fp": 3,
+          "fn": 0,
+          "tn": 1435,
+          "recall": null,
+          "false_positive_rate": 0.002086230876216968,
+          "precision": 0.0,
+          "f1": 0.0
+        },
+        "CTU-IoT-Malware-Capture-34-1": {
+          "support": 1435,
+          "tp": 1326,
+          "fp": 25,
+          "fn": 0,
+          "tn": 84,
+          "recall": 1.0,
+          "false_positive_rate": 0.22935779816513763,
+          "precision": 0.9814951887490747,
+          "f1": 0.9906611878968995
+        },
+        "CTU-Honeypot-Capture-7-4 / active": {
+          "support": 824,
+          "tp": 0,
+          "fp": 3,
+          "fn": 0,
+          "tn": 821,
+          "recall": null,
+          "false_positive_rate": 0.0036407766990291263,
+          "precision": 0.0,
+          "f1": 0.0
+        },
+        "CTU-IoT-Malware-Capture-34-1 / active": {
+          "support": 1366,
+          "tp": 1326,
+          "fp": 25,
+          "fn": 0,
+          "tn": 15,
+          "recall": 1.0,
+          "false_positive_rate": 0.625,
+          "precision": 0.9814951887490747,
+          "f1": 0.9906611878968995
+        }
+      },
+      "ood_rejection_rate": 0.03237034458753916,
+      "accepted": {
+        "support": 2780,
+        "tp": 1249,
+        "fp": 26,
+        "fn": 0,
+        "tn": 1505,
+        "recall": 1.0,
+        "false_positive_rate": 0.016982364467668192,
+        "precision": 0.9796078431372549,
+        "f1": 0.9896988906497622
+      },
+      "rejected_positive_windows": 77,
+      "rejected_negative_windows": 16,
+      "accepted_detection_fraction_all_positives": 0.9419306184012066
+    }
+  },
+  "known_error_collisions": [
+    {
+      "window_index": 0,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 1,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 3,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 7,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 10,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 12,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 16,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 22,
+      "malicious_training_collisions_with_context": 1
+    },
+    {
+      "window_index": 35,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 36,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 37,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 38,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 42,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 48,
+      "malicious_training_collisions_with_context": 1
+    },
+    {
+      "window_index": 62,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 66,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 69,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 76,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 90,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 91,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 93,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 96,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 99,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 116,
+      "malicious_training_collisions_with_context": 0
+    },
+    {
+      "window_index": 117,
+      "malicious_training_collisions_with_context": 0
+    }
+  ]
+}

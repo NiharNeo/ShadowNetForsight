@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "workflow": "ShadowNet validation and training",
+  "mode": "pilot",
+  "status": "passed",
+  "checks": {
+    "pilot": {
+      "status": "passed",
+      "captures": [
+        {
+          "path": "/Users/niharchavan/Documents/ChatGPT/SIH26153/data/controlled-lab/pilot/pilot-benign-15m.pcap",
+          "sha256": "cec7e01ffe6927b40d7a0c63ccebc90bf791643de066b0207d758c0556b1f331",
+          "windows": 180
+        },
+        {
+          "path": "/Users/niharchavan/Documents/ChatGPT/SIH26153/data/controlled-lab/pilot/pilot-attack-15m.pcap",
+          "sha256": "1ba231000582fe7239ccc5459387e00e538659c31e69ae3971a7f9faf814e4e3",
+          "windows": 180
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "name": "unit_and_integration_tests",
+      "command": [
+        "/Users/niharchavan/Documents/ChatGPT/SIH26153/.venv-enterprise/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 15.51
+    }
+  ],
+  "error": null,
+  "integrity": {
+    "capture_provenance": "SHA-256",
+    "application_audit": "HMAC-SHA256 hash chain",
+    "blockchain": "not used; no multi-party trust requirement"
+  }
+}

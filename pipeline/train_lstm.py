@@ -243,7 +243,7 @@ def train(data_dir: Path, output_dir: Path, config: TrainingConfig) -> dict:
         comparison = {
             "baseline_test_h1_f1": baseline["splits"]["test"]["binary"]["f1"],
             "lstm_test_h1_f1": metrics(test_split, test_prediction, threshold)["horizons"][0]["f1"],
-            "note": "Both models use the fixed whole-day test partition; the LSTM threshold was selected only on validation data.",
+            "note": "Both models use the fixed test partition; the LSTM threshold was selected only on validation data.",
         }
     report = {
         "model": f"multi_head_{config.architecture}_world_model",
@@ -278,14 +278,16 @@ def train(data_dir: Path, output_dir: Path, config: TrainingConfig) -> dict:
         "baseline_comparison": comparison,
         "integrated_gradients": attribution_summary(model, test_split, manifest["features"], temperature),
         "limitations": [
-            "Generated-fixture metrics validate plumbing and are not performance claims.",
-            "CIC stages remain documented proxy labels, not native MITRE ground truth.",
+            *manifest.get("limitations", ["Dataset labels and partition scope must be checked before making performance claims."]),
             "Integrated Gradients reports model attribution relative to the training-mean baseline, not causality.",
         ],
     }
     output_dir.mkdir(parents=True, exist_ok=True)
     torch.save({
         "state_dict": model.state_dict(),
+        "feature_contract": manifest.get("feature_contract"),
+        "dataset": manifest.get("dataset", "unspecified"),
+        "target_definition": manifest.get("target_definition"),
         "model_config": model.configuration(),
         "normalization_mean": mean,
         "normalization_scale": scale,

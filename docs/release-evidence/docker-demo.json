@@ -1,0 +1,14 @@
+{
+  "scope": "running localhost demo: authenticated HTTP and WebSocket replay of synthetic captures",
+  "checks": {
+    "ready": true,
+    "team_branding": true,
+    "unauthenticated_upload_denied": true,
+    "pilot-benign-3m.pcap": true,
+    "pilot-attack-3m.pcap": true,
+    "illustrative_simulation": true,
+    "logout": true,
+    "token_revoked": true
+  },
+  "passed": true
+}

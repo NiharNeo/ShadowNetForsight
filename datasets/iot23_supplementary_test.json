@@ -1,0 +1,18 @@
+{
+  "dataset": "Frozen candidate supplementary independent capture test",
+  "publisher": "https://www.stratosphereips.org/datasets-iot23",
+  "base_url": "https://mcfp.felk.cvut.cz/publicDatasets/IoT-23-Dataset-v2/",
+  "status": "publisher_v2_work_in_progress; narrow research subset, not production certification",
+  "selection_policy": "Capture 3-1 selected by manageable published size and not used in pilot training or validation. First two hours fixed before downloading or scoring; preserve results regardless of outcome.",
+  "maximum_capture_seconds": 7200,
+  "captures": [
+    {
+      "id": "CTU-IoT-Malware-Capture-3-1",
+      "partition": "supplementary_test",
+      "pcap": "2018-05-19-20-57-19-192.168.2.5.pcap",
+      "labels": "2018-05-19-20-57-19-192.168.2.5-zeek-conn-log.labeled"
+    }
+  ],
+  "checkpoint_sha256": "b3547819f1510c4abdfee98a095dc08e4000a36b6256d6316a84e90426cbe367",
+  "baseline_sha256": "562c634f7bc9402a5658b04a0904ba99c484b47b531426bad2d8ab865a1a0798"
+}

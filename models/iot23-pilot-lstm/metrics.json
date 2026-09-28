@@ -1,0 +1,318 @@
+{
+  "model": "multi_head_lstm_world_model",
+  "created_at": "2026-09-26T17:29:24.645002+00:00",
+  "training": {
+    "architecture": "lstm",
+    "epochs": 30,
+    "batch_size": 128,
+    "learning_rate": 0.001,
+    "hidden_size": 32,
+    "layers": 1,
+    "dropout": 0.2,
+    "patience": 6,
+    "state_loss_weight": 0.1,
+    "onset_loss_weight": 0.0,
+    "seed": 42
+  },
+  "model_config": {
+    "architecture": "lstm",
+    "feature_count": 31,
+    "stage_count": 2,
+    "horizon": 3,
+    "hidden_size": 32,
+    "layers": 1,
+    "dropout": 0.2
+  },
+  "best_epoch": 2,
+  "best_validation_loss": 0.8400669097900391,
+  "epochs_completed": 8,
+  "loss_weights": {
+    "attack_positive": [
+      1.5879120826721191,
+      1.5847561359405518,
+      1.5831810235977173
+    ],
+    "stage": [
+      0.8154013752937317,
+      1.2926408052444458
+    ]
+  },
+  "onset_supervision": {
+    "available": true,
+    "additional_loss_weight": 0.0,
+    "train_onset_targets": 558,
+    "validation_onset_targets": 153,
+    "test_onset_targets": 0
+  },
+  "input_transform": "log1p_nonnegative",
+  "normalization_clip": 8.0,
+  "feature_observed": {
+    "flow_count": true,
+    "unique_src_ips": true,
+    "unique_dst_ips": true,
+    "unique_dst_ports": true,
+    "protocol_count": true,
+    "duration_mean": true,
+    "fwd_packets_sum": true,
+    "bwd_packets_sum": true,
+    "bytes_sum": true,
+    "iat_mean": true,
+    "syn_count": true,
+    "ack_count": true,
+    "rst_count": false,
+    "psh_count": true,
+    "syn_ack_ratio": true,
+    "unique_host_edges": true,
+    "max_source_fanout": true,
+    "max_destination_fanin": true,
+    "east_west_ratio": true,
+    "failed_auth_count": false,
+    "identity_reuse_count": false,
+    "fin_count": true,
+    "urg_count": false,
+    "ttl_mean": true,
+    "ttl_variance": true,
+    "tcp_window_mean": true,
+    "fragment_count": false,
+    "payload_size_mean": true,
+    "payload_size_std": true,
+    "retransmission_count": true,
+    "sequential_port_ratio": false
+  },
+  "validation_false_positive_rate_limit": 0.05,
+  "temperature": [
+    1.1690481901168823,
+    1.0105847120285034,
+    1.037366271018982
+  ],
+  "ood": {
+    "threshold": 0.15322580933570862,
+    "validation_flag_rate": 0.009828009828009828,
+    "test_flag_rate": 0.08483563096500531
+  },
+  "decision_threshold": [
+    0.8222049283981324,
+    0.8601256537437441,
+    0.8099917960166931
+  ],
+  "validation_threshold_macro_f1": 0.9777290976422263,
+  "validation": {
+    "threshold": [
+      0.8222049474716187,
+      0.8601256608963013,
+      0.8099917769432068
+    ],
+    "horizons": [
+      {
+        "step": 1,
+        "precision": 0.9638205499276411,
+        "recall": 0.9932885906040269,
+        "f1": 0.9783327212633125,
+        "false_positive_rate": 0.033156498673740056,
+        "stage_accuracy": 0.8167778167778168,
+        "stage_macro_f1": 0.8140510561936218,
+        "support": 2849
+      },
+      {
+        "step": 2,
+        "precision": 0.9645441389290883,
+        "recall": 0.9932935916542474,
+        "f1": 0.9787077826725403,
+        "false_positive_rate": 0.0325149303251493,
+        "stage_accuracy": 0.8223938223938224,
+        "stage_macro_f1": 0.8199933571078946,
+        "support": 2849
+      },
+      {
+        "step": 3,
+        "precision": 0.9623733719247467,
+        "recall": 0.9903201787043932,
+        "f1": 0.9761467889908257,
+        "false_positive_rate": 0.034528552456839307,
+        "stage_accuracy": 0.7406107406107406,
+        "stage_macro_f1": 0.7301086264159641,
+        "support": 2849
+      }
+    ],
+    "attack_f1_macro_over_horizons": 0.9777290976422263,
+    "stage_accuracy_macro_over_horizons": 0.7932607932607932,
+    "future_state_mae_normalized": 0.771179735660553
+  },
+  "test": {
+    "threshold": [
+      0.8222049474716187,
+      0.8601256608963013,
+      0.8099917769432068
+    ],
+    "horizons": [
+      {
+        "step": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0042417815482502655,
+        "stage_accuracy": 0.3824673029338989,
+        "stage_macro_f1": 0.27665558680644337,
+        "support": 2829
+      },
+      {
+        "step": 2,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0003534817956875221,
+        "stage_accuracy": 0.39271827500883705,
+        "stage_macro_f1": 0.28197969543147205,
+        "support": 2829
+      },
+      {
+        "step": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0014139271827500884,
+        "stage_accuracy": 0.2993990809473312,
+        "stage_macro_f1": 0.23041349292709468,
+        "support": 2829
+      }
+    ],
+    "attack_f1_macro_over_horizons": 0.0,
+    "stage_accuracy_macro_over_horizons": 0.35819488629668905,
+    "future_state_mae_normalized": 1.3367291688919067
+  },
+  "baseline_comparison": null,
+  "integrated_gradients": [
+    {
+      "feature": "retransmission_count",
+      "integrated_gradients_importance": 0.4868251383304596
+    },
+    {
+      "feature": "psh_count",
+      "integrated_gradients_importance": 0.42184245586395264
+    },
+    {
+      "feature": "ack_count",
+      "integrated_gradients_importance": 0.36025574803352356
+    },
+    {
+      "feature": "bwd_packets_sum",
+      "integrated_gradients_importance": 0.2196168154478073
+    },
+    {
+      "feature": "payload_size_mean",
+      "integrated_gradients_importance": 0.17103365063667297
+    },
+    {
+      "feature": "protocol_count",
+      "integrated_gradients_importance": 0.1551215499639511
+    },
+    {
+      "feature": "ttl_mean",
+      "integrated_gradients_importance": 0.14199715852737427
+    },
+    {
+      "feature": "flow_count",
+      "integrated_gradients_importance": 0.11279266327619553
+    },
+    {
+      "feature": "syn_count",
+      "integrated_gradients_importance": 0.1101214736700058
+    },
+    {
+      "feature": "payload_size_std",
+      "integrated_gradients_importance": 0.10622526705265045
+    },
+    {
+      "feature": "max_source_fanout",
+      "integrated_gradients_importance": 0.10365333408117294
+    },
+    {
+      "feature": "fin_count",
+      "integrated_gradients_importance": 0.09541001170873642
+    },
+    {
+      "feature": "unique_dst_ips",
+      "integrated_gradients_importance": 0.08391912281513214
+    },
+    {
+      "feature": "tcp_window_mean",
+      "integrated_gradients_importance": 0.08390922099351883
+    },
+    {
+      "feature": "unique_src_ips",
+      "integrated_gradients_importance": 0.08011293411254883
+    },
+    {
+      "feature": "fwd_packets_sum",
+      "integrated_gradients_importance": 0.06687404215335846
+    },
+    {
+      "feature": "unique_host_edges",
+      "integrated_gradients_importance": 0.061806805431842804
+    },
+    {
+      "feature": "ttl_variance",
+      "integrated_gradients_importance": 0.060449276119470596
+    },
+    {
+      "feature": "duration_mean",
+      "integrated_gradients_importance": 0.05422702804207802
+    },
+    {
+      "feature": "syn_ack_ratio",
+      "integrated_gradients_importance": 0.049543965607881546
+    },
+    {
+      "feature": "east_west_ratio",
+      "integrated_gradients_importance": 0.027419598773121834
+    },
+    {
+      "feature": "max_destination_fanin",
+      "integrated_gradients_importance": 0.025608571246266365
+    },
+    {
+      "feature": "unique_dst_ports",
+      "integrated_gradients_importance": 0.02281247265636921
+    },
+    {
+      "feature": "iat_mean",
+      "integrated_gradients_importance": 0.018138807266950607
+    },
+    {
+      "feature": "bytes_sum",
+      "integrated_gradients_importance": 0.017242221161723137
+    },
+    {
+      "feature": "rst_count",
+      "integrated_gradients_importance": 0.0005576240364462137
+    },
+    {
+      "feature": "failed_auth_count",
+      "integrated_gradients_importance": 0.0
+    },
+    {
+      "feature": "identity_reuse_count",
+      "integrated_gradients_importance": 0.0
+    },
+    {
+      "feature": "urg_count",
+      "integrated_gradients_importance": 0.0
+    },
+    {
+      "feature": "fragment_count",
+      "integrated_gradients_importance": 0.0
+    },
+    {
+      "feature": "sequential_port_ratio",
+      "integrated_gradients_importance": 0.0
+    }
+  ],
+  "limitations": [
+    "Publisher labels not independently verified; v2 is work in progress.",
+    "Small IoT subset does not establish enterprise or attack-family generalization.",
+    "Binary malicious-traffic targets are not MITRE stages or proof of compromise.",
+    "Empty windows are valid no-observed-malicious-packet targets and may inflate aggregate metrics; report activity-stratified results.",
+    "Unknown packets remain features, but unknown target/anchor windows are excluded.",
+    "Integrated Gradients reports model attribution relative to the training-mean baseline, not causality."
+  ]
+}

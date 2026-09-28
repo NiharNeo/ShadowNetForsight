@@ -2,6 +2,23 @@
 
 Predictive SOC decision-support prototype for Smart India Hackathon. ShadowNet converts network telemetry into five-second states and uses a multi-head LSTM to forecast three future horizons.
 
+## Two-day SIH demo
+
+With Docker Desktop running and the prepared Python environment:
+
+```sh
+make demo-up
+```
+
+Open http://localhost:8000. Private demo credentials are in `data/demo/access.json`.
+Upload either three-minute synthetic fixture from `data/demo/captures/` to exercise
+the trained model. Use `make demo-status` and `make demo-stop` to manage the isolated
+demo deployment. Run `.venv-enterprise/bin/python scripts/verify_demo.py` to verify
+HTTP authentication, WebSocket replay, simulation and token revocation.
+
+See [the recording runbook](docs/DEMO_VIDEO_RUNBOOK.md) for the narration, rehearsal
+checklist and two-day schedule. Operational model validation remains a later gate.
+
 ## Current status
 
 - Live PCAP/PCAPNG streaming without future-packet leakage
@@ -45,25 +62,26 @@ FastAPI + WebSocket/stream ingestion → authenticated SOC dashboard
 ## Run locally
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+python3.12 -m venv .venv-enterprise
+.venv-enterprise/bin/python -m pip install --upgrade pip==26.2.1
+.venv-enterprise/bin/python -m pip install -r requirements.txt
 make test
-.venv/bin/python -m scripts.manage_users admin --role admin
+.venv-enterprise/bin/python -m scripts.manage_users admin --role admin
 make run
 ```
 
 Open <http://127.0.0.1:8000/>. Use **Start attack replay** for the narrated fixture or **Upload PCAP for live inference** for the trained-model path.
 
-The dashboard is readable without an account. Uploads, telemetry ingestion and simulation prompt for an operator/admin login. Tokens expire after one hour; users and hash-chained audit records are stored in `data/shadownet.db`. Set `SHADOWNET_TOKEN_SECRET` to a stable deployment secret so tokens survive restarts.
+The dashboard is readable without an account. Uploads, telemetry ingestion and simulation require an operator/admin login. Calibration changes and approved Kafka connections require an admin. Tokens expire after one hour; users and hash-chained audit records are stored in `data/shadownet.db`. Set `SHADOWNET_TOKEN_SECRET` to a stable deployment secret. Logout or password replacement revokes existing tokens. Login attempts are rate-limited. The browser retains its token only in memory.
 
-For a labelled target network, fit a validation-only local probability/threshold profile and place it beside the checkpoint:
+For a labelled target network, fit a validation-only local probability/threshold profile and place it under the configured data directory (`data/calibrations` by default):
 
 ```bash
-.venv/bin/python -m pipeline.fit_domain_calibration \
+.venv-enterprise/bin/python -m pipeline.fit_domain_calibration \
   --checkpoint models/cic2018-phase1-lstm/lstm.pt \
   --data data/processed-target-network \
   --domain branch-office-a \
-  --output models/cic2018-phase1-lstm/domain_calibrations/branch-office-a.json
+  --output data/calibrations/branch-office-a.json
 ```
 
 Pass `calibration_domain` when creating a telemetry stream. Unknown domains are rejected rather than silently using an unrelated local profile.
@@ -92,11 +110,17 @@ Run `make workflow-full` only after `datasets/pcap_training_plan.json` contains 
 
 Blockchain is intentionally not part of this architecture. Capture provenance uses SHA-256, while administrative audit records use an HMAC-SHA256 hash chain. A distributed ledger would add operational complexity without improving trust for this single-organization deployment; it can be reconsidered only if independent organizations must jointly attest to evidence.
 
+## Deployment readiness
+
+See [the deployment runbook](docs/DEPLOYMENT.md) for guarded on-premises pilot settings, persistent storage, backup/restore, release gates and remaining blockers. The software is being hardened for a single-organization research pilot. It is **not certified enterprise-ready** and the current model remains unsuitable for autonomous defence.
+
+`GET /api/health` is liveness. `GET /api/ready` checks the model, OOD gate, packaged dashboard data, database and audit integrity, returning HTTP 503 when unavailable. Readiness never grants model-performance claims. Sessions are bounded and expire after 30 minutes without ingestion/advancement. They are process-local and do not survive restarts. Use exactly one worker.
+
 ## Run with Docker
 
 ```bash
 docker build -t shadownet-foresight .
-docker run --rm -p 8000:8000 shadownet-foresight
+docker run --rm -p 127.0.0.1:8000:8000 -v shadownet-data:/app/data shadownet-foresight
 ```
 
 The image contains the promoted checkpoint and compact evaluation evidence, but excludes raw and processed datasets.
@@ -107,7 +131,7 @@ Dataset partitions and byte sizes are declared in `datasets/cic2018_multiday_spl
 
 ```bash
 make build-multiday
-.venv/bin/python -m pipeline.train_baseline --data data/processed-cic2018-multiday --output models/cic2018-multiday-baseline
+.venv-enterprise/bin/python -m pipeline.train_baseline --data data/processed-cic2018-multiday --output models/cic2018-multiday-baseline
 make train-multiday
 make evaluate-multiday
 ```

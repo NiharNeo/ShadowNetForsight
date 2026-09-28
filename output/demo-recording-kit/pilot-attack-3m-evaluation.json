@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "capture_sha256": "368a3a94ed858f6b12c9e65005fac5cfaa8c538114a6e529249861efedb1a893",
+  "checkpoint_sha256": "c8011213c29902a2c7c0fe34e1e1cdf0ba03e8dfdd7dc70477f1b08687531d48",
+  "label_document_sha256": "13a66a5dbbabf149858b3892f1da4aa42856b8d9437ac29794d1d9477395493d",
+  "label_provenance": "pilot_only_not_for_final_claims",
+  "observed_until_seconds": 180.0,
+  "capture_duration_seconds": 180.0,
+  "retained_updates": 36,
+  "omitted_older_updates": 0,
+  "horizons": [
+    {
+      "offset_seconds": 5,
+      "raw_classifier": {
+        "support": 24,
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": null,
+        "f1": 1.0
+      },
+      "accepted_only": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": null,
+        "recall": null,
+        "false_positive_rate": null,
+        "f1": null
+      },
+      "rejection_rate": 1.0,
+      "rejected_attack": 24,
+      "rejected_benign": 0,
+      "outside_observed_capture": 1,
+      "ambiguous_label_windows": 0
+    },
+    {
+      "offset_seconds": 10,
+      "raw_classifier": {
+        "support": 23,
+        "tp": 23,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": null,
+        "f1": 1.0
+      },
+      "accepted_only": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": null,
+        "recall": null,
+        "false_positive_rate": null,
+        "f1": null
+      },
+      "rejection_rate": 1.0,
+      "rejected_attack": 23,
+      "rejected_benign": 0,
+      "outside_observed_capture": 2,
+      "ambiguous_label_windows": 0
+    },
+    {
+      "offset_seconds": 15,
+      "raw_classifier": {
+        "support": 22,
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": null,
+        "f1": 1.0
+      },
+      "accepted_only": {
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 0,
+        "precision": null,
+        "recall": null,
+        "false_positive_rate": null,
+        "f1": null
+      },
+      "rejection_rate": 1.0,
+      "rejected_attack": 22,
+      "rejected_benign": 0,
+      "outside_observed_capture": 3,
+      "ambiguous_label_windows": 0
+    }
+  ],
+  "claims_allowed": false,
+  "limitations": [
+    "Supplied exports and labels are not authenticated or independently verified.",
+    "Metrics use exported rounded scores and thresholds; no threshold fitting is performed.",
+    "Rejected windows are not counted as correct benign predictions.",
+    "Accepted-only results require both in-distribution status and matching extraction contracts; they are not operational alerts.",
+    "Targets use complete five-second future windows. Mixed-label windows and targets beyond processed capture history are excluded.",
+    "Retained export windows may overlap; these counts do not represent independent attack sessions."
+  ]
+}
